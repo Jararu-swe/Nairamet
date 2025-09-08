@@ -1,24 +1,25 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { UserStorage } from "@/lib/user-storage"
+import prisma from "@/lib/prisma"
 
 interface User {
+  id: string
   email: string
-  name: string
+  name: string | null
   tier: "free" | "premium"
   trialEndsAt?: Date
 }
 
 interface AuthContextType {
   user: User | null
-  login: (user: Omit<User, "tier" | "trialEndsAt">) => void
+  login: (user: Omit<User, "tier" | "trialEndsAt" | "id">) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
   isPremium: boolean
   isOnTrial: boolean
-  upgradeToPremium: () => void
-  startTrial: () => void
+  upgradeToPremium: () => Promise<void>
+  startTrial: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -27,53 +28,88 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const savedUser = UserStorage.getUser()
-    if (savedUser) {
-      setUser({
-        email: savedUser.email,
-        name: savedUser.name,
-        tier: savedUser.tier || "free",
-        trialEndsAt: savedUser.trialEndsAt ? new Date(savedUser.trialEndsAt) : undefined,
-      })
+    // Check for user session on client-side
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        if (response.ok) {
+          const session = await response.json()
+          if (session?.user) {
+            setUser(session.user as User)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch session:', error)
+      }
     }
+    
+    checkSession()
   }, [])
 
-  const login = (userData: Omit<User, "tier" | "trialEndsAt">) => {
-    const fullUserData = UserStorage.saveUser({
-      ...userData,
-      tier: "free",
-    })
-    setUser({
-      email: fullUserData.email,
-      name: fullUserData.name,
-      tier: fullUserData.tier || "free",
-      trialEndsAt: fullUserData.trialEndsAt ? new Date(fullUserData.trialEndsAt) : undefined,
-    })
+  const login = async (userData: Omit<User, "tier" | "trialEndsAt" | "id">) => {
+    try {
+      // This would typically be handled by your API
+      // For now, we're simulating the login process
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      })
+      
+      if (response.ok) {
+        const user = await response.json()
+        setUser(user)
+      }
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
   }
 
-  const logout = () => {
-    setUser(null)
-    UserStorage.removeUser()
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setUser(null)
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   const isPremium = user?.tier === "premium"
   const isOnTrial = user?.trialEndsAt ? new Date() < user.trialEndsAt : false
 
-  const upgradeToPremium = () => {
+  const upgradeToPremium = async () => {
     if (user) {
-      const updatedUser = { ...user, tier: "premium" as const, trialEndsAt: undefined }
-      UserStorage.saveUser(updatedUser)
-      setUser(updatedUser)
+      try {
+        const response = await fetch(`/api/users/${user.id}/upgrade`, {
+          method: 'POST',
+        })
+        
+        if (response.ok) {
+          const updatedUser = await response.json()
+          setUser(updatedUser)
+        }
+      } catch (error) {
+        console.error('Failed to upgrade user:', error)
+      }
     }
   }
 
-  const startTrial = () => {
+  const startTrial = async () => {
     if (user && user.tier === "free") {
-      const trialEnd = new Date()
-      trialEnd.setDate(trialEnd.getDate() + 7) // 7-day trial
-      const updatedUser = { ...user, trialEndsAt: trialEnd }
-      UserStorage.saveUser(updatedUser)
-      setUser(updatedUser)
+      try {
+        const response = await fetch(`/api/users/${user.id}/trial`, {
+          method: 'POST',
+        })
+        
+        if (response.ok) {
+          const updatedUser = await response.json()
+          setUser(updatedUser)
+        }
+      } catch (error) {
+        console.error('Failed to start trial:', error)
+      }
     }
   }
 
@@ -98,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
 }
