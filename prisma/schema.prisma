@@ -16,14 +16,16 @@ datasource db {
 
 model User {
   id            String    @id @default(cuid())
-  name          String?
   email         String    @unique
+  password      String
+  name          String?
   emailVerified DateTime?
-  password      String?
   image         String?
+  tier          String    @default("free") // "free", "premium"
+  trialEndsAt   DateTime?
+  preferences   Json?     // Store user preferences as JSON
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  tier          String    @default("free")
-  trialEndsAt   DateTime?
-  preferences   Json?     // For storing user preferences as JSON
+
+  @@map("users")
 }

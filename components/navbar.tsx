@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { AuthModal } from "@/components/auth-modal"
 import { Button } from "@/components/ui/button"
+import NairametSvg from "@/public/Nairamet.svg"
 
 export function Navbar() {
   const pathname = usePathname()
@@ -94,8 +95,8 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <img src="/Nairamet.svg" alt="NairaMet Logo" className="w-10 h-10  fill-emerald-600" />
               </div>
               <div>
                 <h1 className="font-bold text-lg">NairaMet</h1>
