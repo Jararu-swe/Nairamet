@@ -1,32 +1,131 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Copy, Code, Calculator, Map, TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { ProtectedRoute } from "@/components/protected-route"
+import { useState, useRef, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Copy,
+  Code,
+  Calculator,
+  Map,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ProtectedRoute } from "@/components/protected-route";
 
 function ToolsPageContent() {
-  const [amount, setAmount] = useState("100000")
-  const [selectedCurrency, setSelectedCurrency] = useState("USD")
-  const [widgetCode, setWidgetCode] = useState("")
-  const [copiedWidget, setCopiedWidget] = useState(false)
-  const [copiedCode, setCopiedCode] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [amount, setAmount] = useState("100000");
+  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [widgetCode, setWidgetCode] = useState("");
+  const [copiedWidget, setCopiedWidget] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Mock exchange rates data
-  const exchangeRates = {
+  // Live exchange rates (fallback to defaults)
+  const [exchangeRates, setExchangeRates] = useState<
+    Record<
+      string,
+      { official: number; blackMarket: number; remittance?: number }
+    >
+  >({
     USD: { official: 1580, blackMarket: 1620, remittance: 1595 },
     GBP: { official: 1950, blackMarket: 2000, remittance: 1975 },
     EUR: { official: 1720, blackMarket: 1760, remittance: 1740 },
     CNY: { official: 218, blackMarket: 225, remittance: 220 },
-  }
+  });
+
+  // Fetch live rates from the tracker API and merge into exchangeRates
+  const [loadingRates, setLoadingRates] = useState(false);
+  const fetchRates = async () => {
+    try {
+      setLoadingRates(true);
+      const res = await fetch("/api/tracker", { cache: "no-store" });
+      if (!res.ok) {
+        setLoadingRates(false);
+        return;
+      }
+      const body = await res.json();
+      const rates: any[] = body?.rates ?? [];
+      if (!Array.isArray(rates)) {
+        setLoadingRates(false);
+        return;
+      }
+
+      const mapped: Record<
+        string,
+        { official: number; blackMarket: number; remittance?: number }
+      > = {};
+      rates.forEach((r) => {
+        const code = String(r.currency || r.code || r.pair || "").toUpperCase();
+        if (!code) return;
+        const official =
+          Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? r.official ?? 0) || 0;
+        const black =
+          Number(r.blackMarket ?? r.black_market ?? r.black ?? r.rate ?? 0) ||
+          0;
+        const parallel =
+          Number(
+            r.parallel ??
+              r.parallelMarket ??
+              r.parallel_market ??
+              r.remittance ??
+              0
+          ) || 0;
+        mapped[code] = {
+          official:
+            official ||
+            (mapped[code]?.official ?? exchangeRates[code]?.official ?? 0),
+          blackMarket:
+            black ||
+            (mapped[code]?.blackMarket ??
+              exchangeRates[code]?.blackMarket ??
+              0),
+          remittance: parallel || undefined,
+        };
+      });
+
+      // merge with defaults
+      setExchangeRates((prev) => ({ ...prev, ...mapped }));
+    } catch (err) {
+      console.warn("Failed to fetch tracker rates", err);
+    } finally {
+      setLoadingRates(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRates();
+    const interval = setInterval(
+      () => fetchRates(),
+      Number(process.env.NAIRAMET_POLL_INTERVAL_SEC || 60) * 1000
+    );
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    fetchRates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Currency strength data (mock)
   const currencyStrength = [
@@ -34,65 +133,71 @@ function ToolsPageContent() {
     { currency: "GBP", strength: 78, trend: "down", change: "-1.2%" },
     { currency: "EUR", strength: 72, trend: "up", change: "+0.8%" },
     { currency: "CNY", strength: 65, trend: "neutral", change: "0.0%" },
-  ]
+  ];
 
   const generateWidgetCode = (type: string, currency: string) => {
-    const baseUrl = "https://your-fx-tracker.com"
+    const baseUrl = window.location.origin || "https://your-fx-tracker.com";
+    // include a simple query to select source (official|black|parallel)
     return `<iframe 
   src="${baseUrl}/widget/${type}?currency=${currency}" 
-  width="300" 
-  height="200" 
+  width="320" 
+  height="220" 
   frameborder="0"
-  style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-</iframe>`
-  }
+  style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+</iframe>`;
+  };
 
   const copyToClipboard = async (text: string, type: "widget" | "code") => {
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(text);
       if (type === "widget") {
-        setCopiedWidget(true)
-        setTimeout(() => setCopiedWidget(false), 2000)
+        setCopiedWidget(true);
+        setTimeout(() => setCopiedWidget(false), 2000);
       } else {
-        setCopiedCode(true)
-        setTimeout(() => setCopiedCode(false), 2000)
+        setCopiedCode(true);
+        setTimeout(() => setCopiedCode(false), 2000);
       }
     } catch (err) {
-      console.error("Failed to copy text: ", err)
+      console.error("Failed to copy text: ", err);
     }
-  }
+  };
 
   const calculateConversions = () => {
-    const nairaAmount = Number.parseFloat(amount) || 0
-    const rates = exchangeRates[selectedCurrency as keyof typeof exchangeRates]
+    const nairaAmount = Number.parseFloat(amount) || 0;
+    const rates = exchangeRates[selectedCurrency] ?? exchangeRates["USD"];
 
     return {
       official: (nairaAmount / rates.official).toFixed(2),
       blackMarket: (nairaAmount / rates.blackMarket).toFixed(2),
-      remittance: (nairaAmount / rates.remittance).toFixed(2),
-    }
-  }
+      remittance: (nairaAmount / (rates.remittance ?? rates.official)).toFixed(
+        2
+      ),
+    };
+  };
 
-  const conversions = calculateConversions()
+  const conversions = calculateConversions();
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case "up":
-        return <TrendingUp className="w-4 h-4 text-green-500" />
+        return <TrendingUp className="w-4 h-4 text-green-500" />;
       case "down":
-        return <TrendingDown className="w-4 h-4 text-red-500" />
+        return <TrendingDown className="w-4 h-4 text-red-500" />;
       default:
-        return <Minus className="w-4 h-4 text-gray-500" />
+        return <Minus className="w-4 h-4 text-gray-500" />;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-emerald-900">Widgets & Tools</h1>
+          <h1 className="text-3xl font-bold text-emerald-900">
+            Widgets & Tools
+          </h1>
           <p className="text-emerald-700 max-w-2xl mx-auto">
-            Embeddable widgets for your website and powerful calculation tools for currency analysis
+            Embeddable widgets for your website and powerful calculation tools
+            for currency analysis
           </p>
         </div>
 
@@ -111,7 +216,9 @@ function ToolsPageContent() {
                     <Code className="w-5 h-5" />
                     Widget Generator
                   </CardTitle>
-                  <CardDescription>Generate embeddable widgets for your blog or website</CardDescription>
+                  <CardDescription>
+                    Generate embeddable widgets for your blog or website
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -121,8 +228,12 @@ function ToolsPageContent() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="rates">Live Rates Display</SelectItem>
-                        <SelectItem value="converter">Currency Converter</SelectItem>
+                        <SelectItem value="rates">
+                          Live Rates Display
+                        </SelectItem>
+                        <SelectItem value="converter">
+                          Currency Converter
+                        </SelectItem>
                         <SelectItem value="chart">Mini Chart</SelectItem>
                       </SelectContent>
                     </Select>
@@ -133,7 +244,8 @@ function ToolsPageContent() {
                     <Select
                       defaultValue="USD"
                       onValueChange={(value) => {
-                        setWidgetCode(generateWidgetCode("rates", value))
+                        setWidgetCode(generateWidgetCode("rates", value));
+                        setSelectedCurrency(value);
                       }}
                     >
                       <SelectTrigger>
@@ -148,7 +260,14 @@ function ToolsPageContent() {
                     </Select>
                   </div>
 
-                  <Button onClick={() => setWidgetCode(generateWidgetCode("rates", "USD"))} className="w-full">
+                  <Button
+                    onClick={() =>
+                      setWidgetCode(
+                        generateWidgetCode("rates", selectedCurrency || "USD")
+                      )
+                    }
+                    className="w-full"
+                  >
                     Generate Widget Code
                   </Button>
 
@@ -180,30 +299,80 @@ function ToolsPageContent() {
               <Card>
                 <CardHeader>
                   <CardTitle>Widget Preview</CardTitle>
-                  <CardDescription>See how your widget will look on your website</CardDescription>
+                  <CardDescription>
+                    See how your widget will look on your website
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 bg-white">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-emerald-900">USD/NGN Live Rate</h3>
+                        <h3 className="font-semibold text-emerald-900">
+                          {selectedCurrency}/NGN Live Rate
+                        </h3>
                         <Badge variant="secondary">Live</Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Official</span>
-                          <span className="font-mono">₦1,580.00</span>
+                          <span className="text-sm text-gray-600">
+                            Official
+                          </span>
+                          <span className="font-mono">
+                            ₦
+                            {exchangeRates[selectedCurrency]?.official ??
+                              exchangeRates["USD"].official}
+                          </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Black Market</span>
-                          <span className="font-mono">₦1,620.00</span>
+                          <span className="text-sm text-gray-600">
+                            Black Market
+                          </span>
+                          <span className="font-mono">
+                            ₦
+                            {exchangeRates[selectedCurrency]?.blackMarket ??
+                              exchangeRates["USD"].blackMarket}
+                          </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Remittance</span>
-                          <span className="font-mono">₦1,595.00</span>
+                          <span className="text-sm text-gray-600">
+                            Remittance
+                          </span>
+                          <span className="font-mono">
+                            ₦
+                            {exchangeRates[selectedCurrency]?.remittance ??
+                              exchangeRates[selectedCurrency]?.official ??
+                              exchangeRates["USD"].official}
+                          </span>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 text-center">Powered by FX Tracker</div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-500">
+                          Powered by FX Tracker
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => fetchRates()}
+                          >
+                            Refresh Rates
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              setWidgetCode(
+                                generateWidgetCode(
+                                  "rates",
+                                  selectedCurrency || "USD"
+                                )
+                              )
+                            }
+                          >
+                            Update Embed
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -218,7 +387,9 @@ function ToolsPageContent() {
                   <Calculator className="w-5 h-5" />
                   Advanced Rate Calculator
                 </CardTitle>
-                <CardDescription>Compare conversions across all rate sources instantly</CardDescription>
+                <CardDescription>
+                  Compare conversions across all rate sources instantly
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
@@ -235,7 +406,10 @@ function ToolsPageContent() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="currency">Convert To</Label>
-                    <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                    <Select
+                      value={selectedCurrency}
+                      onValueChange={setSelectedCurrency}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -252,7 +426,9 @@ function ToolsPageContent() {
                 <div className="grid gap-4 md:grid-cols-3">
                   <Card className="border-blue-200 bg-blue-50">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-blue-700">Official Rate</CardTitle>
+                      <CardTitle className="text-sm text-blue-700">
+                        Official Rate
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
@@ -260,7 +436,12 @@ function ToolsPageContent() {
                           {selectedCurrency} {conversions.official}
                         </div>
                         <div className="text-sm text-blue-600">
-                          @ ₦{exchangeRates[selectedCurrency as keyof typeof exchangeRates].official}
+                          @ ₦
+                          {
+                            exchangeRates[
+                              selectedCurrency as keyof typeof exchangeRates
+                            ].official
+                          }
                         </div>
                       </div>
                     </CardContent>
@@ -268,7 +449,9 @@ function ToolsPageContent() {
 
                   <Card className="border-red-200 bg-red-50">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-red-700">Black Market</CardTitle>
+                      <CardTitle className="text-sm text-red-700">
+                        Black Market
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
@@ -276,7 +459,12 @@ function ToolsPageContent() {
                           {selectedCurrency} {conversions.blackMarket}
                         </div>
                         <div className="text-sm text-red-600">
-                          @ ₦{exchangeRates[selectedCurrency as keyof typeof exchangeRates].blackMarket}
+                          @ ₦
+                          {
+                            exchangeRates[
+                              selectedCurrency as keyof typeof exchangeRates
+                            ].blackMarket
+                          }
                         </div>
                       </div>
                     </CardContent>
@@ -284,7 +472,9 @@ function ToolsPageContent() {
 
                   <Card className="border-green-200 bg-green-50">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-green-700">Remittance</CardTitle>
+                      <CardTitle className="text-sm text-green-700">
+                        Remittance
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
@@ -292,7 +482,12 @@ function ToolsPageContent() {
                           {selectedCurrency} {conversions.remittance}
                         </div>
                         <div className="text-sm text-green-600">
-                          @ ₦{exchangeRates[selectedCurrency as keyof typeof exchangeRates].remittance}
+                          @ ₦
+                          {
+                            exchangeRates[
+                              selectedCurrency as keyof typeof exchangeRates
+                            ].remittance
+                          }
                         </div>
                       </div>
                     </CardContent>
@@ -300,22 +495,34 @@ function ToolsPageContent() {
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-semibold mb-2">Rate Comparison Summary</h4>
+                  <h4 className="font-semibold mb-2">
+                    Rate Comparison Summary
+                  </h4>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>
                       • Best rate: Black Market (₦
-                      {exchangeRates[selectedCurrency as keyof typeof exchangeRates].blackMarket})
+                      {
+                        exchangeRates[
+                          selectedCurrency as keyof typeof exchangeRates
+                        ].blackMarket
+                      }
+                      )
                     </p>
                     <p>
                       • Difference: ₦
-                      {exchangeRates[selectedCurrency as keyof typeof exchangeRates].blackMarket -
-                        exchangeRates[selectedCurrency as keyof typeof exchangeRates].official}{" "}
+                      {exchangeRates[
+                        selectedCurrency as keyof typeof exchangeRates
+                      ].blackMarket -
+                        exchangeRates[
+                          selectedCurrency as keyof typeof exchangeRates
+                        ].official}{" "}
                       more than official
                     </p>
                     <p>
                       • You get{" "}
                       {(
-                        ((Number.parseFloat(conversions.blackMarket) - Number.parseFloat(conversions.official)) /
+                        ((Number.parseFloat(conversions.blackMarket) -
+                          Number.parseFloat(conversions.official)) /
                           Number.parseFloat(conversions.official)) *
                         100
                       ).toFixed(1)}
@@ -334,19 +541,29 @@ function ToolsPageContent() {
                   <Map className="w-5 h-5" />
                   Currency Strength Map
                 </CardTitle>
-                <CardDescription>Visual representation of currency performance against the Naira</CardDescription>
+                <CardDescription>
+                  Visual representation of currency performance against the
+                  Naira
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4">
                   {currencyStrength.map((currency) => (
-                    <div key={currency.currency} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={currency.currency}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center font-bold text-emerald-900">
                           {currency.currency}
                         </div>
                         <div>
-                          <div className="font-semibold">{currency.currency}/NGN</div>
-                          <div className="text-sm text-gray-600">Strength: {currency.strength}%</div>
+                          <div className="font-semibold">
+                            {currency.currency}/NGN
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Strength: {currency.strength}%
+                          </div>
                         </div>
                       </div>
 
@@ -358,8 +575,8 @@ function ToolsPageContent() {
                               currency.strength >= 80
                                 ? "bg-green-500"
                                 : currency.strength >= 60
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500",
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
                             )}
                             style={{ width: `${currency.strength}%` }}
                           />
@@ -373,8 +590,8 @@ function ToolsPageContent() {
                               currency.trend === "up"
                                 ? "text-green-600"
                                 : currency.trend === "down"
-                                  ? "text-red-600"
-                                  : "text-gray-600",
+                                ? "text-red-600"
+                                : "text-gray-600"
                             )}
                           >
                             {currency.change}
@@ -389,8 +606,12 @@ function ToolsPageContent() {
                   <Card className="border-green-200 bg-green-50">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-900">2</div>
-                        <div className="text-sm text-green-700">Strengthening</div>
+                        <div className="text-2xl font-bold text-green-900">
+                          2
+                        </div>
+                        <div className="text-sm text-green-700">
+                          Strengthening
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -407,7 +628,9 @@ function ToolsPageContent() {
                   <Card className="border-gray-200 bg-gray-50">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">1</div>
+                        <div className="text-2xl font-bold text-gray-900">
+                          1
+                        </div>
                         <div className="text-sm text-gray-700">Stable</div>
                       </div>
                     </CardContent>
@@ -419,7 +642,7 @@ function ToolsPageContent() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
 
 export default function ToolsPage() {
@@ -427,5 +650,5 @@ export default function ToolsPage() {
     <ProtectedRoute>
       <ToolsPageContent />
     </ProtectedRoute>
-  )
+  );
 }
