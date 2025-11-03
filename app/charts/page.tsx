@@ -29,8 +29,12 @@ import {
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
 import { ProtectedRoute } from "@/components/protected-route";
 
-// Mock historical data generator
-const generateHistoricalData = (days: number, currency: string) => {
+// Mock historical data generator (can accept custom base rates for non-default currencies)
+const generateHistoricalData = (
+  days: number,
+  currency: string,
+  baseOverride?: { official: number; black: number; parallel: number }
+) => {
   const data = [];
   const baseRates = {
     USD: { official: 1580, black: 1620, parallel: 1645 },
@@ -39,7 +43,12 @@ const generateHistoricalData = (days: number, currency: string) => {
     CNY: { official: 218, black: 225, parallel: 228 },
   };
 
-  const base = baseRates[currency as keyof typeof baseRates];
+  const base = baseOverride ||
+    (baseRates as any)[currency] || {
+      official: 1500,
+      black: 1550,
+      parallel: 1530,
+    };
 
   for (let i = days; i >= 0; i--) {
     const date = new Date();
@@ -85,6 +94,7 @@ function ChartsPageContent() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [currencyOptions, setCurrencyOptions] = useState(currencies);
 
   const POLL_INTERVAL =
     Number(process.env.NAIRAMET_POLL_INTERVAL_SEC || 60) * 1000;
@@ -96,11 +106,51 @@ function ChartsPageContent() {
     const seedAndStart = async () => {
       setLoading(true);
 
-      // Seed with generated historical data for the selected range
+      // Seed with generated historical data for the selected range.
+      // If selected currency isn't in defaults, derive base from current tracker once.
       const days = Number.parseInt(selectedRange);
-      const initial = generateHistoricalData(days, selectedCurrency);
-      if (!mounted) return;
-      setChartData(initial);
+      try {
+        const res = await fetch("/api/tracker", { cache: "no-store" });
+        let baseOverride:
+          | { official: number; black: number; parallel: number }
+          | undefined = undefined;
+        if (res.ok) {
+          const body = await res.json();
+          const rates = body?.rates ?? [];
+          const foundSeed = rates.find(
+            (r: any) => String(r.currency).toUpperCase() === selectedCurrency
+          );
+          if (foundSeed) {
+            baseOverride = {
+              official:
+                Number(
+                  foundSeed.cbn ?? foundSeed.cbnRate ?? foundSeed.cbn_rate ?? 0
+                ) || 1500,
+              black:
+                Number(
+                  foundSeed.blackMarket ??
+                    foundSeed.black_market ??
+                    foundSeed.rate ??
+                    0
+                ) || 1550,
+              parallel:
+                Number(foundSeed.parallelMarket ?? foundSeed.parallel ?? 0) ||
+                1530,
+            };
+          }
+        }
+        if (!mounted) return;
+        const initial = generateHistoricalData(
+          days,
+          selectedCurrency,
+          baseOverride
+        );
+        setChartData(initial);
+      } catch {
+        if (!mounted) return;
+        const fallback = generateHistoricalData(days, selectedCurrency);
+        setChartData(fallback);
+      }
 
       // Fetch latest immediately and then poll
       const fetchLatest = async () => {
@@ -109,6 +159,32 @@ function ChartsPageContent() {
           if (!res.ok) throw new Error("Failed to fetch tracker");
           const body = await res.json();
           const rates = body?.rates ?? [];
+          // Dynamically populate currency options from tracker
+          if (Array.isArray(rates) && rates.length) {
+            const mapped = rates.map((r: any) => {
+              const code = String(r.currency || r.code || "").toUpperCase();
+              const symbol = r.symbol || (code === "USD" ? "$" : code);
+              return { value: code, label: code, symbol };
+            });
+            const dedup: Record<
+              string,
+              { value: string; label: string; symbol: string }
+            > = {};
+            mapped.forEach((m) => {
+              if (m.value && !dedup[m.value]) dedup[m.value] = m;
+            });
+            const list = Object.values(dedup).sort((a, b) =>
+              a.value === "USD"
+                ? -1
+                : b.value === "USD"
+                ? 1
+                : a.value.localeCompare(b.value)
+            );
+            setCurrencyOptions(list);
+            if (!list.find((o) => o.value === selectedCurrency)) {
+              setSelectedCurrency("USD");
+            }
+          }
           const found = rates.find(
             (r: any) => String(r.currency).toUpperCase() === selectedCurrency
           );
@@ -220,7 +296,7 @@ function ChartsPageContent() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {currencies.map((currency) => (
+                {currencyOptions.map((currency) => (
                   <SelectItem key={currency.value} value={currency.value}>
                     {currency.symbol} {currency.label}
                   </SelectItem>
@@ -359,7 +435,8 @@ function ChartsPageContent() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {currencies.find((c) => c.value === selectedCurrency)?.symbol}{" "}
+            {currencyOptions.find((c) => c.value === selectedCurrency)
+              ?.symbol || ""}{" "}
             {selectedCurrency}/NGN Historical Rates
             {loading && (
               <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -421,7 +498,6 @@ function ChartsPageContent() {
                   dataKey="blackMarket"
                   stroke="hsl(0 84% 60%)"
                   strokeWidth={3}
-                  strokeDasharray="5 5"
                   name="Black Market Rate"
                   dot={{
                     fill: "hsl(0 84% 60%)",
@@ -442,7 +518,6 @@ function ChartsPageContent() {
                   dataKey="parallelMarket"
                   stroke="hsl(45 93% 47%)"
                   strokeWidth={3}
-                  strokeDasharray="3 6"
                   name="Parallel Market Rate"
                   dot={{
                     fill: "hsl(45 93% 47%)",

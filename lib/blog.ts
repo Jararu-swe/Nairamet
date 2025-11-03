@@ -111,10 +111,10 @@ export function getArticles() {
 
   const mapped = (scraped || []).map((s: any) => ({
     id: `scraped:${encodeURIComponent(s.url)}`,
-    title: s.title || "(no title)",
-    excerpt: s.excerpt || s.content || "",
-    content: s.content || "",
-    author: s.source || "Wire",
+    title: decodeEntities(s.title || "(no title)"),
+    excerpt: decodeEntities(s.excerpt || s.content || ""),
+    content: decodeEntities(s.content || ""),
+    author: decodeEntities(s.source || "Wire"),
     originalUrl: s.url,
     date: s.date || new Date().toISOString(),
     readTime: "1 min read",
@@ -174,4 +174,31 @@ export function getArticleById(id: string) {
   } catch {}
 
   return null;
+}
+
+function decodeEntities(str: string = ""): string {
+  const map: Record<string, string> = {
+    "&nbsp;": " ",
+    "&amp;": "&",
+    "&quot;": '"',
+    "&apos;": "'",
+    "&#39;": "'",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&ndash;": "–",
+    "&mdash;": "—",
+    "&ldquo;": "“",
+    "&rdquo;": "”",
+    "&lsquo;": "‘",
+    "&rsquo;": "’",
+    "&hellip;": "…",
+  };
+  let s = str
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16))
+    )
+    .replace(/&[a-zA-Z]+;|&#\d+;|&#x[0-9a-fA-F]+;/g, (entity) => map[entity] ?? entity);
+  s = s.replace(/\s+/g, " ").trim();
+  return s;
 }

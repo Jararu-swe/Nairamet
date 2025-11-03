@@ -6,9 +6,29 @@ const PARALLEL_SPREAD = Number(
   process.env.PARALLEL_MARKET_SPREAD || process.env.REMITTANCE_SPREAD || 0.025
 ); // 2.5%
 
+// Shared cache header for CDN/edge caching of API responses
+const CACHE_CONTROL_HEADER =
+  process.env.TRACKER_CACHE_HEADER || "s-maxage=300, stale-while-revalidate=600";
+
+// Expanded fallback data used when live fetch fails
+const FALLBACK_RATES = [
+  { currency: "USD", official: 1580, blackMarket: 1620, remittance: 1595 },
+  { currency: "GBP", official: 1950, blackMarket: 2000, remittance: 1975 },
+  { currency: "EUR", official: 1720, blackMarket: 1760, remittance: 1740 },
+  { currency: "CNY", official: 218, blackMarket: 225, remittance: 220 },
+  { currency: "CAD", official: 1150, blackMarket: 1180, remittance: 1165 },
+  { currency: "AUD", official: 1020, blackMarket: 1050, remittance: 1035 },
+  { currency: "JPY", official: 10.2, blackMarket: 10.5, remittance: 10.35 },
+  { currency: "CHF", official: 1750, blackMarket: 1790, remittance: 1770 },
+  { currency: "ZAR", official: 85, blackMarket: 88, remittance: 86.5 },
+  { currency: "AED", official: 430, blackMarket: 442, remittance: 436 },
+  { currency: "SAR", official: 420, blackMarket: 432, remittance: 426 },
+  { currency: "GHS", official: 120, blackMarket: 124, remittance: 122 },
+];
+
 export async function GET() {
-  // Simple in-memory cache (module-level) - survives for the lifetime of the server process.
-  const TTL = Number(process.env.TRACKER_CACHE_TTL || 30); // seconds
+  // Simple in-memory cache (module-level)
+  const TTL = Number(process.env.TRACKER_CACHE_TTL || 60); // seconds
   // @ts-ignore
   if (!(globalThis as any).__NAIRAMET_TRACKER_CACHE)
     (globalThis as any).__NAIRAMET_TRACKER_CACHE = {};
@@ -16,195 +36,103 @@ export async function GET() {
   const CACHE = (globalThis as any).__NAIRAMET_TRACKER_CACHE as {
     [k: string]: any;
   };
-  const cacheKey = "tracker:v1";
+  const cacheKey = "tracker:v2";
 
   // Return cached value if still valid
   const cached = CACHE[cacheKey];
   if (cached && cached.expiresAt && cached.expiresAt > Date.now()) {
-    return NextResponse.json(cached.data);
+    return NextResponse.json(cached.data, {
+      headers: { "Cache-Control": CACHE_CONTROL_HEADER },
+    });
   }
 
+  const now = new Date().toISOString();
+
+  // Assemble rates using the internal cached currency endpoint
+
+  // Helper to compute spreads
+  const withSpreads = (official: number) => ({
+    official,
+    blackMarket: Number((official * (1 + BM_SPREAD)).toFixed(2)),
+    remittance: Number((official * (1 + PARALLEL_SPREAD)).toFixed(2)),
+  });
+
+  // Provide legacy/alias fields expected by various frontend consumers
+  const addAliases = (base: { official: number; blackMarket: number; remittance: number }) => ({
+    // existing canonical fields
+    ...base,
+    // official aliases
+    cbn: base.official,
+    cbnRate: base.official,
+    cbn_rate: base.official,
+    // black market aliases
+    black_market: base.blackMarket,
+    rate: base.blackMarket,
+    // parallel/remittance aliases
+    parallel: base.remittance,
+    parallelMarket: base.remittance,
+    parallel_market: base.remittance,
+  });
+
   try {
-    const now = new Date().toISOString();
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const currencyRes = await fetch(`${baseUrl}/api/currency`, {
+      next: { revalidate: 300 }, // small cache for tracker assembly
+      headers: { "User-Agent": "NairaMet/Tracker/1.0" },
+    });
+    if (!currencyRes.ok)
+      throw new Error(`Currency API HTTP ${currencyRes.status}`);
+    const currencyData = await currencyRes.json();
 
-    // 1) Try local currency route first for quotes/changes
-    let clQuotes: Record<string, number> | null = null;
-    let changeData: Record<string, number | null> | null = null;
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const origin =
-        baseUrl && /^https?:\/\//.test(baseUrl)
-          ? baseUrl
-          : `http://localhost:${process.env.PORT || 3000}`;
-      const currencyUrl = new URL("/api/currency", origin).toString();
-      const baseRes = await fetch(currencyUrl, { next: { revalidate: 60 } });
-      if (baseRes.ok) {
-        const baseData = await baseRes.json();
-        if (baseData?.quotes) clQuotes = baseData.quotes;
-        if (baseData?.changes) changeData = baseData.changes;
-      }
-    } catch (e) {
-      console.warn("Local currency route fetch failed", e);
-      clQuotes = null;
-      changeData = null;
+    const quotes: Record<string, number> = currencyData.quotes || {};
+    const usdNgn = Number(quotes["USDNGN"] || 0);
+    if (!usdNgn || Number.isNaN(usdNgn)) {
+      throw new Error("Currency API missing USDNGN");
     }
 
-    // helper to extract numbers from HTML using multiple regexes
-    const scrapeNumberFromHtml = (html: string, regexes: RegExp[]) => {
-      for (const re of regexes) {
-        const m = re.exec(html);
-        if (m && m[1]) {
-          const num = Number(String(m[1]).replace(/[,\s]/g, ""));
-          if (Number.isFinite(num)) return num;
-        }
-      }
-      return null;
-    };
+    // Build rates from `${CODE}NGN` pairs (e.g., GBPNGN → GBP)
+    const liveRates = Object.keys(quotes)
+      .filter((pair) => pair.endsWith("NGN") && pair.length === 6)
+      .map((pair) => {
+        const code = pair.slice(0, 3);
+        const official = Number(quotes[pair]);
+        if (!official || Number.isNaN(official)) return null;
+        const spreaded = withSpreads(official);
+        return { currency: code, ...addAliases(spreaded) };
+      })
+      .filter(Boolean);
 
-    // 2) Scrape CBN for USD if possible
-    let cbnUSD: number | null = null;
-    try {
-      const cbnRes = await fetch(
-        "https://www.cbn.gov.ng/rates/exratebycurrency.asp"
-      );
-      if (cbnRes.ok) {
-        const html = await cbnRes.text();
-        const usdPatterns = [
-          /US\$\s*\(?1\)?\s*=\s*N\s*([0-9,]+\.?[0-9]*)/i,
-          /USD[^\d]*([0-9,]+\.?[0-9]*)\s*NGN/i,
-          /1\s*USD\s*=\s*NGN\s*([0-9,]+\.?[0-9]*)/i,
-        ];
-        cbnUSD = scrapeNumberFromHtml(html, usdPatterns);
-      }
-    } catch (e) {
-      console.warn("CBN scrape failed", e);
-      cbnUSD = null;
-    }
+    const result = { timestamp: now, rates: liveRates };
 
-    // 3) Scrape black-market (AbokiFX) if possible
-    let blackUSD: number | null = null;
-    try {
-      const bmRes = await fetch("https://www.abokifx.com/");
-      if (bmRes.ok) {
-        const html = await bmRes.text();
-        const bmPatterns = [
-          /USD[^\d]*([0-9,]+\.?[0-9]*)/i,
-          /"USD"\s*:\s*([0-9]+\.?[0-9]*)/i,
-        ];
-        blackUSD = scrapeNumberFromHtml(html, bmPatterns);
-      }
-    } catch (e) {
-      console.warn("Black market scrape failed", e);
-      blackUSD = null;
-    }
-
-    // helpers to pick values
-    const getParallel = (key: string, fallbackBase: number) => {
-      const val = clQuotes?.[key];
-      if (typeof val === "number") return Math.round(val * 100) / 100;
-      return Math.round(fallbackBase * (1 + PARALLEL_SPREAD) * 100) / 100;
-    };
-
-    const getCBN = (clBase: number) => {
-      if (cbnUSD && Number.isFinite(cbnUSD))
-        return Math.round(cbnUSD * 100) / 100;
-      return Math.round(clBase * 100) / 100;
-    };
-
-    const getBlack = (clBase: number) => { 
-      if (blackUSD && Number.isFinite(blackUSD))
-        return Math.round(blackUSD * 100) / 100;
-      return Math.round(clBase * (1 + BM_SPREAD) * 100) / 100;
-    };
-
-    // determine base values (from clQuotes if available)
-    const usdBase = clQuotes?.USDNGN ?? 1650;
-    const gbpBase = clQuotes?.GBPNGN ?? 2050;
-    const eurBase = clQuotes?.EURNGN ?? 1750;
-    const cnyBase = clQuotes?.CNYNGN ?? 228;
-
-    const payload = [
-      {
-        currency: "USD",
-        symbol: "$",
-        flag: "🇺🇸",
-        cbn: getCBN(usdBase),
-        blackMarket: getBlack(usdBase),
-        parallelMarket: getParallel("USDNGN", usdBase),
-        change24h: changeData?.USDNGN ?? null,
-        lastUpdated: now,
-      },
-      {
-        currency: "GBP",
-        symbol: "£",
-        flag: "🇬🇧",
-        cbn: getCBN(gbpBase),
-        blackMarket: getBlack(gbpBase),
-        parallelMarket: getParallel("GBPNGN", gbpBase),
-        change24h: changeData?.GBPNGN ?? null,
-        lastUpdated: now,
-      },
-      {
-        currency: "EUR",
-        symbol: "€",
-        flag: "🇪🇺",
-        cbn: getCBN(eurBase),
-        blackMarket: getBlack(eurBase),
-        parallelMarket: getParallel("EURNGN", eurBase),
-        change24h: changeData?.EURNGN ?? null,
-        lastUpdated: now,
-      },
-      {
-        currency: "CNY",
-        symbol: "¥",
-        flag: "🇨🇳",
-        cbn: getCBN(cnyBase),
-        blackMarket: getBlack(cnyBase),
-        parallelMarket: getParallel("CNYNGN", cnyBase),
-        change24h: changeData?.CNYNGN ?? null,
-        lastUpdated: now,
-      },
-    ];
-
-    const result = {
-      success: true,
-      rates: payload,
-      timestamp: Date.now(),
-      source: clQuotes ? "local+scrape" : "scrape+fallback",
-    };
-    // cache
+    // Cache the result
     CACHE[cacheKey] = {
-      ts: Date.now(),
-      expiresAt: Date.now() + TTL * 1000,
       data: result,
+      expiresAt: Date.now() + TTL * 1000,
     };
-    return NextResponse.json(result);
+
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": CACHE_CONTROL_HEADER },
+    });
   } catch (error) {
-    console.error("Tracker API error:", error);
-    // fallback
-    const fallback = [
-      { currency: "USD", symbol: "$", flag: "🇺🇸", base: 1650 },
-      { currency: "GBP", symbol: "£", flag: "🇬🇧", base: 2050 },
-      { currency: "EUR", symbol: "€", flag: "🇪🇺", base: 1750 },
-      { currency: "CNY", symbol: "¥", flag: "🇨🇳", base: 228 },
-    ];
-    const now = new Date().toISOString();
-    const payload = fallback.map((f) => ({
-      currency: f.currency,
-      symbol: f.symbol,
-      flag: f.flag,
-      cbn: f.base,
-      blackMarket: Math.round(f.base * (1 + BM_SPREAD)),
-      parallelMarket: Math.round(f.base * (1 + PARALLEL_SPREAD)),
-      change24h: null,
-      lastUpdated: now,
-    }));
-    const result = { success: true, rates: payload, source: "fallback" };
-    CACHE[cacheKey] = {
-      ts: Date.now(),
-      expiresAt: Date.now() + TTL * 1000,
-      data: result,
+    console.warn("Currencylayer fetch failed, using fallback.", error);
+    const fallback = {
+      timestamp: now,
+      rates: FALLBACK_RATES.map((r) => ({
+        currency: r.currency,
+        ...addAliases({
+          official: r.official,
+          blackMarket: r.blackMarket,
+          remittance: r.remittance,
+        }),
+      })),
     };
-    return NextResponse.json(result);
+    // Cache fallback to avoid repeated failures
+    CACHE[cacheKey] = {
+      data: fallback,
+      expiresAt: Date.now() + TTL * 1000,
+    };
+    return NextResponse.json(fallback, {
+      headers: { "Cache-Control": CACHE_CONTROL_HEADER },
+    });
   }
 }

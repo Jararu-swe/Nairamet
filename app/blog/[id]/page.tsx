@@ -39,6 +39,41 @@ export default function ArticlePage({ params }: Props) {
     );
   }
 
+  function decodeEntities(str: string = ""): string {
+    const map: Record<string, string> = {
+      "&nbsp;": " ",
+      "&amp;": "&",
+      "&quot;": '"',
+      "&apos;": "'",
+      "&#39;": "'",
+      "&lt;": "<",
+      "&gt;": ">",
+      "&ndash;": "–",
+      "&mdash;": "—",
+      "&ldquo;": "“",
+      "&rdquo;": "”",
+      "&lsquo;": "‘",
+      "&rsquo;": "’",
+      "&hellip;": "…",
+    };
+    let s = str
+      .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16))
+      )
+      .replace(/&[a-zA-Z]+;|&#\d+;|&#x[0-9a-fA-F]+;/g, (entity) => map[entity] ?? entity);
+    s = s.replace(/\s+/g, " ").trim();
+    return s;
+  }
+
+  const safeTitle = decodeEntities(article.title);
+  const safeExcerpt = decodeEntities(article.excerpt);
+  const plainContent = decodeEntities(article.content || "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const paragraphs = plainContent.length ? plainContent.split(/\n{2,}/) : [];
+
   return (
     <div className="container py-8 flex justify-center">
       <div className="w-full max-w-3xl px-2 sm:px-4 md:px-8">
@@ -55,10 +90,10 @@ export default function ArticlePage({ params }: Props) {
         <Card className="w-full">
           <CardHeader className="items-center text-center">
             <CardTitle className="text-xl sm:text-2xl md:text-3xl text-emerald-900 break-words">
-              {article.title}
+              {safeTitle}
             </CardTitle>
             <CardDescription className="text-emerald-700 mt-1 text-base md:text-lg">
-              {article.excerpt}
+              {safeExcerpt}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-2 pb-2 flex flex-col items-center text-center">
@@ -83,18 +118,12 @@ export default function ArticlePage({ params }: Props) {
 
             {/* Article Content */}
             <div className="prose prose-emerald max-w-none w-full md:max-w-prose mb-6 text-center text-base sm:text-lg">
-              {article.content && article.content.trim().length > 0 ? (
-                article.content
-                  .replace(/<[^>]+>/g, "")
-                  .split("\n\n")
-                  .map((p, i) => (
-                    <p
-                      key={i}
-                      className="leading-relaxed mb-3 text-center break-words"
-                    >
-                      {p}
-                    </p>
-                  ))
+              {paragraphs.length > 0 ? (
+                paragraphs.map((p, i) => (
+                  <p key={i} className="leading-relaxed mb-3 text-center break-words">
+                    {p}
+                  </p>
+                ))
               ) : (
                 <p className="italic text-gray-600">No content available.</p>
               )}

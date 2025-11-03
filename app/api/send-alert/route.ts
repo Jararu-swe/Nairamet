@@ -99,7 +99,7 @@ Current Rate: ₦${currentRate.toLocaleString()}
 
 Alert Details:
 - Currency Pair: ${currency}/NGN
-- Rate Source: ${rateType === "blackMarket" ? "Black Market" : rateType === "cbn" ? "CBN Official" : "Remittance"}
+- Rate Source: ${rateType === "blackMarket" ? "Black Market" : "CBN Official"}
 - Condition: ${condition.charAt(0).toUpperCase() + condition.slice(1)} ₦${threshold.toLocaleString()}
 - Current Rate: ₦${currentRate.toLocaleString()}
 - Time: ${new Date().toLocaleString()}
@@ -110,26 +110,13 @@ This alert was sent because you set up a rate notification for ${currency}.
       `,
     }
 
-    // In a real application, you would integrate with an email service like:
-    // - Resend (recommended for Next.js)
-    // - SendGrid
-    // - AWS SES
-    // - Nodemailer with SMTP
-
-    // For demo purposes, we'll simulate sending the email
     console.log("[v0] Email would be sent:", emailContent)
-
-    // Simulate email sending delay
     await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // In production, you would do something like:
-    // const result = await resend.emails.send(emailContent)
-    // return NextResponse.json({ success: true, id: result.id })
 
     return NextResponse.json({
       success: true,
       message: "Alert email sent successfully",
-      preview: emailContent.html, // For demo purposes
+      preview: emailContent.html,
     })
   } catch (error) {
     console.error("[v0] Error sending alert email:", error)

@@ -207,7 +207,7 @@ function AlertsPageContent() {
     const rate = rates.find((r) => r.currency === alert.currency)
     if (!rate) return false
 
-    const currentRate = rate[alert.rateType]
+    const currentRate = rate[alert.rateType as keyof ExchangeRate] as number
     return alert.condition === "above" ? currentRate > alert.threshold : currentRate < alert.threshold
   }
 

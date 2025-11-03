@@ -31,14 +31,32 @@ function getFlagForCode(code?: string) {
   switch (c) {
     case "USD":
       return "🇺🇸";
-    case "GBP":
-      return "🇬🇧";
     case "EUR":
       return "🇪🇺";
+    case "GBP":
+      return "🇬🇧";
+    case "JPY":
+      return "🇯🇵";
     case "CNY":
       return "🇨🇳";
+    case "NGN":
+      return "🇳🇬";
+    case "CAD":
+      return "🇨🇦";
+    case "AUD":
+      return "🇦🇺";
+    case "NZD":
+      return "🇳🇿";
+    case "ZAR":
+      return "🇿🇦";
+    case "GHS":
+      return "🇬🇭";
+    case "XOF":
+      return "🏳️"; // West African CFA franc (multi-country)
+    case "XAF":
+      return "🏳️"; // Central African CFA franc (multi-country)
     default:
-      return "";
+      return "🏳️";
   }
 }
 

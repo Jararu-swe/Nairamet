@@ -86,6 +86,12 @@ function LogsPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [live, setLive] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [availableCurrencies, setAvailableCurrencies] = useState<string[]>([
+    "USD",
+    "GBP",
+    "EUR",
+    "CNY",
+  ]);
 
   // move generated historical data into state so we can patch today's entries with live data
   const [historicalData, setHistoricalData] = useState(() =>
@@ -135,7 +141,7 @@ function LogsPageContent() {
     return filtered;
   }, [historicalData, selectedCurrency, dateRange, searchDate]);
 
-  // Poll /api/tracker to update today's entries
+  // Poll /api/tracker to update today's entries and update availableCurrencies
   useEffect(() => {
     if (!live) return;
     let mounted = true;
@@ -190,7 +196,83 @@ function LogsPageContent() {
         const res = await fetch("/api/tracker", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch tracker");
         const body = await res.json();
-        applyLiveRates(body.rates || []);
+        const rates = body.rates || [];
+        applyLiveRates(rates);
+        if (Array.isArray(rates) && rates.length) {
+          const codes = Array.from(
+            new Set(
+              rates.map((r: any) =>
+                String(r.currency || r.code || "").toUpperCase()
+              )
+            )
+          ).sort((a, b) =>
+            a === "USD" ? -1 : b === "USD" ? 1 : a.localeCompare(b)
+          );
+          if (mounted) setAvailableCurrencies(codes);
+
+          // Backfill recent historical data for newly added currencies (last 90 days)
+          const today = new Date();
+          const backfillDays = 90;
+          const rateMap: Record<
+            string,
+            { cbn: number; black: number; parallel: number }
+          > = {};
+          rates.forEach((r: any) => {
+            const code = String(r.currency || r.code || "").toUpperCase();
+            if (!code) return;
+            rateMap[code] = {
+              cbn: Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? 0) || 0,
+              black:
+                Number(r.blackMarket ?? r.black_market ?? r.rate ?? 0) || 0,
+              parallel:
+                Number(
+                  r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0
+                ) || 0,
+            };
+          });
+
+          setHistoricalData((prev) => {
+            const out = [...prev];
+            codes.forEach((code) => {
+              const hasAny = out.some((e) => e.currency === code);
+              if (hasAny) return;
+              for (let i = backfillDays; i >= 1; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                const dateStr = format(d, "yyyy-MM-dd");
+                const base = rateMap[code] || {
+                  cbn: 1500,
+                  black: 1550,
+                  parallel: 1530,
+                };
+                const drift = 1 + (Math.random() - 0.5) * 0.02;
+                const blackDrift = 1 + (Math.random() - 0.5) * 0.03;
+                const parallelDrift = 1 + (Math.random() - 0.5) * 0.028;
+                const officialRate = Math.round(base.cbn * drift * 100) / 100;
+                const blackMarketRate =
+                  Math.round(base.black * blackDrift * 100) / 100;
+                const parallelMarketRate =
+                  Math.round(
+                    (base.parallel || base.black) * parallelDrift * 100
+                  ) / 100;
+                out.push({
+                  id: `${code}-${dateStr}`,
+                  date: dateStr,
+                  currency: code,
+                  officialRate,
+                  blackMarketRate,
+                  parallelMarketRate,
+                  spread:
+                    Math.round((blackMarketRate - officialRate) * 100) / 100,
+                  timestamp: d.toISOString(),
+                });
+              }
+            });
+            return out.sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+          });
+        }
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (err) {
         console.warn("Live tracker fetch failed", err);
@@ -208,8 +290,8 @@ function LogsPageContent() {
   const statistics = useMemo(() => {
     if (filteredData.length === 0) return null;
 
-    const currencies = ["USD", "GBP", "EUR", "CNY"];
-    const stats = currencies
+    const codes = Array.from(new Set(filteredData.map((d) => d.currency)));
+    const stats = codes
       .map((currency) => {
         const currencyData = filteredData.filter(
           (item) => item.currency === currency
@@ -395,10 +477,11 @@ function LogsPageContent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Currencies</SelectItem>
-                    <SelectItem value="USD">USD/NGN</SelectItem>
-                    <SelectItem value="GBP">GBP/NGN</SelectItem>
-                    <SelectItem value="EUR">EUR/NGN</SelectItem>
-                    <SelectItem value="CNY">CNY/NGN</SelectItem>
+                    {availableCurrencies.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}/NGN
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

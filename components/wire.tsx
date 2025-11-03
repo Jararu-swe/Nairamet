@@ -34,14 +34,14 @@ export default function Wire({
       }
       setItems(articles.slice(0, 6));
       toast({
-        title: "Wire refreshed",
+        title: "News refreshed",
         description: `${articles.length} items fetched`,
       });
     } catch (err: any) {
       console.error(err);
       toast({
         title: "Refresh failed",
-        description: err?.message || "Unable to refresh wire",
+        description: err?.message || "Unable to refresh news",
         variant: "destructive",
       });
     } finally {
@@ -51,19 +51,6 @@ export default function Wire({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold">From the Wire</h3>
-        <Button
-          onClick={refresh}
-          disabled={loading}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <RotateCw className="w-4 h-4" />{" "}
-          {loading ? "Refreshing..." : "Refresh wire"}
-        </Button>
-      </div>
 
       <div className="space-y-3">
         {items.length === 0 && (
@@ -78,8 +65,6 @@ export default function Wire({
           >
             <a
               href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-emerald-900 font-medium"
             >
               {item.title}

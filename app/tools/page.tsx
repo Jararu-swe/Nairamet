@@ -51,21 +51,48 @@ function ToolsPageContent() {
     GBP: { official: 1950, blackMarket: 2000, remittance: 1975 },
     EUR: { official: 1720, blackMarket: 1760, remittance: 1740 },
     CNY: { official: 218, blackMarket: 225, remittance: 220 },
+    CAD: { official: 1150, blackMarket: 1180, remittance: 1165 },
+    AUD: { official: 1020, blackMarket: 1050, remittance: 1035 },
+    JPY: { official: 10.2, blackMarket: 10.5, remittance: 10.35 },
+    CHF: { official: 1750, blackMarket: 1790, remittance: 1770 },
+    ZAR: { official: 85, blackMarket: 88, remittance: 86.5 },
+    AED: { official: 430, blackMarket: 442, remittance: 436 },
+    SAR: { official: 420, blackMarket: 432, remittance: 426 },
+    GHS: { official: 120, blackMarket: 124, remittance: 122 },
   });
 
   // Fetch live rates from the tracker API and merge into exchangeRates
   const [loadingRates, setLoadingRates] = useState(false);
+  const [availableCurrencies, setAvailableCurrencies] = useState<string[]>([
+    "USD",
+    "GBP",
+    "EUR",
+    "CNY",
+    "CAD",
+    "AUD",
+    "JPY",
+    "CHF",
+    "ZAR",
+    "AED",
+    "SAR",
+    "GHS",
+  ]);
   const fetchRates = async () => {
     try {
       setLoadingRates(true);
-      const res = await fetch("/api/tracker", { cache: "no-store" });
+      const res = await fetch("/api/tracker", { 
+        cache: "no-store",
+        next: { revalidate: 0 } 
+      });
       if (!res.ok) {
+        console.error("Failed to fetch rates:", res.status);
         setLoadingRates(false);
         return;
       }
       const body = await res.json();
       const rates: any[] = body?.rates ?? [];
       if (!Array.isArray(rates)) {
+        console.error("Invalid rates format:", body);
         setLoadingRates(false);
         return;
       }
@@ -74,20 +101,22 @@ function ToolsPageContent() {
         string,
         { official: number; blackMarket: number; remittance?: number }
       > = {};
+      const codes: string[] = [];
       rates.forEach((r) => {
         const code = String(r.currency || r.code || r.pair || "").toUpperCase();
         if (!code) return;
+        codes.push(code);
         const official =
-          Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? r.official ?? 0) || 0;
+          Number(r.official ?? r.cbn ?? r.cbnRate ?? r.cbn_rate ?? 0) || 0;
         const black =
           Number(r.blackMarket ?? r.black_market ?? r.black ?? r.rate ?? 0) ||
           0;
         const parallel =
           Number(
-            r.parallel ??
+            r.remittance ??
+              r.parallel ??
               r.parallelMarket ??
               r.parallel_market ??
-              r.remittance ??
               0
           ) || 0;
         mapped[code] = {
@@ -105,6 +134,11 @@ function ToolsPageContent() {
 
       // merge with defaults
       setExchangeRates((prev) => ({ ...prev, ...mapped }));
+      // update available currency list
+      const unique = Array.from(new Set(codes)).sort((a, b) =>
+        a === "USD" ? -1 : b === "USD" ? 1 : a.localeCompare(b)
+      );
+      setAvailableCurrencies(unique.length ? unique : availableCurrencies);
     } catch (err) {
       console.warn("Failed to fetch tracker rates", err);
     } finally {
@@ -127,13 +161,19 @@ function ToolsPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Currency strength data (mock)
-  const currencyStrength = [
-    { currency: "USD", strength: 85, trend: "up", change: "+2.3%" },
-    { currency: "GBP", strength: 78, trend: "down", change: "-1.2%" },
-    { currency: "EUR", strength: 72, trend: "up", change: "+0.8%" },
-    { currency: "CNY", strength: 65, trend: "neutral", change: "0.0%" },
-  ];
+  // Currency strength data (computed from tracker rates)
+  const currencyStrength = availableCurrencies
+    .filter((c) => !!exchangeRates[c])
+    .map((c) => {
+      const r = exchangeRates[c]!;
+      const official = r.official || 0;
+      const black = r.blackMarket || 0;
+      const delta = official && black ? black / official - 1 : 0; // relative difference
+      const strength = Math.max(0, Math.min(100, Math.round(60 + delta * 40))); // normalize
+      const trend = delta > 0.01 ? "up" : delta < -0.01 ? "down" : "neutral";
+      const change = `${(delta * 100).toFixed(1)}%`;
+      return { currency: c, strength, trend, change };
+    });
 
   const generateWidgetCode = (type: string, currency: string) => {
     const baseUrl = window.location.origin || "https://your-fx-tracker.com";
@@ -252,10 +292,11 @@ function ToolsPageContent() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="USD">USD/NGN</SelectItem>
-                        <SelectItem value="GBP">GBP/NGN</SelectItem>
-                        <SelectItem value="EUR">EUR/NGN</SelectItem>
-                        <SelectItem value="CNY">CNY/NGN</SelectItem>
+                        {availableCurrencies.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}/NGN
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -335,7 +376,7 @@ function ToolsPageContent() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">
-                            Remittance
+                            Parallel
                           </span>
                           <span className="font-mono">
                             ₦
@@ -414,10 +455,11 @@ function ToolsPageContent() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="USD">US Dollar (USD)</SelectItem>
-                        <SelectItem value="GBP">British Pound (GBP)</SelectItem>
-                        <SelectItem value="EUR">Euro (EUR)</SelectItem>
-                        <SelectItem value="CNY">Chinese Yuan (CNY)</SelectItem>
+                        {availableCurrencies.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -473,7 +515,7 @@ function ToolsPageContent() {
                   <Card className="border-green-200 bg-green-50">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm text-green-700">
-                        Remittance
+                        Parallel
                       </CardTitle>
                     </CardHeader>
                     <CardContent>

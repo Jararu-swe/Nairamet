@@ -8,20 +8,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  TrendingUp,
-  TrendingDown,
   Calendar,
   Clock,
   User,
   ArrowRight,
+  Heart,
 } from "lucide-react";
 import Link from "next/link";
 import { getArticles } from "@/lib/blog";
 import NewsletterForm from "@/components/newsletter-form";
 import { getCachedArticlesFiltered } from "@/lib/scraper";
 import Wire from "@/components/wire";
+import { LiveCurrencyRates } from "@/components/live-currency-rates";
+import { MarketSnapshot } from "@/components/market-snapshot";
+// import { LikeButton } from "@/components/like-button";
 
-export default function BlogPage() {
+export default async function BlogPage() {
   const featuredArticles = getArticles();
   // Filter scraped RSS items for naira/exchange related keywords
   const nairaKeywords = [
@@ -53,12 +55,6 @@ export default function BlogPage() {
     },
   ];
 
-  const quickStats = [
-    { label: "This Week's Change", value: "+2.3%", trend: "up" },
-    { label: "Monthly Average", value: "₦1,562", trend: "neutral" },
-    { label: "Volatility Index", value: "Medium", trend: "neutral" },
-    { label: "Next CBN Meeting", value: "Jan 25", trend: "neutral" },
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-4 md:p-6">
@@ -72,41 +68,13 @@ export default function BlogPage() {
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
-              Market Snapshot
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {quickStats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="text-center p-3 bg-emerald-50 rounded-lg"
-                >
-                  <div className="text-sm text-emerald-600 mb-1">
-                    {stat.label}
-                  </div>
-                  <div className="font-bold text-emerald-900 flex items-center justify-center gap-1">
-                    {stat.trend === "up" && (
-                      <TrendingUp className="w-4 h-4 text-green-500" />
-                    )}
-                    {stat.trend === "down" && (
-                      <TrendingDown className="w-4 h-4 text-red-500" />
-                    )}
-                    {stat.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Live Currency Rates */}
+        <LiveCurrencyRates />
 
-        {/* From the Wire (scraped RSS feeds) - client component with refresh */}
-        <Wire initialItems={scraped.slice(0, 6)} keywords={nairaKeywords} />
+        {/* Market Snapshot - Dynamic data */}
+        <MarketSnapshot />
+
+
 
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Main Content */}
@@ -155,8 +123,10 @@ export default function BlogPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {article.readTime}
+                          {article.readTime} min read
                         </div>
+                        {/* Removed LikeButton */}
+                        {/* <LikeButton articleId={article.id} /> */}
                       </div>
                       <Link href={`/blog/${encodeURIComponent(article.id)}`}>
                         <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -200,7 +170,8 @@ export default function BlogPage() {
                             <span>
                               {new Date(article.date).toLocaleDateString()}
                             </span>
-                            <span>{article.readTime}</span>
+                            <span>{article.readTime} min read</span>
+                        
                           </div>
                         </div>
                         <Link

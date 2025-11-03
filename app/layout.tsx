@@ -22,18 +22,22 @@ export const metadata: Metadata = {
     generator: 'v0.app'
 }
 
+import { ThemeProvider } from "@/components/theme-provider"
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased">
-        <AuthProvider>
-          <Navbar />
-          {children}
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthProvider>
+            <Navbar />
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

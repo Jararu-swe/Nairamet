@@ -19,16 +19,26 @@ import {
   Crown,
   Gift,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RequireAuthButton from "@/components/require-auth-button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { openAuthModal } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   const handleStartFreeClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
@@ -152,6 +162,29 @@ export default function LandingPage() {
       {/* AuthModal is rendered globally by AuthProvider */}
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+        {/* Dark mode toggle (top-right of hero) */}
+        <div className="absolute top-4 right-4 z-10">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleTheme}
+            className="bg-background/70 backdrop-blur border-input text-foreground hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
+            aria-label="Toggle dark mode"
+          >
+            {mounted && theme === "dark" ? (
+              <>
+                <Sun className="w-4 h-4 mr-2" />
+                Light mode
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 mr-2" />
+                Dark mode
+              </>
+            )}
+          </Button>
+        </div>
+
         <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
           <div className="text-center space-y-8">
             <div className="space-y-4">
