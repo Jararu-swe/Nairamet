@@ -11,6 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -22,10 +23,11 @@ model User {
   image         String?
   tier          String    @default("premium") // "free", "premium"
   trialEndsAt   DateTime?
-  preferences   Json?     // Store user preferences as JSON
+  preferences   Json? // Store user preferences as JSON
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  likes         Like[]    // Relation to likes
+  likes         Like[] // Relation to likes
+  comments      Comment[] // Relation to comments
 
   @@map("users")
 }
@@ -39,7 +41,7 @@ model Article {
   author      String?
   readTime    Int?
   publishedAt DateTime @default(now())
-  likes       Like[]   // Relation to likes
+  likes       Like[] // Relation to likes
   likeCount   Int      @default(0) // Counter for likes
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -57,4 +59,17 @@ model Like {
 
   @@unique([userId, articleId]) // Ensure a user can only like an article once
   @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  articleId String // Key from the blog page param; not a DB relation
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  name      String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+  @@map("comments")
 }

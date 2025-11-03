@@ -1,21 +1,31 @@
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-type Comment = {
+type CommentDTO = {
   id: string;
   name: string;
   content: string;
   createdAt: string;
 };
 
-// Simple in-memory store: Map<articleId, Comment[]>
-const store = new Map<string, Comment[]>();
-
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const comments = store.get(id) || [];
+  const rows = await prisma.comment.findMany({
+    where: { articleId: id },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+  const comments: CommentDTO[] = rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    content: r.content,
+    createdAt: r.createdAt.toISOString(),
+  }));
   return NextResponse.json({ comments });
 }
 
@@ -26,7 +36,9 @@ export async function POST(
   const { id } = params;
   try {
     const body = await request.json();
-    const name = String(body.name || "Anonymous").trim();
+    const session = await getServerSession(authOptions);
+    const derivedName = session?.user?.name || session?.user?.email?.split("@")[0];
+    const name = String(body.name || derivedName || "Anonymous").trim();
     const content = String(body.content || "").trim();
 
     if (!content || content.length < 2) {
@@ -36,16 +48,21 @@ export async function POST(
       );
     }
 
-    const comment: Comment = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      name: name || "Anonymous",
-      content,
-      createdAt: new Date().toISOString(),
-    };
+    const row = await prisma.comment.create({
+      data: {
+        articleId: id,
+        userId: session?.user?.id ? String(session.user.id) : null,
+        name: name || "Anonymous",
+        content,
+      },
+    });
 
-    const list = store.get(id) || [];
-    list.unshift(comment);
-    store.set(id, list);
+    const comment: CommentDTO = {
+      id: row.id,
+      name: row.name,
+      content: row.content,
+      createdAt: row.createdAt.toISOString(),
+    };
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (err) {
