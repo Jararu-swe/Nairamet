@@ -124,4 +124,79 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Custom Scrollbar Styles - Light Mode */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.45 0.15 160) oklch(0.92 0 0);
+  }
+
+  *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: oklch(0.92 0 0);
+    border-radius: 10px;
+    margin: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: oklch(0.45 0.15 160);
+    border-radius: 10px;
+    border: 3px solid oklch(0.92 0 0);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.55 0.15 160);
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    background: oklch(0.35 0.15 160);
+  }
+
+  /* Dark mode scrollbar - Clear contrast */
+  .dark * {
+    scrollbar-color: oklch(0.55 0.15 160) oklch(0.15 0 0);
+  }
+
+  .dark *::-webkit-scrollbar-track {
+    background: oklch(0.15 0 0);
+    border-radius: 10px;
+    margin: 4px;
+  }
+
+  .dark *::-webkit-scrollbar-thumb {
+    background: oklch(0.55 0.15 160);
+    border-radius: 10px;
+    border: 3px solid oklch(0.15 0 0);
+  }
+
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.65 0.15 160);
+  }
+
+  .dark *::-webkit-scrollbar-thumb:active {
+    background: oklch(0.45 0.15 160);
+  }
+
+  /* Scrollbar corner */
+  *::-webkit-scrollbar-corner {
+    background: oklch(0.92 0 0);
+  }
+
+  .dark *::-webkit-scrollbar-corner {
+    background: oklch(0.15 0 0);
+  }
+
+  /* Ensure scrollbar doesn't overlap content */
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
 }

@@ -225,7 +225,7 @@ export function MarketSnapshot() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-emerald-600" />
+          <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           Market Snapshot
         </CardTitle>
       </CardHeader>
@@ -234,22 +234,22 @@ export function MarketSnapshot() {
           {quickStats.map((stat, index) => (
             <div
               key={index}
-              className="text-center p-3 bg-emerald-50 rounded-lg"
+              className="text-center p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg"
             >
-              <div className="text-sm text-emerald-600 mb-1">
+              <div className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">
                 {stat.label}
               </div>
               {loading ? (
-                <div className="font-bold text-emerald-900 animate-pulse">
+                <div className="font-bold text-emerald-900 dark:text-emerald-100 animate-pulse">
                   ...
                 </div>
               ) : (
-                <div className="font-bold text-emerald-900 flex items-center justify-center gap-1">
+                <div className="font-bold text-emerald-900 dark:text-emerald-100 flex items-center justify-center gap-1">
                   {stat.trend === "up" && (
-                    <TrendingUp className="w-4 h-4 text-green-500" />
+                    <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
                   )}
                   {stat.trend === "down" && (
-                    <TrendingDown className="w-4 h-4 text-red-500" />
+                    <TrendingDown className="w-4 h-4 text-red-500 dark:text-red-400" />
                   )}
                   {stat.value}
                 </div>

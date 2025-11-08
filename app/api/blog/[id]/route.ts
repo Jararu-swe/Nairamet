@@ -15,18 +15,38 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const rows = await prisma.comment.findMany({
-    where: { articleId: id },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
-  const comments: CommentDTO[] = rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    content: r.content,
-    createdAt: r.createdAt.toISOString(),
-  }));
-  return NextResponse.json({ comments });
+  try {
+    const rows = await prisma.comment.findMany({
+      where: { articleId: id },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+    const comments: CommentDTO[] = rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      content: r.content,
+      createdAt: r.createdAt.toISOString(),
+    }));
+    return NextResponse.json({ comments });
+  } catch (err) {
+    console.error("Comments GET failed:", err);
+    const msg = (err as any)?.message || String(err || "");
+    const isConnIssue = /P1001|ECONNREFUSED|timeout|connect/i.test(msg);
+    const isMissingTable = /relation .*comments.* does not exist|UndefinedTable/i.test(
+      msg
+    );
+    if (isConnIssue || isMissingTable) {
+      // Graceful fallback: return empty list so the UI can render without errors
+      return NextResponse.json(
+        { comments: [] },
+        { headers: { "X-Comments-Source": "fallback" } }
+      );
+    }
+    return NextResponse.json(
+      { error: "Failed to load comments" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(
@@ -66,6 +86,33 @@ export async function POST(
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    console.error("Comments POST failed:", err);
+    const msg = (err as any)?.message || String(err || "");
+    const isConnIssue = /P1001|ECONNREFUSED|timeout|connect/i.test(msg);
+    const isMissingTable = /relation .*comments.* does not exist|UndefinedTable/i.test(
+      msg
+    );
+    if (isConnIssue) {
+      return NextResponse.json(
+        {
+          error:
+            "Database connection unavailable. Please try again in a few minutes.",
+        },
+        { status: 503 }
+      );
+    }
+    if (isMissingTable) {
+      return NextResponse.json(
+        {
+          error:
+            "Comments table is not ready. Apply migrations to enable commenting.",
+        },
+        { status: 503 }
+      );
+    }
+    return NextResponse.json(
+      { error: "Failed to create comment" },
+      { status: 500 }
+    );
   }
 }

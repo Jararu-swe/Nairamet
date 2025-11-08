@@ -1,4 +1,4 @@
-import CommentsSection from "@/components/comments-section";
+// import CommentsSection from "@/components/comments-section";
 import {
   Card,
   CardContent,
@@ -146,9 +146,10 @@ export default function ArticlePage({ params }: Props) {
           </CardContent>
         </Card>
 
-        <div className="mt-6">
+        {/* Comments Section - Removed */}
+        {/* <div className="mt-6">
           <CommentsSection articleId={rawId} />
-        </div>
+        </div> */}
       </div>
     </div>
   );

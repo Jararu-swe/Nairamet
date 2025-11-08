@@ -265,7 +265,7 @@ export default function PricingPage() {
               asChild
               size="lg"
               variant="secondary"
-              className="bg-white text-emerald-600 hover:bg-gray-100"
+              className="bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <Link href="/tracker">
                 <Gift className="w-4 h-4 mr-2" />

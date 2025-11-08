@@ -12,6 +12,8 @@ interface Alert {
   pushEnabled: boolean
   isActive: boolean
   createdAt: Date
+  // Optional arbitrary data payload for additional metadata
+  data?: Record<string, any>
 }
 
 interface AlertHistory {

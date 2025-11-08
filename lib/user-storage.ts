@@ -32,6 +32,8 @@ interface UserAlert {
   isActive: boolean;
   createdAt: string;
   lastTriggered?: string;
+  // Optional arbitrary data payload for additional metadata
+  data?: Record<string, any>;
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -144,6 +146,29 @@ export class UserStorage {
     localStorage.setItem(this.ALERTS_KEY, JSON.stringify(updatedAlerts));
 
     return newAlert;
+  }
+
+  /**
+   * Convenience method to create a rate alert with optional custom data.
+   */
+  static rateAlert(
+    params: {
+      currency: string;
+      rateType: "official" | "black_market" | "remittance";
+      condition: "above" | "below";
+      threshold: number;
+      isActive?: boolean;
+    },
+    data?: Record<string, any>
+  ): UserAlert {
+    return this.saveAlert({
+      currency: params.currency,
+      rateType: params.rateType,
+      condition: params.condition,
+      threshold: params.threshold,
+      isActive: params.isActive ?? true,
+      data,
+    });
   }
 
   static updateAlert(

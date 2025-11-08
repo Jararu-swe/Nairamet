@@ -4,10 +4,21 @@ export default function WidgetLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-0 m-0">
-      <div className="w-full max-w-[320px] h-[220px]">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>{`
+          body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+        `}</style>
+      </head>
+      <body>
         {children}
-      </div>
-    </div>
+      </body>
+    </html>
   );
 }

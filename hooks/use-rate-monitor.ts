@@ -34,8 +34,39 @@ export function useRateMonitor(
   const [isMonitoring, setIsMonitoring] = useState(false)
   const [lastCheck, setLastCheck] = useState<Date | null>(null)
   const [checksPerformed, setChecksPerformed] = useState(0)
+  const [lastEmailSent, setLastEmailSent] = useState<Date | null>(null)
+  const [emailQuotaUsed, setEmailQuotaUsed] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const alertHistoryRef = useRef<Set<string>>(new Set())
+
+  // Load last email sent date from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('nairamet_last_email_sent')
+    if (stored) {
+      const lastSent = new Date(stored)
+      setLastEmailSent(lastSent)
+      
+      // Check if it's been a month since last email
+      const now = new Date()
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+      setEmailQuotaUsed(lastSent > monthAgo)
+    }
+  }, [])
+
+  // Check monthly quota on interval
+  useEffect(() => {
+    const checkQuota = () => {
+      if (lastEmailSent) {
+        const now = new Date()
+        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+        setEmailQuotaUsed(lastEmailSent > monthAgo)
+      }
+    }
+    
+    // Check quota every hour
+    const quotaInterval = setInterval(checkQuota, 60 * 60 * 1000)
+    return () => clearInterval(quotaInterval)
+  }, [lastEmailSent])
 
   useEffect(() => {
     const hasActiveAlerts = alerts.some((alert) => alert.isActive)
@@ -95,22 +126,33 @@ export function useRateMonitor(
       const isTriggered = alert.condition === "above" ? currentRate > alert.threshold : currentRate < alert.threshold
 
       if (isTriggered) {
-        // Prevent duplicate alerts within the same hour
-        const alertKey = `${alert.id}-${Math.floor(Date.now() / (1000 * 60 * 60))}`
+        // Prevent duplicate alerts - only send once per alert until condition is no longer met
+        const alertKey = `${alert.id}`
 
         if (!alertHistoryRef.current.has(alertKey)) {
-          console.log(`[v0] Alert triggered: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
-          onAlertTriggered(alert, currentRate)
-          alertHistoryRef.current.add(alertKey)
-
-          // Clean up old alert keys (keep only last 24 hours)
-          const currentHour = Math.floor(Date.now() / (1000 * 60 * 60))
-          alertHistoryRef.current.forEach((key) => {
-            const keyHour = Number.parseInt(key.split("-").pop() || "0")
-            if (currentHour - keyHour > 24) {
-              alertHistoryRef.current.delete(key)
-            }
-          })
+          // Check monthly email quota
+          if (emailQuotaUsed) {
+            console.log(`[v0] Alert triggered but monthly email quota used: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
+            // Still mark as triggered to prevent repeated checks, but don't send email
+            alertHistoryRef.current.add(alertKey)
+          } else {
+            console.log(`[v0] Alert triggered: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
+            onAlertTriggered(alert, currentRate)
+            alertHistoryRef.current.add(alertKey)
+            
+            // Record email sent
+            const now = new Date()
+            setLastEmailSent(now)
+            setEmailQuotaUsed(true)
+            localStorage.setItem('nairamet_last_email_sent', now.toISOString())
+          }
+        }
+      } else {
+        // Reset alert when condition is no longer met (allows re-triggering)
+        const alertKey = `${alert.id}`
+        if (alertHistoryRef.current.has(alertKey)) {
+          alertHistoryRef.current.delete(alertKey)
+          console.log(`[v0] Alert reset: ${alert.currency} ${alert.condition} ₦${alert.threshold} - condition no longer met`)
         }
       }
     }
@@ -122,6 +164,10 @@ export function useRateMonitor(
   }
 
   const getMonitoringStats = () => {
+    const nextEmailDate = lastEmailSent 
+      ? new Date(lastEmailSent.getFullYear(), lastEmailSent.getMonth() + 1, lastEmailSent.getDate())
+      : null
+
     return {
       isMonitoring,
       lastCheck,
@@ -130,6 +176,9 @@ export function useRateMonitor(
       totalAlerts: alerts.length,
       checkInterval,
       nextCheck: lastCheck && isMonitoring ? new Date(lastCheck.getTime() + checkInterval * 60 * 1000) : null,
+      emailQuotaUsed,
+      lastEmailSent,
+      nextEmailDate,
     }
   }
 
@@ -137,6 +186,8 @@ export function useRateMonitor(
     isMonitoring,
     lastCheck,
     checksPerformed,
+    emailQuotaUsed,
+    lastEmailSent,
     startMonitoring,
     stopMonitoring,
     forceCheck,

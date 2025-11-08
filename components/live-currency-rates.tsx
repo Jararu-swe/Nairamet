@@ -3,6 +3,20 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 
+// Helper function to get country code for currency
+const getCountryCodeForCurrency = (currency: string): string => {
+  const mapping: Record<string, string> = {
+    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn",
+  };
+  return mapping[currency.toUpperCase()] || "un";
+};
+
+// Helper function to get flag URL
+const getFlagUrl = (currency: string): string => {
+  const countryCode = getCountryCodeForCurrency(currency);
+  return `https://flagcdn.com/w40/${countryCode}.png`;
+};
+
 interface CurrencyRate {
   currency: string;
   flag: string;
@@ -265,9 +279,16 @@ export function LiveCurrencyRates() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {rates.map((item) => (
           <div key={item.currency} className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <span className="text-lg">{item.flag}</span>
-              <span className="font-medium text-sm">{item.currency}/NGN</span>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <img
+                src={getFlagUrl(item.currency)}
+                alt={`${item.currency} flag`}
+                className="w-6 h-4 rounded border object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+              <span className="font-semibold text-sm">{item.currency}/NGN</span>
             </div>
             <div className="font-bold text-lg">{formatRate(item.rate)}</div>
             {/* show parallel rate below main rate */}

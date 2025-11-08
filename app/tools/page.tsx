@@ -32,6 +32,25 @@ import {
 import { cn } from "@/lib/utils";
 import { ProtectedRoute } from "@/components/protected-route";
 
+// Helper function to get country code for currency
+const getCountryCodeForCurrency = (currency: string): string => {
+  const mapping: Record<string, string> = {
+    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
+    CAD: "ca", AUD: "au", CHF: "ch", ZAR: "za", INR: "in",
+    AED: "ae", SAR: "sa", KES: "ke", GHS: "gh", EGP: "eg",
+    NGN: "ng", BRL: "br", MXN: "mx", ARS: "ar", CLP: "cl",
+    COP: "co", PEN: "pe", TRY: "tr", RUB: "ru", PLN: "pl",
+    SEK: "se", NOK: "no", DKK: "dk", CZK: "cz", HUF: "hu",
+  };
+  return mapping[currency.toUpperCase()] || "un";
+};
+
+// Helper function to get flag URL
+const getFlagUrl = (currency: string): string => {
+  const countryCode = getCountryCodeForCurrency(currency);
+  return `https://flagcdn.com/w40/${countryCode}.png`;
+};
+
 function ToolsPageContent() {
   const [amount, setAmount] = useState("100000");
   const [selectedCurrency, setSelectedCurrency] = useState("USD");
@@ -229,13 +248,13 @@ function ToolsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-emerald-900">
+          <h1 className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
             Widgets & Tools
           </h1>
-          <p className="text-emerald-700 max-w-2xl mx-auto">
+          <p className="text-emerald-700 dark:text-emerald-300 max-w-2xl mx-auto">
             Embeddable widgets for your website and powerful calculation tools
             for currency analysis
           </p>
@@ -294,7 +313,17 @@ function ToolsPageContent() {
                       <SelectContent>
                         {availableCurrencies.map((c) => (
                           <SelectItem key={c} value={c}>
-                            {c}/NGN
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={getFlagUrl(c)}
+                                alt={c}
+                                className="w-5 h-4 rounded border object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                              <span>{c}/NGN</span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -320,7 +349,7 @@ function ToolsPageContent() {
                           ref={textareaRef}
                           value={widgetCode}
                           readOnly
-                          className="w-full h-32 p-3 text-sm font-mono bg-gray-50 border rounded-lg resize-none"
+                          className="w-full h-32 p-3 text-sm font-mono bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded-lg resize-none dark:text-gray-100"
                         />
                         <Button
                           size="sm"
@@ -345,17 +374,35 @@ function ToolsPageContent() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 bg-white">
+                  <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-emerald-900">
-                          {selectedCurrency}/NGN Live Rate
-                        </h3>
-                        <Badge variant="secondary">Live</Badge>
+                      {/* Header with Logo */}
+                      <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                            <img
+                              src="/Nairamet.svg"
+                              alt="NairaMet Logo"
+                              className="w-6 h-6"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100">
+                              NairaMet
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {selectedCurrency}/NGN
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                          Live
+                        </Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
                             Official
                           </span>
                           <span className="font-mono">
@@ -365,7 +412,7 @@ function ToolsPageContent() {
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
                             Black Market
                           </span>
                           <span className="font-mono">
@@ -375,7 +422,7 @@ function ToolsPageContent() {
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
                             Parallel
                           </span>
                           <span className="font-mono">
@@ -386,9 +433,19 @@ function ToolsPageContent() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500">
-                          Powered by FX Tracker
+                      {/* Footer with Logo */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                            <img
+                              src="/Nairamet.svg"
+                              alt="NairaMet"
+                              className="w-3 h-3"
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Powered by NairaMet
+                          </span>
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -457,7 +514,17 @@ function ToolsPageContent() {
                       <SelectContent>
                         {availableCurrencies.map((c) => (
                           <SelectItem key={c} value={c}>
-                            {c}
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={getFlagUrl(c)}
+                                alt={c}
+                                className="w-5 h-4 rounded border object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                              <span>{c}</span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -466,18 +533,18 @@ function ToolsPageContent() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                  <Card className="border-blue-200 bg-blue-50">
+                  <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-blue-700">
+                      <CardTitle className="text-sm text-blue-700 dark:text-blue-300">
                         Official Rate
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
-                        <div className="text-2xl font-bold text-blue-900">
+                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                           {selectedCurrency} {conversions.official}
                         </div>
-                        <div className="text-sm text-blue-600">
+                        <div className="text-sm text-blue-600 dark:text-blue-400">
                           @ ₦
                           {
                             exchangeRates[
@@ -489,18 +556,18 @@ function ToolsPageContent() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-red-200 bg-red-50">
+                  <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-red-700">
+                      <CardTitle className="text-sm text-red-700 dark:text-red-300">
                         Black Market
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
-                        <div className="text-2xl font-bold text-red-900">
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">
                           {selectedCurrency} {conversions.blackMarket}
                         </div>
-                        <div className="text-sm text-red-600">
+                        <div className="text-sm text-red-600 dark:text-red-400">
                           @ ₦
                           {
                             exchangeRates[
@@ -512,18 +579,18 @@ function ToolsPageContent() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-green-200 bg-green-50">
+                  <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-green-700">
+                      <CardTitle className="text-sm text-green-700 dark:text-green-300">
                         Parallel
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-1">
-                        <div className="text-2xl font-bold text-green-900">
+                        <div className="text-2xl font-bold text-green-900 dark:text-green-100">
                           {selectedCurrency} {conversions.remittance}
                         </div>
-                        <div className="text-sm text-green-600">
+                        <div className="text-sm text-green-600 dark:text-green-400">
                           @ ₦
                           {
                             exchangeRates[
@@ -536,11 +603,11 @@ function ToolsPageContent() {
                   </Card>
                 </div>
 
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-semibold mb-2">
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <h4 className="font-semibold mb-2 dark:text-gray-100">
                     Rate Comparison Summary
                   </h4>
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                     <p>
                       • Best rate: Black Market (₦
                       {
@@ -593,24 +660,24 @@ function ToolsPageContent() {
                   {currencyStrength.map((currency) => (
                     <div
                       key={currency.currency}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center font-bold text-emerald-900">
+                        <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center font-bold text-emerald-900 dark:text-emerald-100">
                           {currency.currency}
                         </div>
                         <div>
-                          <div className="font-semibold">
+                          <div className="font-semibold dark:text-gray-100">
                             {currency.currency}/NGN
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             Strength: {currency.strength}%
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-4">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
                             className={cn(
                               "h-2 rounded-full transition-all",
@@ -645,35 +712,35 @@ function ToolsPageContent() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                  <Card className="border-green-200 bg-green-50">
+                  <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-900">
+                        <div className="text-2xl font-bold text-green-900 dark:text-green-100">
                           2
                         </div>
-                        <div className="text-sm text-green-700">
+                        <div className="text-sm text-green-700 dark:text-green-300">
                           Strengthening
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="border-red-200 bg-red-50">
+                  <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-red-900">1</div>
-                        <div className="text-sm text-red-700">Weakening</div>
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">1</div>
+                        <div className="text-sm text-red-700 dark:text-red-300">Weakening</div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="border-gray-200 bg-gray-50">
+                  <Card className="border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                     <CardContent className="pt-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                           1
                         </div>
-                        <div className="text-sm text-gray-700">Stable</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-300">Stable</div>
                       </div>
                     </CardContent>
                   </Card>

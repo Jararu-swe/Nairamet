@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowUpDown, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 // REMOVE import { ProtectedRoute } from "@/components/protected-route";
 
@@ -26,38 +33,30 @@ function getSymbolForCode(code?: string) {
   }
 }
 
+// Helper function to get country code for currency
+function getCountryCodeForCurrency(currency: string): string {
+  const mapping: Record<string, string> = {
+    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
+    CAD: "ca", AUD: "au", CHF: "ch", ZAR: "za", INR: "in",
+    AED: "ae", SAR: "sa", KES: "ke", GHS: "gh", EGP: "eg",
+    NGN: "ng", BRL: "br", MXN: "mx", ARS: "ar", CLP: "cl",
+    COP: "co", PEN: "pe", TRY: "tr", RUB: "ru", PLN: "pl",
+    SEK: "se", NOK: "no", DKK: "dk", CZK: "cz", HUF: "hu",
+    NZD: "nz", THB: "th", MYR: "my", SGD: "sg", IDR: "id",
+  };
+  return mapping[currency.toUpperCase()] || "un";
+}
+
+// Helper function to get flag URL
+function getFlagUrl(currency: string): string {
+  const countryCode = getCountryCodeForCurrency(currency);
+  return `https://flagcdn.com/w40/${countryCode}.png`;
+}
+
 function getFlagForCode(code?: string) {
-  const c = String(code ?? "").toUpperCase();
-  switch (c) {
-    case "USD":
-      return "🇺🇸";
-    case "EUR":
-      return "🇪🇺";
-    case "GBP":
-      return "🇬🇧";
-    case "JPY":
-      return "🇯🇵";
-    case "CNY":
-      return "🇨🇳";
-    case "NGN":
-      return "🇳🇬";
-    case "CAD":
-      return "🇨🇦";
-    case "AUD":
-      return "🇦🇺";
-    case "NZD":
-      return "🇳🇿";
-    case "ZAR":
-      return "🇿🇦";
-    case "GHS":
-      return "🇬🇭";
-    case "XOF":
-      return "🏳️"; // West African CFA franc (multi-country)
-    case "XAF":
-      return "🏳️"; // Central African CFA franc (multi-country)
-    default:
-      return "🏳️";
-  }
+  // Keep for backward compatibility, but return empty string
+  // We'll use getFlagUrl for actual flag images
+  return "";
 }
 
 interface ExchangeRate {
@@ -232,80 +231,132 @@ function FXTrackerContent() {
         </div>
 
         {/* Currency Converter */}
-        <Card className="bg-primary text-primary-foreground">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ArrowUpDown className="w-5 h-5" />
+        <Card className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-xl border-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
+                <ArrowUpDown className="w-5 h-5" />
+              </div>
               Currency Converter
             </CardTitle>
+            <p className="text-sm text-white/80 mt-2">
+              Convert Nigerian Naira to foreign currencies instantly
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-sm opacity-90 mb-2 block">
+                <label className="text-sm font-medium mb-2 block text-white/90">
                   Amount (NGN)
                 </label>
                 <Input
+                  type="number"
                   value={convertAmount}
                   onChange={(e) => setConvertAmount(e.target.value)}
                   placeholder="100,000"
-                  className="bg-primary-foreground text-foreground"
+                  className="bg-white text-gray-900 border-0 h-11 text-lg font-semibold"
                 />
               </div>
               <div>
-                <label className="text-sm opacity-90 mb-2 block">
+                <label className="text-sm font-medium mb-2 block text-white/90">
                   Currency
                 </label>
-                <select
-                  value={selectedCurrency}
-                  onChange={(e) => setSelectedCurrency(e.target.value)}
-                  className="w-full p-2 rounded-md bg-primary-foreground text-foreground"
-                >
-                  {rates.map((rate) => (
-                    <option key={rate.currency} value={rate.currency}>
-                      {rate.flag} {rate.currency}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <Select
+                    value={selectedCurrency}
+                    onValueChange={setSelectedCurrency}
+                  >
+                    <SelectTrigger className="w-full bg-white text-transparent border-0 h-11">
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rates.map((rate) => (
+                        <SelectItem key={rate.currency} value={rate.currency}>
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={getFlagUrl(rate.currency)}
+                              alt={rate.currency}
+                              className="w-5 h-4 rounded border object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                            <span>{rate.currency}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {/* Custom display overlay */}
+                  <div className="absolute inset-0 pointer-events-none flex items-center px-3 gap-2 bg-transparent">
+                    <img
+                      src={getFlagUrl(selectedCurrency)}
+                      alt={selectedCurrency}
+                      className="w-6 h-5 rounded border object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                    <span className="text-lg font-semibold text-gray-900">{selectedCurrency}</span>
+                  </div>
+                </div>
               </div>
               <div>
-                <label className="text-sm opacity-90 mb-2 block">
+                <label className="text-sm font-medium mb-2 block text-white/90">
                   Rate Type
                 </label>
                 <select
                   value={selectedRate}
                   onChange={(e) => setSelectedRate(e.target.value as any)}
-                  className="w-full p-2 rounded-md bg-primary-foreground text-foreground"
+                  className="w-full h-11 px-3 rounded-md bg-white text-gray-900 border-0 font-medium"
                 >
-                  <option value="blackMarket">Black Market</option>
-                  <option value="cbn">CBN Official</option>
-                  <option value="parallelMarket">Parallel Market</option>
+                  <option value="blackMarket">🏴 Black Market</option>
+                  <option value="cbn">🏦 CBN Official</option>
+                  <option value="parallelMarket">💱 Parallel Market</option>
                 </select>
               </div>
             </div>
-            <div className="text-center p-4 bg-primary-foreground/10 rounded-lg">
-              <p className="text-sm opacity-90">
-                {formatNaira(convertAmount)} ={" "}
-                {rates.find((r) => r.currency === selectedCurrency)?.symbol}
-                {getConvertedAmount()}
-              </p>
-              <p className="text-xs opacity-75 mt-1">
-                Rate: ₦
-                {(() => {
-                  const found = rates.find(
-                    (r) => r.currency === selectedCurrency
-                  );
-                  if (!found) return "0";
-                  const val =
-                    selectedRate === "cbn"
-                      ? found.cbn
-                      : selectedRate === "parallelMarket"
-                      ? found.parallelMarket
-                      : found.blackMarket;
-                  return val ? val.toLocaleString() : "0";
-                })()}{" "}
-                ({getRateTypeLabel(selectedRate)})
-              </p>
+            {/* Result Display */}
+            <div className="bg-white/10 backdrop-blur rounded-xl p-6 border-2 border-white/20">
+              <div className="text-center space-y-3">
+                <p className="text-sm text-white/70 font-medium uppercase tracking-wide">Converted Amount</p>
+                <div className="flex flex-col md:flex-row items-center justify-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-white">
+                      ₦{formatNaira(convertAmount)}
+                    </span>
+                  </div>
+                  <ArrowUpDown className="w-5 h-5 text-white/60 rotate-90 md:rotate-0" />
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={getFlagUrl(selectedCurrency)}
+                      alt={selectedCurrency}
+                      className="w-6 h-4 rounded border object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                    <span className="text-3xl font-bold text-white">
+                      {rates.find((r) => r.currency === selectedCurrency)?.symbol}
+                      {getConvertedAmount()}
+                    </span>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-white/20">
+                  <p className="text-xs text-white/70">
+                    Rate: <span className="font-semibold text-white">₦
+                    {(() => {
+                      const found = rates.find((r) => r.currency === selectedCurrency);
+                      if (!found) return "0";
+                      const val = selectedRate === "cbn" ? found.cbn : selectedRate === "parallelMarket" ? found.parallelMarket : found.blackMarket;
+                      return val ? val.toLocaleString() : "0";
+                    })()}</span> per {selectedCurrency}
+                  </p>
+                  <p className="text-xs text-white/60 mt-1">
+                    Using {selectedRate === "blackMarket" ? "🏴 Black Market" : selectedRate === "cbn" ? "🏦 CBN Official" : "💱 Parallel Market"} rate
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -321,7 +372,16 @@ function FXTrackerContent() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{rate.flag}</span>
+                    <div className="w-12 h-12 rounded-lg border-2 border-muted flex items-center justify-center overflow-hidden bg-muted/20">
+                      <img
+                        src={getFlagUrl(rate.currency)}
+                        alt={`${rate.currency} flag`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
                     <div>
                       <CardTitle className="text-lg">
                         {rate.currency}/NGN
@@ -423,7 +483,14 @@ function FXTrackerContent() {
                       >
                         <td className="p-2">
                           <div className="flex items-center gap-2">
-                            <span>{rate.flag}</span>
+                            <img
+                              src={getFlagUrl(rate.currency)}
+                              alt={`${rate.currency} flag`}
+                              className="w-6 h-4 rounded border object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
                             <span className="font-medium">{rate.currency}</span>
                           </div>
                         </td>

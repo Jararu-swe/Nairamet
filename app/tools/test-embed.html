@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Embed Test - Nairamet</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        h1 {
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .widget-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .widget-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #0f172a;
+        }
+        iframe {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .info-box strong {
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Nairamet Widget Embed Test</h1>
+    <p class="subtitle">Live demonstration of embeddable currency widgets</p>
+
+    <div class="info-box">
+        <strong>✅ All widgets are functional!</strong><br>
+        These widgets fetch live exchange rates from your API and auto-refresh every 60 seconds.
+        Copy the embed code below each widget to use on your website.
+    </div>
+
+    <div class="widget-grid">
+        <!-- Rates Widget -->
+        <div class="widget-container">
+            <div class="widget-title">📊 Live Rates Widget (USD)</div>
+            <iframe 
+                src="/widget/rates?currency=USD" 
+                width="320" 
+                height="220" 
+                frameborder="0"
+                style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            </iframe>
+            <div class="code-block">&lt;iframe src="https://yoursite.com/widget/rates?currency=USD" width="320" height="220"&gt;&lt;/iframe&gt;</div>
+        </div>
+
+        <!-- Converter Widget -->
+        <div class="widget-container">
+            <div class="widget-title">💱 Currency Converter (GBP)</div>
+            <iframe 
+                src="/widget/converter?currency=GBP" 
+                width="320" 
+                height="220" 
+                frameborder="0"
+                style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            </iframe>
+            <div class="code-block">&lt;iframe src="https://yoursite.com/widget/converter?currency=GBP" width="320" height="220"&gt;&lt;/iframe&gt;</div>
+        </div>
+
+        <!-- Chart Widget -->
+        <div class="widget-container">
+            <div class="widget-title">📈 Rate Chart (EUR)</div>
+            <iframe 
+                src="/widget/chart?currency=EUR" 
+                width="320" 
+                height="300" 
+                frameborder="0"
+                style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            </iframe>
+            <div class="code-block">&lt;iframe src="https://yoursite.com/widget/chart?currency=EUR" width="320" height="300"&gt;&lt;/iframe&gt;</div>
+        </div>
+    </div>
+
+    <h2 style="margin-top: 50px;">🌍 More Currency Examples</h2>
+    
+    <div class="widget-grid">
+        <!-- CNY Rates -->
+        <div class="widget-container">
+            <div class="widget-title">🇨🇳 Chinese Yuan (CNY)</div>
+            <iframe 
+                src="/widget/rates?currency=CNY" 
+                width="320" 
+                height="220" 
+                frameborder="0"
+                style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            </iframe>
+        </div>
+
+        <!-- CAD Converter -->
+        <div class="widget-container">
+            <div class="widget-title">🇨🇦 Canadian Dollar (CAD)</div>
+            <iframe 
+                src="/widget/converter?currency=CAD" 
+                width="320" 
+                height="220" 
+                frameborder="0"
+                style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            </iframe>
+        </div>
+
+        <!-- AED Chart -->
+        <div class="widget-container">
+            <div class="widget-title">🇦🇪 UAE Dirham (AED)</div>
+            <iframe 
+                src="/widget/chart?currency=AED" 
+                width="320" 
+                height="300" 
+                frameborder="0"
+                style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            </iframe>
+        </div>
+    </div>
+
+    <div style="margin-top: 50px; padding: 20px; background: #f1f5f9; border-radius: 8px;">
+        <h3>📝 Usage Instructions</h3>
+        <ol style="line-height: 1.8;">
+            <li><strong>Choose a widget type:</strong> rates, converter, or chart</li>
+            <li><strong>Select currency:</strong> Add ?currency=USD (or any supported currency code)</li>
+            <li><strong>Copy the iframe code</strong> and paste it into your HTML</li>
+            <li><strong>Customize dimensions:</strong> Adjust width/height as needed</li>
+            <li><strong>Auto-refresh:</strong> Widgets update every 60 seconds automatically</li>
+        </ol>
+        
+        <h4 style="margin-top: 20px;">Supported Currencies:</h4>
+        <p style="color: #64748b;">USD, GBP, EUR, CNY, JPY, CAD, AUD, CHF, ZAR, AED, SAR, GHS, INR, KES, EGP</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: #64748b;">
+        <p>Powered by <strong>Nairamet</strong> - Real-time Nigerian Exchange Rates</p>
+        <p style="font-size: 14px;">Visit <a href="/tools" style="color: #3b82f6;">Tools Page</a> to generate custom widget codes</p>
+    </div>
+</body>
+</html>

@@ -82,10 +82,10 @@ const dateRanges = [
 ];
 
 const currencies = [
-  { value: "USD", label: "US Dollar", symbol: "$" },
-  { value: "GBP", label: "British Pound", symbol: "£" },
-  { value: "EUR", label: "Euro", symbol: "€" },
-  { value: "CNY", label: "Chinese Yuan", symbol: "¥" },
+  { value: "USD", label: "US Dollar", symbol: "$", countryCode: "us" },
+  { value: "GBP", label: "British Pound", symbol: "£", countryCode: "gb" },
+  { value: "EUR", label: "Euro", symbol: "€", countryCode: "eu" },
+  { value: "CNY", label: "Chinese Yuan", symbol: "¥", countryCode: "cn" },
 ];
 
 function ChartsPageContent() {
@@ -161,14 +161,66 @@ function ChartsPageContent() {
           const rates = body?.rates ?? [];
           // Dynamically populate currency options from tracker
           if (Array.isArray(rates) && rates.length) {
+            const countryCodeMap: Record<string, string> = {
+              USD: "us",
+              GBP: "gb",
+              EUR: "eu",
+              CNY: "cn",
+              JPY: "jp",
+              CAD: "ca",
+              AUD: "au",
+              NZD: "nz",
+              CHF: "ch",
+              ZAR: "za",
+              NGN: "ng",
+              INR: "in",
+              BRL: "br",
+              RUB: "ru",
+              KRW: "kr",
+              MXN: "mx",
+              IDR: "id",
+              TRY: "tr",
+              SAR: "sa",
+              AED: "ae",
+              QAR: "qa",
+              KWD: "kw",
+              BHD: "bh",
+              THB: "th",
+              SGD: "sg",
+              MYR: "my",
+              PHP: "ph",
+              VND: "vn",
+              EGP: "eg",
+              KES: "ke",
+              GHS: "gh",
+              XOF: "sn", // West African CFA franc (using Senegal)
+              XAF: "cm", // Central African CFA franc (using Cameroon)
+              UGX: "ug",
+              TZS: "tz",
+              MAD: "ma",
+              TND: "tn",
+              ZMW: "zm",
+              PKR: "pk",
+              BDT: "bd",
+              GMD: "gm",
+              SLL: "sl",
+              LRD: "lr",
+              CDF: "cd",
+              ETB: "et",
+              SOS: "so",
+              SEK: "se",
+              NOK: "no",
+              DKK: "dk",
+            };
             const mapped = rates.map((r: any) => {
               const code = String(r.currency || r.code || "").toUpperCase();
               const symbol = r.symbol || (code === "USD" ? "$" : code);
-              return { value: code, label: code, symbol };
+              const countryCode = countryCodeMap[code] || "";
+              return { value: code, label: code, symbol, countryCode };
             });
             const dedup: Record<
               string,
-              { value: string; label: string; symbol: string }
+              { value: string; label: string; symbol: string; countryCode: string }
             > = {};
             mapped.forEach((m) => {
               if (m.value && !dedup[m.value]) dedup[m.value] = m;
@@ -298,7 +350,16 @@ function ChartsPageContent() {
               <SelectContent>
                 {currencyOptions.map((currency) => (
                   <SelectItem key={currency.value} value={currency.value}>
-                    {currency.symbol} {currency.label}
+                    <span className="flex items-center gap-2">
+                      {(currency as any).countryCode && (
+                        <img 
+                          src={`https://flagcdn.com/w20/${(currency as any).countryCode}.png`}
+                          alt={currency.value}
+                          className="w-5 h-4 object-cover rounded-sm"
+                        />
+                      )}
+                      <span>{currency.symbol} {currency.label}</span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

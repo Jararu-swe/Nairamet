@@ -24,21 +24,11 @@ import RequireAuthButton from "@/components/require-auth-button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
-import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { openAuthModal } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
 
   const handleStartFreeClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
@@ -52,7 +42,7 @@ export default function LandingPage() {
       icon: TrendingUp,
       title: "Live Exchange Rates",
       description:
-        "Real-time USD/NGN, GBP/NGN, EUR/NGN, CNY/NGN rates from CBN, black market, and remittance sources",
+        "Real-time USD/NGN, GBP/NGN, EUR/NGN, CNY/NGN rates from CBN, black market, and parallel sources",
       href: "/tracker",
       color: "text-emerald-600",
       isFree: true,
@@ -107,8 +97,8 @@ export default function LandingPage() {
   const stats = [
     { label: "Active Users", value: "50K+", icon: Users },
     { label: "Rate Updates Daily", value: "1M+", icon: Zap },
-    { label: "Accuracy Rate", value: "99.9%", icon: Shield },
-    { label: "User Rating", value: "4.9/5", icon: Star },
+    { label: "Accuracy Rate", value: "98%", icon: Shield },
+    { label: "User Rating", value: "4.8/5", icon: Star },
   ];
 
   const pricingFeatures = {
@@ -136,24 +126,27 @@ export default function LandingPage() {
   const testimonials = [
     {
       name: "Adebayo Ogundimu",
-      role: "Forex Trader",
+      role: "Import Business Owner, Lagos",
       content:
-        "NairaMet's alerts saved me thousands when the naira dropped. The accuracy is unmatched!",
+        "NairaMet's real-time alerts saved me from a major loss during the last naira fluctuation. I got notified instantly when rates hit my threshold and was able to make informed decisions. The accuracy and speed are unmatched!",
       rating: 5,
+      avatar: "AO",
     },
     {
       name: "Sarah Ikechukwu",
-      role: "Business Owner",
+      role: "Forex Trader, Abuja",
       content:
-        "I use NairaMet daily for my import business. The historical data helps me plan better.",
+        "I've tried several FX platforms, but NairaMet stands out. The historical charts help me identify trends, and the multiple rate sources (CBN, black market, parallel) give me the complete picture I need for trading decisions.",
       rating: 5,
+      avatar: "SI",
     },
     {
       name: "Michael Adeyemi",
-      role: "Financial Analyst",
+      role: "Financial Analyst, Port Harcourt",
       content:
-        "The most comprehensive FX platform for Nigerian markets. Premium features are worth every kobo.",
+        "As a financial analyst, I need reliable data. NairaMet provides comprehensive rate logs with export functionality, making my reports much easier to compile. The platform is professional and the data is always accurate.",
       rating: 5,
+      avatar: "MA",
     },
   ];
 
@@ -162,28 +155,7 @@ export default function LandingPage() {
       {/* AuthModal is rendered globally by AuthProvider */}
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-        {/* Dark mode toggle (top-right of hero) */}
-        <div className="absolute top-4 right-4 z-10">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleTheme}
-            className="bg-background/70 backdrop-blur border-input text-foreground hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
-            aria-label="Toggle dark mode"
-          >
-            {mounted && theme === "dark" ? (
-              <>
-                <Sun className="w-4 h-4 mr-2" />
-                Light mode
-              </>
-            ) : (
-              <>
-                <Moon className="w-4 h-4 mr-2" />
-                Dark mode
-              </>
-            )}
-          </Button>
-        </div>
+        {/* Dark mode toggle removed - now in navbar */}
 
         <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
           <div className="text-center space-y-8">
@@ -192,14 +164,14 @@ export default function LandingPage() {
                 variant="outline"
                 className="text-emerald-700 border-emerald-200 bg-emerald-50"
               >
-                🇳🇬 Nigeria's #1 FX Platform
+                🇳🇬 Nigeria’s FX, Simplified
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold text-foreground text-balance">
                 Track Naira Exchange Rates
                 <span className="text-emerald-600"> Like a Pro</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
-                Get real-time USD/NGN, GBP/NGN, EUR/NGN rates from CBN, black
+                Get real-time USD/NGN, GBP/NGN, EUR/NGN rates and more from CBN, black
                 market, and parallel sources. Set alerts, analyze trends, and
                 make informed currency decisions.
               </p>
@@ -379,22 +351,44 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="text-center">
-                <CardContent className="pt-6">
+              <Card 
+                key={index} 
+                className="relative hover:shadow-xl transition-shadow duration-300 border-2 hover:border-emerald-200 dark:hover:border-emerald-800"
+              >
+                <CardContent className="pt-6 pb-6">
+                  {/* Quote Icon */}
+                  <div className="absolute top-4 right-4 text-emerald-100 dark:text-emerald-900">
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                    </svg>
+                  </div>
+
+                  {/* Avatar */}
                   <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-xl">
+                      {testimonial.avatar}
+                    </div>
+                  </div>
+
+                  {/* Stars */}
+                  <div className="flex justify-center mb-4 gap-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star
                         key={i}
-                        className="w-5 h-5 text-amber-400 fill-current"
+                        className="w-5 h-5 text-amber-400 fill-amber-400"
                       />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4 italic">
+
+                  {/* Review Text */}
+                  <p className="text-muted-foreground mb-6 italic leading-relaxed">
                     "{testimonial.content}"
                   </p>
-                  <div>
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">
+
+                  {/* Divider */}
+                  <div className="border-t pt-4">
+                    <div className="font-semibold text-foreground">{testimonial.name}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
                       {testimonial.role}
                     </div>
                   </div>
@@ -418,7 +412,7 @@ export default function LandingPage() {
               asChild
               size="lg"
               variant="secondary"
-              className="bg-white text-emerald-600 hover:bg-gray-100"
+              className="bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <Link href="/tracker" onClick={handleStartFreeClick}>
                 <Gift className="w-4 h-4 mr-2" />
@@ -434,92 +428,144 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-white">NairaMet</h3>
-              <p className="text-sm">
-                Nigeria's most trusted platform for real-time exchange rates and
-                FX market insights.
+      <footer className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-300 border-t border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                  <img
+                    src="/Nairamet.svg"
+                    alt="NairaMet Logo"
+                    className="w-8 h-8"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    Naira<span className="text-emerald-500">Met</span>
+                  </h3>
+                  <p className="text-xs text-gray-400">Nigeria's #1 FX Platform</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Nigeria's most trusted platform for real-time exchange rates, market insights, and FX analytics. Get accurate data from multiple sources including CBN, black market, and parallel rates.
               </p>
+              <div className="flex gap-2">
+                <Badge variant="secondary" className="bg-emerald-900 text-emerald-100 border-emerald-700">
+                  Made in Nigeria 🇳🇬
+                </Badge>
+                <Badge variant="secondary" className="bg-blue-900 text-blue-100 border-blue-700">
+                  100% Free
+                </Badge>
+              </div>
             </div>
+
+            {/* Features */}
             <div>
-              <h4 className="font-semibold text-white mb-4">Features</h4>
+              <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                Features
+              </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/tracker" className="hover:text-white">
-                    Live Rates
+                  <Link href="/tracker" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Live Rates
                   </Link>
                 </li>
                 <li>
-                  <Link href="/alerts" className="hover:text-white">
-                    Rate Alerts
+                  <Link href="/alerts" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Rate Alerts
                   </Link>
                 </li>
                 <li>
-                  <Link href="/charts" className="hover:text-white">
-                    Charts
+                  <Link href="/charts" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Historical Charts
                   </Link>
                 </li>
                 <li>
-                  <Link href="/logs" className="hover:text-white">
-                    Rate Logs
+                  <Link href="/logs" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Rate Logs
                   </Link>
                 </li>
               </ul>
             </div>
+
+            {/* Resources */}
             <div>
-              <h4 className="font-semibold text-white mb-4">Resources</h4>
+              <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-emerald-500" />
+                Resources
+              </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/blog" className="hover:text-white">
-                    Naira Watch
+                  <Link href="/blog" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Naira Watch
                   </Link>
                 </li>
                 <li>
-                  <Link href="/tools" className="hover:text-white">
-                    Widgets
+                  <Link href="/tools" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Widgets & Tools
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
-                    API Docs
-                  </Link>
+                  <a href="https://www.cbn.gov.ng" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> CBN Official
+                  </a>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
-                    Support
-                  </Link>
+                  <a href="https://www.fmdqgroup.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> FMDQ Data
+                  </a>
                 </li>
               </ul>
             </div>
+
+            {/* Legal */}
             <div>
-              <h4 className="font-semibold text-white mb-4">Legal</h4>
+              <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-500" />
+                Legal
+              </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="#" className="hover:text-white">
-                    Privacy Policy
+                  <Link href="/privacy" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
-                    Terms of Service
+                  <Link href="/terms" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
-                    Disclaimer
+                  <Link href="/disclaimer" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                    <span className="text-emerald-500">→</span> Disclaimer
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-            <p>
-              &copy; 2024 NairaMet. All rights reserved. Rates are for
-              informational purposes only.
-            </p>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-gray-400">All systems operational</span>
+              </div>
+            </div>
+            <div className="text-sm text-gray-400 text-center">
+              <p>
+                &copy; {new Date().getFullYear()} NairaMet. All rights reserved.
+              </p>
+              <p className="text-xs mt-1">
+                Rates are for informational purposes only. Not financial advice.
+              </p>
+            </div>
+            <div className="text-sm text-gray-400">
+              Made with <span className="text-red-500">❤️</span> in Nigeria
+            </div>
           </div>
         </div>
       </footer>

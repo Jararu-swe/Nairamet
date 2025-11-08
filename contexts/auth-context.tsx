@@ -27,6 +27,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isPremium: boolean;
   isOnTrial: boolean;
+  justSignedUp: boolean;
   upgradeToPremium: () => Promise<void>;
   startTrial: () => Promise<void>;
   openAuthModal: (returnTo?: string) => void;
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authReturnTo, setAuthReturnTo] = useState<string | null>(null);
   const authReturnToRef = useRef<string | null>(null);
+  const [justSignedUp, setJustSignedUp] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -85,6 +87,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               tier: "free",
             });
           }
+
+          // Persisted first-time welcome state across reloads
+          try {
+            if (typeof window !== "undefined") {
+              const v = window.localStorage.getItem("nairamet:justSignedUp");
+              if (v === "true") setJustSignedUp(true);
+            }
+          } catch {}
         }
       } catch (error) {
         console.error("Failed to initialize auth:", error);
@@ -119,6 +129,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
               // Redirect to welcome page after email verification
               if (userData.isNewUser) {
+                setJustSignedUp(true);
+                try {
+                  if (typeof window !== "undefined") {
+                    window.localStorage.setItem("nairamet:justSignedUp", "true");
+                  }
+                } catch {}
                 router.push("/welcome");
               }
               // If there was an intended return target, navigate there.
@@ -162,6 +178,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } else if (event === "SIGNED_OUT") {
           setUser(null);
+          setJustSignedUp(false);
+          try {
+            if (typeof window !== "undefined") {
+              window.localStorage.removeItem("nairamet:justSignedUp");
+            }
+          } catch {}
           router.push("/");
         }
       }
@@ -171,6 +193,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authListener.subscription.unsubscribe();
     };
   }, [router]);
+
+  // Keep justSignedUp until the user signs out; we persist it via localStorage
+  // and clear it only on SIGNED_OUT.
 
   const login = async (userData: Omit<User, "tier" | "trialEndsAt" | "id">) => {
     try {
@@ -282,6 +307,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         isPremium: isPremium || isOnTrial,
         isOnTrial,
+        justSignedUp,
         upgradeToPremium,
         startTrial,
         openAuthModal,

@@ -13,8 +13,14 @@ export async function POST(request: NextRequest) {
   try {
     const { email, currency, condition, threshold, currentRate, rateType }: AlertEmailData = await request.json()
 
+    // Validate email
+    if (!email || !email.includes("@")) {
+      return NextResponse.json({ success: false, error: "Invalid email address" }, { status: 400 })
+    }
+
     const emailContent = {
       to: email,
+      from: process.env.EMAIL_FROM || "alerts@nairamet.com",
       subject: `🚨 FX Alert: ${currency} Rate ${condition.toUpperCase()} ₦${threshold.toLocaleString()}`,
       html: `
         <!DOCTYPE html>
@@ -110,16 +116,69 @@ This alert was sent because you set up a rate notification for ${currency}.
       `,
     }
 
-    console.log("[v0] Email would be sent:", emailContent)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log("[v0] Sending email alert to:", email)
+
+    // Try to send with Resend if API key is configured
+    const resendApiKey = process.env.RESEND_API_KEY
+
+    if (resendApiKey) {
+      try {
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${resendApiKey}`,
+          },
+          body: JSON.stringify({
+            from: emailContent.from,
+            to: emailContent.to,
+            subject: emailContent.subject,
+            html: emailContent.html,
+          }),
+        })
+
+        const result = await response.json()
+
+        if (response.ok) {
+          console.log("[v0] Email sent successfully via Resend:", result.id)
+          return NextResponse.json({
+            success: true,
+            message: "Alert email sent successfully",
+            emailId: result.id,
+          })
+        } else {
+          console.error("[v0] Resend API error:", result)
+          throw new Error(result.message || "Failed to send email")
+        }
+      } catch (resendError) {
+        console.error("[v0] Error with Resend:", resendError)
+        // Fall through to demo mode
+      }
+    }
+
+    // Demo mode: Log email content
+    console.log("[v0] Email would be sent (demo mode):", {
+      to: emailContent.to,
+      subject: emailContent.subject,
+    })
+
+    // Simulate sending delay
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     return NextResponse.json({
       success: true,
-      message: "Alert email sent successfully",
+      message: "Alert email logged (demo mode - configure RESEND_API_KEY for real emails)",
       preview: emailContent.html,
+      demoMode: true,
     })
   } catch (error) {
     console.error("[v0] Error sending alert email:", error)
-    return NextResponse.json({ success: false, error: "Failed to send alert email" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to send alert email",
+      },
+      { status: 500 }
+    )
   }
 }

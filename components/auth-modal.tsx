@@ -139,24 +139,28 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      // Start the Supabase OAuth flow for Google. We rely on the AuthProvider
-      // to have stored a `nairamet:returnTo` in localStorage if needed.
-      await supabase.auth.signInWithOAuth({ provider: "google" });
-      // The call above will redirect the browser to Google's OAuth flow.
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      // Respect any stored return target; Supabase will round-trip back to our app
+      // and AuthProvider will perform the final redirect.
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: origin || undefined,
+          // Minimal scope; expand if you need profile data beyond email/name
+          // scopes: "openid email profile",
+        },
+      });
+      // Redirects to Google; control returns after OAuth completes.
     } catch (err: any) {
       console.error("Google sign-in failed", err);
 
-      // Build a friendly, actionable message for common Supabase errors
-      // (for example: "Unsupported provider: provider is not enabled").
       const rawMessage = err?.message || String(err) || "Google sign-in failed";
-
-      // If the error mentions provider not enabled, provide setup hints.
       let friendly = rawMessage;
       if (/provider is not enabled|unsupported provider/i.test(rawMessage)) {
         friendly =
           "Google sign-in is not enabled for this Supabase project. " +
-          "Enable the Google provider in the Supabase dashboard (Auth → Providers), " +
-          "and ensure you add the correct OAuth client ID/secret and redirect URI (Supabase callback).";
+          "Enable the Google provider in Supabase (Auth → Providers), " +
+          "configure Google OAuth client ID/secret, and set the callback URL.";
       }
 
       setError(friendly);

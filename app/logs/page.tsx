@@ -29,6 +29,30 @@ import {
 } from "date-fns";
 import { ProtectedRoute } from "@/components/protected-route";
 
+// Helper function to get country code for currency
+function getCountryCodeForCurrency(currency: string): string {
+  const mapping: Record<string, string> = {
+    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
+    CAD: "ca", AUD: "au", NZD: "nz", CHF: "ch", ZAR: "za",
+    NGN: "ng", INR: "in", BRL: "br", RUB: "ru", KRW: "kr",
+    MXN: "mx", IDR: "id", TRY: "tr", SAR: "sa", AED: "ae",
+    QAR: "qa", KWD: "kw", BHD: "bh", THB: "th", SGD: "sg",
+    MYR: "my", PHP: "ph", VND: "vn", EGP: "eg", KES: "ke",
+    GHS: "gh", XOF: "sn", XAF: "cm", UGX: "ug", TZS: "tz",
+    MAD: "ma", TND: "tn", ZMW: "zm", PKR: "pk", BDT: "bd",
+    GMD: "gm", SLL: "sl", LRD: "lr", CDF: "cd", ETB: "et",
+    SOS: "so", SEK: "se", NOK: "no", DKK: "dk",
+  };
+  return mapping[currency.toUpperCase()] || "";
+}
+
+// Helper function to get flag URL
+function getFlagUrl(currency: string): string {
+  const countryCode = getCountryCodeForCurrency(currency);
+  if (!countryCode) return "";
+  return `https://flagcdn.com/w20/${countryCode}.png`;
+}
+
 // Mock historical data - in a real app, this would come from an API
 interface ExchangeEntry {
   id: string;
@@ -347,6 +371,11 @@ function LogsPageContent() {
       "Spread",
     ];
     const csvContent = [
+      "NairaMet - FX Rate Logs",
+      `Generated on: ${format(new Date(), "PPP")}`,
+      `Total Records: ${filteredData.length}`,
+      `Website: https://nairamet.com`,
+      "",
       headers.join(","),
       ...filteredData.map((item) =>
         [
@@ -364,7 +393,7 @@ function LogsPageContent() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `fx-rates-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `nairamet-fx-rates-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -378,20 +407,125 @@ function LogsPageContent() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>FX Rate Logs - ${format(new Date(), "yyyy-MM-dd")}</title>
+          <title>NairaMet - FX Rate Logs - ${format(new Date(), "yyyy-MM-dd")}</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            .header { margin-bottom: 20px; }
+            body { 
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+              margin: 30px; 
+              color: #333;
+            }
+            .header { 
+              margin-bottom: 30px; 
+              border-bottom: 3px solid #10b981;
+              padding-bottom: 20px;
+            }
+            .logo-section {
+              display: flex;
+              align-items: center;
+              gap: 15px;
+              margin-bottom: 15px;
+            }
+            .logo {
+              width: 50px;
+              height: 50px;
+              background: #ecfdf5;
+              border-radius: 12px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 8px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              border: 1px solid #d1fae5;
+            }
+            .logo img {
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+            }
+            .brand {
+              font-size: 32px;
+              font-weight: bold;
+              margin: 0;
+            }
+            .brand-naira {
+              color: #000;
+            }
+            .brand-met {
+              color: #10b981;
+            }
+            .tagline {
+              color: #6b7280;
+              font-size: 14px;
+              margin: 5px 0 0 0;
+            }
+            .info {
+              background: #f0fdf4;
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+              border-left: 4px solid #10b981;
+            }
+            .info p {
+              margin: 5px 0;
+              font-size: 14px;
+            }
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
+              margin-top: 20px;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            th, td { 
+              border: 1px solid #e5e7eb; 
+              padding: 12px; 
+              text-align: left;
+              font-size: 13px;
+            }
+            th { 
+              background: linear-gradient(135deg, #10b981, #14b8a6);
+              color: white;
+              font-weight: 600;
+              text-transform: uppercase;
+              font-size: 11px;
+              letter-spacing: 0.5px;
+            }
+            tbody tr:nth-child(even) {
+              background-color: #f9fafb;
+            }
+            tbody tr:hover {
+              background-color: #f0fdf4;
+            }
+            .footer {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 2px solid #e5e7eb;
+              text-align: center;
+              color: #6b7280;
+              font-size: 12px;
+            }
+            @media print {
+              body { margin: 15px; }
+              .header { page-break-after: avoid; }
+            }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>FX Rate Logs</h1>
-            <p>Generated on: ${format(new Date(), "PPP")}</p>
-            <p>Total Records: ${filteredData.length}</p>
+            <div class="logo-section">
+              <div class="logo">
+                <img src="/Nairamet.svg" alt="NairaMet Logo" />
+              </div>
+              <div>
+                <h1 class="brand"><span class="brand-naira">Naira</span><span class="brand-met">Met</span></h1>
+                <p class="tagline">Nigeria's #1 FX Platform</p>
+              </div>
+            </div>
+          </div>
+          <div class="info">
+            <p><strong>Report:</strong> FX Rate Logs</p>
+            <p><strong>Generated on:</strong> ${format(new Date(), "PPP 'at' p")}</p>
+            <p><strong>Total Records:</strong> ${filteredData.length}</p>
+            <p><strong>Website:</strong> https://nairamet.com</p>
           </div>
           <table>
             <thead>
@@ -399,8 +533,8 @@ function LogsPageContent() {
                 <th>Date</th>
                 <th>Currency</th>
                 <th>Official Rate</th>
-                <th>Black Market Rate</th>
-                <th>Parallel Market Rate</th>
+                <th>Black Market</th>
+                <th>Parallel Market</th>
                 <th>Spread</th>
               </tr>
             </thead>
@@ -410,17 +544,21 @@ function LogsPageContent() {
                   (item) => `
                 <tr>
                   <td>${item.date}</td>
-                  <td>${item.currency}/NGN</td>
-                  <td>₦${item.officialRate}</td>
-                  <td>₦${item.blackMarketRate}</td>
-                  <td>₦${item.parallelMarketRate ?? ""}</td>
-                  <td>₦${item.spread}</td>
+                  <td><strong>${item.currency}/NGN</strong></td>
+                  <td>₦${item.officialRate.toLocaleString()}</td>
+                  <td>₦${item.blackMarketRate.toLocaleString()}</td>
+                  <td>₦${(item.parallelMarketRate ?? 0).toLocaleString()}</td>
+                  <td>₦${item.spread.toLocaleString()}</td>
                 </tr>
               `
                 )
                 .join("")}
             </tbody>
           </table>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} NairaMet. All rights reserved.</p>
+            <p>Rates are for informational purposes only. Not financial advice.</p>
+          </div>
         </body>
       </html>
     `;
@@ -431,7 +569,7 @@ function LogsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-emerald-900">
@@ -476,10 +614,27 @@ function LogsPageContent() {
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Currencies</SelectItem>
+                    <SelectItem value="all">
+                      <span className="flex items-center gap-2">
+                        <span>🌍</span>
+                        <span>All Currencies</span>
+                      </span>
+                    </SelectItem>
                     {availableCurrencies.map((c) => (
                       <SelectItem key={c} value={c}>
-                        {c}/NGN
+                        <span className="flex items-center gap-2">
+                          {getFlagUrl(c) && (
+                            <img 
+                              src={getFlagUrl(c)}
+                              alt={c}
+                              className="w-5 h-4 object-cover rounded-sm"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                          )}
+                          <span>{c}/NGN</span>
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
