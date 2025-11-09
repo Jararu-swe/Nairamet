@@ -111,23 +111,19 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-3">
-                <Button
-                  onClick={() =>
-                    openAuthModal(
-                      pathname ||
-                        (typeof window !== "undefined"
-                          ? window.location.pathname
-                          : "/")
-                    )
-                  }
-                >
-                  Sign In / Sign Up
-                </Button>
-                <Button variant="ghost" onClick={() => {}}>
-                  Continue as Guest
-                </Button>
-              </div>
+              <Button
+                onClick={() =>
+                  openAuthModal(
+                    pathname ||
+                      (typeof window !== "undefined"
+                        ? window.location.pathname
+                        : "/")
+                  )
+                }
+                className="w-full"
+              >
+                Sign In / Sign Up
+              </Button>
             </CardContent>
           </Card>
         )}

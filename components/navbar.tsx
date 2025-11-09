@@ -126,6 +126,7 @@ export function Navbar() {
             <Link
               href="/"
               className="flex items-center gap-3 hover:opacity-80 transition-opacity group"
+              onClick={() => setIsOpen(false)}
             >
               <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow border border-emerald-200 dark:border-emerald-800">
                 <img
@@ -139,7 +140,7 @@ export function Navbar() {
                   Naira<span className="text-emerald-600 dark:text-emerald-400">Met</span>
                 </h1>
                 <p className="text-xs text-muted-foreground tracking-wide">
-                  Nigeria's #1 FX Platform
+                  Nigeria's FX Platform, Simplified
                 </p>
               </div>
             </Link>

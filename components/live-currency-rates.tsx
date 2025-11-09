@@ -6,7 +6,10 @@ import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 // Helper function to get country code for currency
 const getCountryCodeForCurrency = (currency: string): string => {
   const mapping: Record<string, string> = {
-    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn",
+    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
+    CAD: "ca", AUD: "au", CHF: "ch", ZAR: "za", INR: "in",
+    AED: "ae", SAR: "sa", KES: "ke", GHS: "gh", EGP: "eg",
+    NGN: "ng", BRL: "br", MXN: "mx", TRY: "tr", RUB: "ru",
   };
   return mapping[currency.toUpperCase()] || "un";
 };
@@ -95,6 +98,12 @@ export function LiveCurrencyRates() {
         apiChange?: number | null
       ) => {
         try {
+          // Prioritize API change data if available
+          if (typeof apiChange === "number" && Number.isFinite(apiChange) && apiChange !== 0) {
+            return apiChange;
+          }
+
+          // Fall back to localStorage comparison
           if (usePrev) {
             const prev = Number(prevRates?.[currKey]);
             if (Number.isFinite(prev) && prev !== 0) {
@@ -103,8 +112,6 @@ export function LiveCurrencyRates() {
             }
           }
 
-          if (typeof apiChange === "number" && Number.isFinite(apiChange))
-            return apiChange;
           return 0;
         } catch {
           return 0;
@@ -115,7 +122,7 @@ export function LiveCurrencyRates() {
       const currencyRates: CurrencyRate[] = [
         {
           currency: "USD",
-          flag: "🇺🇸",
+          flag: getFlagUrl("USD"),
           rate: data.quotes.USDNGN ?? 0,
           parallel:
             data.quotes.USDNGN ??
@@ -134,7 +141,7 @@ export function LiveCurrencyRates() {
         },
         {
           currency: "GBP",
-          flag: "🇬🇧",
+          flag: getFlagUrl("GBP"),
           rate: data.quotes.GBPNGN ?? 0,
           parallel: data.quotes.GBPNGN ?? data.quotes["GBP_NGN"] ?? 0,
           change: toPercentChange(
@@ -148,7 +155,7 @@ export function LiveCurrencyRates() {
         },
         {
           currency: "EUR",
-          flag: "🇪🇺",
+          flag: getFlagUrl("EUR"),
           rate: data.quotes.EURNGN ?? 0,
           parallel: data.quotes.EURNGN ?? data.quotes["EUR_NGN"] ?? 0,
           change: toPercentChange(
@@ -162,7 +169,7 @@ export function LiveCurrencyRates() {
         },
         {
           currency: "CNY",
-          flag: "🇨🇳",
+          flag: getFlagUrl("CNY"),
           rate: data.quotes.CNYNGN ?? 0,
           parallel: data.quotes.CNYNGN ?? data.quotes["CNY_NGN"] ?? 0,
           change: toPercentChange(
@@ -202,7 +209,7 @@ export function LiveCurrencyRates() {
       setRates([
         {
           currency: "USD",
-          flag: "🇺🇸",
+          flag: getFlagUrl("USD"),
           rate: 1650,
           parallel: 1650,
           change: 2.5,
@@ -210,7 +217,7 @@ export function LiveCurrencyRates() {
         },
         {
           currency: "GBP",
-          flag: "🇬🇧",
+          flag: getFlagUrl("GBP"),
           rate: 2050,
           parallel: 2050,
           change: -1.2,
@@ -218,7 +225,7 @@ export function LiveCurrencyRates() {
         },
         {
           currency: "EUR",
-          flag: "🇪🇺",
+          flag: getFlagUrl("EUR"),
           rate: 1750,
           parallel: 1750,
           change: 0.8,
@@ -226,7 +233,7 @@ export function LiveCurrencyRates() {
         },
         {
           currency: "CNY",
-          flag: "🇨🇳",
+          flag: getFlagUrl("CNY"),
           rate: 228,
           parallel: 228,
           change: 1.5,

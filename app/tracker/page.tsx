@@ -323,7 +323,7 @@ function FXTrackerContent() {
                 <div className="flex flex-col md:flex-row items-center justify-center gap-3">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-white">
-                      ₦{formatNaira(convertAmount)}
+                      {formatNaira(convertAmount)}
                     </span>
                   </div>
                   <ArrowUpDown className="w-5 h-5 text-white/60 rotate-90 md:rotate-0" />
