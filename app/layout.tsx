@@ -142,11 +142,15 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        {/* OneSignal SDK */}
+        {/* OneSignal SDK - async for better performance */}
         <script 
           src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" 
           defer
+          async
         />
+        {/* Preconnect to external domains */}
+        <link rel="preconnect" href="https://flagcdn.com" />
+        <link rel="dns-prefetch" href="https://flagcdn.com" />
       </head>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

@@ -246,11 +246,17 @@ export function LiveCurrencyRates() {
   };
 
   useEffect(() => {
-    fetchRates();
+    // Defer initial fetch to improve LCP
+    const timer = setTimeout(() => {
+      fetchRates();
+    }, 100);
 
     // Refresh every 5 minutes
     const interval = setInterval(fetchRates, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, []);
 
   const formatRate = (rate: number) => {
@@ -266,6 +272,32 @@ export function LiveCurrencyRates() {
     const sign = change >= 0 ? "+" : "";
     return `${sign}${change.toFixed(1)}%`;
   };
+
+  if (loading && rates.length === 0) {
+    return (
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 max-w-4xl mx-auto border">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm text-muted-foreground">
+              Live Exchange Rates
+            </h3>
+            <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
+          </div>
+          <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="text-center space-y-2">
+              <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mx-auto animate-pulse"></div>
+              <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded mx-auto animate-pulse"></div>
+              <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mx-auto animate-pulse"></div>
+              <div className="h-3 w-12 bg-gray-200 dark:bg-gray-700 rounded mx-auto animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 max-w-4xl mx-auto border">
@@ -290,6 +322,9 @@ export function LiveCurrencyRates() {
               <img
                 src={getFlagUrl(item.currency)}
                 alt={`${item.currency} flag`}
+                width="24"
+                height="16"
+                loading="lazy"
                 className="w-6 h-4 rounded border object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";

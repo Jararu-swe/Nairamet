@@ -125,6 +125,25 @@
     @apply bg-background text-foreground;
   }
 
+  /* Performance optimizations */
+  * {
+    /* Enable hardware acceleration for smoother animations */
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Optimize button interactions for better INP */
+  button, a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Reduce layout shifts */
+  img {
+    content-visibility: auto;
+  }
+
   /* Custom Scrollbar Styles - Light Mode */
   * {
     scrollbar-width: thin;

@@ -16,19 +16,14 @@ import {
   Shield,
   Zap,
   Check,
-  Crown,
   Gift,
 } from "lucide-react";
-import { useState, useEffect } from "react";
 import RequireAuthButton from "@/components/require-auth-button";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
 
 export default function LandingPage() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuth();
-  const { openAuthModal } = useAuth();
+  const { isAuthenticated, openAuthModal } = useAuth();
 
   const handleStartFreeClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
@@ -181,9 +176,9 @@ export default function LandingPage() {
               <Button
                 asChild
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-emerald-600 hover:bg-emerald-700 transition-colors"
               >
-                <Link href="/tracker">
+                <Link href="/tracker" prefetch={true}>
                   <Gift className="w-4 h-4 mr-2" />
                   Start Free Today
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -191,8 +186,10 @@ export default function LandingPage() {
               </Button>
             </div>
 
-            {/* Live Rate Preview */}
-            <LiveCurrencyRates />
+            {/* Live Rate Preview - Deferred for better LCP */}
+            <div className="mt-8">
+              <LiveCurrencyRates />
+            </div>
           </div>
         </div>
       </section>
