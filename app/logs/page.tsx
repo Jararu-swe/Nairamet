@@ -64,26 +64,40 @@ interface ExchangeEntry {
   spread: number;
   timestamp: string;
 }
-const generateHistoricalData = (): ExchangeEntry[] => {
+// Generate historical data with realistic trends based on current rates
+const generateHistoricalData = (
+  currentRates?: Record<string, { official: number; blackMarket: number; parallel: number }>
+): ExchangeEntry[] => {
   const data: ExchangeEntry[] = [];
-  const currencies = ["USD", "GBP", "EUR", "CNY"];
   const today = new Date();
+
+  // Default base rates if no current rates provided
+  const baseRates = currentRates || {
+    USD: { official: 1580, blackMarket: 1620, parallel: 1595 },
+    GBP: { official: 1950, blackMarket: 2000, parallel: 1975 },
+    EUR: { official: 1720, blackMarket: 1760, parallel: 1740 },
+    CNY: { official: 218, blackMarket: 225, parallel: 220 },
+  };
+
+  // Get all currencies from the rates object
+  const currencies = Object.keys(baseRates);
 
   for (let i = 365; i >= 0; i--) {
     const date = subDays(today, i);
     currencies.forEach((currency) => {
-      const baseRate =
-        currency === "USD"
-          ? 1580
-          : currency === "GBP"
-          ? 1950
-          : currency === "EUR"
-          ? 1720
-          : 230;
-      const variation = (Math.random() - 0.5) * 100;
-      const officialRate = baseRate + variation;
-      const blackMarketRate = officialRate + (Math.random() * 50 + 20);
-      const parallelMarketRate = blackMarketRate + (Math.random() * 10 - 5); // small deviation from black market
+      const base = (baseRates as any)[currency];
+      
+      // Create realistic historical trend (rates generally increase over time)
+      // More recent = closer to current rate, older = slightly lower
+      const ageFactor = i / 365; // 0 (today) to 1 (365 days ago)
+      const trendFactor = 1 - (ageFactor * 0.05); // Up to 5% lower for old data
+      
+      // Add small daily volatility (±0.5%)
+      const dailyVolatility = (Math.random() - 0.5) * 0.01;
+      
+      const officialRate = base.official * trendFactor * (1 + dailyVolatility);
+      const blackMarketRate = base.blackMarket * trendFactor * (1 + dailyVolatility);
+      const parallelMarketRate = base.parallel * trendFactor * (1 + dailyVolatility);
 
       data.push({
         id: `${currency}-${format(date, "yyyy-MM-dd")}`,
@@ -118,9 +132,8 @@ function LogsPageContent() {
   ]);
 
   // move generated historical data into state so we can patch today's entries with live data
-  const [historicalData, setHistoricalData] = useState(() =>
-    generateHistoricalData()
-  );
+  const [historicalData, setHistoricalData] = useState<ExchangeEntry[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const filteredData = useMemo(() => {
     let filtered = historicalData;
@@ -132,6 +145,7 @@ function LogsPageContent() {
 
     // Filter by date range
     const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
     let startDate;
     switch (dateRange) {
       case "7":
@@ -149,13 +163,20 @@ function LogsPageContent() {
       default:
         startDate = subDays(today, 30);
     }
+    startDate.setHours(0, 0, 0, 0); // Start of day
 
-    filtered = filtered.filter((item) =>
-      isWithinInterval(parseISO(item.timestamp), {
-        start: startDate,
-        end: today,
-      })
-    );
+    filtered = filtered.filter((item) => {
+      try {
+        const itemDate = parseISO(item.timestamp);
+        return isWithinInterval(itemDate, {
+          start: startDate,
+          end: today,
+        });
+      } catch (error) {
+        console.error("Error parsing date:", item.timestamp, error);
+        return false;
+      }
+    });
 
     // Filter by specific date search
     if (searchDate) {
@@ -165,9 +186,50 @@ function LogsPageContent() {
     return filtered;
   }, [historicalData, selectedCurrency, dateRange, searchDate]);
 
+  // Initialize with live rates on first load
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        const res = await fetch("/api/tracker", { cache: "no-store" });
+        if (res.ok) {
+          const body = await res.json();
+          const rates = body.rates || [];
+          
+          // Build current rates object
+          const currentRates: Record<string, { official: number; blackMarket: number; parallel: number }> = {};
+          rates.forEach((r: any) => {
+            const code = String(r.currency || r.code || "").toUpperCase();
+            currentRates[code] = {
+              official: Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? 0) || 0,
+              blackMarket: Number(r.blackMarket ?? r.black_market ?? r.rate ?? 0) || 0,
+              parallel: Number(r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0) || 0,
+            };
+          });
+          
+          // Generate historical data based on current rates
+          const historical = generateHistoricalData(currentRates);
+          setHistoricalData(historical);
+          setIsInitialized(true);
+        } else {
+          // Fallback to default generation
+          setHistoricalData(generateHistoricalData());
+          setIsInitialized(true);
+        }
+      } catch (error) {
+        console.error("Error initializing data:", error);
+        setHistoricalData(generateHistoricalData());
+        setIsInitialized(true);
+      }
+    };
+    
+    if (!isInitialized) {
+      initializeData();
+    }
+  }, [isInitialized]);
+
   // Poll /api/tracker to update today's entries and update availableCurrencies
   useEffect(() => {
-    if (!live) return;
+    if (!live || !isInitialized) return;
     let mounted = true;
     const POLL_INTERVAL =
       Number(process.env.NAIRAMET_POLL_INTERVAL_SEC || 60) * 1000;
@@ -254,7 +316,6 @@ function LogsPageContent() {
                 ) || 0,
             };
           });
-
           setHistoricalData((prev) => {
             const out = [...prev];
             codes.forEach((code) => {
@@ -677,30 +738,50 @@ function LogsPageContent() {
         {statistics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {statistics.map((stat) => (
-              <Card key={stat.currency}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{stat.currency}/NGN</CardTitle>
-                  <CardDescription>{stat.count} records</CardDescription>
+
+              <Card key={stat.currency} className="hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/10 dark:to-indigo-950/10">
+                  <div className="flex items-center gap-3">
+                    {getFlagUrl(stat.currency) && (
+                      <img 
+                        src={getFlagUrl(stat.currency)}
+                        alt={stat.currency}
+                        className="w-10 h-8 object-cover rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    )}
+                    <div>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Badge variant="secondary" className="text-base font-bold">
+                          {stat.currency}
+                        </Badge>
+                        <span className="text-muted-foreground text-sm">/NGN</span>
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-1">
+                        <span className="font-semibold text-blue-600 dark:text-blue-400">{stat.count}</span> records
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-2.5">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Avg Official:</span>
-                    <span className="font-medium">₦{stat.avgOfficial}</span>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">₦{stat.avgOfficial.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Avg Black Market:
-                    </span>
-                    <span className="font-medium">₦{stat.avgBlackMarket}</span>
+                    <span className="text-muted-foreground">Avg Black Market:</span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">₦{stat.avgBlackMarket.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Avg Parallel:</span>
-                    <span className="font-medium">₦{stat.avgParallel}</span>
+                    <span className="font-semibold text-amber-600 dark:text-amber-400">₦{stat.avgParallel.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm pt-2 border-t">
                     <span className="text-muted-foreground">Range:</span>
-                    <span className="font-medium">
-                      ₦{stat.minOfficial} - ₦{stat.maxOfficial}
+                    <span className="font-medium text-xs">
+                      ₦{stat.minOfficial.toLocaleString()} - ₦{stat.maxOfficial.toLocaleString()}
                     </span>
                   </div>
                 </CardContent>

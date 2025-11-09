@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 
 interface PushNotificationData {
-  subscription: PushSubscription
+  userId: string
   currency: string
   condition: "above" | "below"
   threshold: number
@@ -11,45 +11,69 @@ interface PushNotificationData {
 
 export async function POST(request: NextRequest) {
   try {
-    const { subscription, currency, condition, threshold, currentRate, rateType }: PushNotificationData =
+    const { userId, currency, condition, threshold, currentRate, rateType }: PushNotificationData =
       await request.json()
 
-    const payload = JSON.stringify({
-      title: `🚨 FX Alert: ${currency} Rate ${condition.toUpperCase()} ₦${threshold.toLocaleString()}`,
-      body: `${currency}/NGN is now ₦${currentRate.toLocaleString()} (${rateType === "blackMarket" ? "Black Market" : rateType === "cbn" ? "CBN Official" : "Remittance"})`,
-      icon: "/icon-192x192.png",
-      url: "/",
-      primaryKey: `${currency}-${Date.now()}`,
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "No user ID provided" },
+        { status: 400 }
+      )
+    }
+
+    const appId = process.env.ONESIGNAL_APP_ID
+    const apiKey = process.env.ONESIGNAL_REST_API_KEY
+
+    if (!appId || !apiKey) {
+      console.error("OneSignal credentials not configured")
+      // For development, log the notification
+      console.log("[OneSignal] Would send notification:", {
+        userId,
+        title: `${currency}/NGN Rate Alert`,
+        message: `${currency}/NGN ${rateType} rate is ${condition} ₦${threshold.toLocaleString()}. Current: ₦${currentRate.toLocaleString()}`,
+      })
+      return NextResponse.json({
+        success: true,
+        message: "Push notification logged (OneSignal not configured)",
+      })
+    }
+
+    // Send notification via OneSignal REST API
+    const response = await fetch(`https://onesignal.com/api/v1/notifications`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${apiKey}`,
+      },
+      body: JSON.stringify({
+        app_id: appId,
+        include_player_ids: [userId],
+        headings: { en: `${currency}/NGN Rate Alert` },
+        contents: {
+          en: `${currency}/NGN ${rateType} rate is ${condition} ₦${threshold.toLocaleString()}. Current: ₦${currentRate.toLocaleString()}`,
+        },
+        data: {
+          url: "/alerts",
+          currency,
+          threshold,
+          currentRate,
+        },
+        web_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/alerts`,
+        chrome_web_icon: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/Nairamet.svg`,
+        chrome_web_badge: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/Nairamet.svg`,
+      }),
     })
 
-    // In a real application, you would use a push service like:
-    // - web-push library with VAPID keys
-    // - Firebase Cloud Messaging (FCM)
-    // - OneSignal
-    // - Pusher Beams
+    const result = await response.json()
 
-    // For demo purposes, we'll simulate sending the push notification
-    console.log("[v0] Push notification would be sent:", {
-      subscription: subscription.endpoint,
-      payload: JSON.parse(payload),
-    })
+    if (result.errors) {
+      console.error("OneSignal API error:", result.errors)
+      return NextResponse.json({ success: false, error: result.errors }, { status: 500 })
+    }
 
-    // Simulate push notification delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // In production, you would do something like:
-    // const webpush = require('web-push')
-    // webpush.setVapidDetails('mailto:your@email.com', publicVapidKey, privateVapidKey)
-    // const result = await webpush.sendNotification(subscription, payload)
-    // return NextResponse.json({ success: true, result })
-
-    return NextResponse.json({
-      success: true,
-      message: "Push notification sent successfully",
-      preview: JSON.parse(payload), // For demo purposes
-    })
+    return NextResponse.json({ success: true, id: result.id })
   } catch (error) {
-    console.error("[v0] Error sending push notification:", error)
-    return NextResponse.json({ success: false, error: "Failed to send push notification" }, { status: 500 })
+    console.error("Error sending push notification:", error)
+    return NextResponse.json({ success: false, error: "Failed to send notification" }, { status: 500 })
   }
 }

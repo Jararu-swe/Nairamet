@@ -1,0 +1,21 @@
+{
+  "name": "NairaMet - Real-time Naira Exchange Rates",
+  "short_name": "NairaMet",
+  "description": "Track USD/NGN, GBP/NGN, EUR/NGN exchange rates with alerts, charts, and comprehensive FX tools for Nigerian currency markets",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/Nairamet.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "business", "utilities"],
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-NG"
+}

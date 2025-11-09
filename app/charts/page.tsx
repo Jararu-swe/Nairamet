@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -297,16 +297,18 @@ function ChartsPageContent() {
 
   const calculateTrend = (data: any[], key: string) => {
     if (data.length < 2) return { trend: 0, percentage: 0 };
-    const latest = data[data.length - 1][key];
-    const previous = data[0][key];
+    const latest = data[data.length - 1]?.[key] || 0;
+    const previous = data[0]?.[key] || 0;
+    if (previous === 0) return { trend: 0, percentage: 0 };
     const change = latest - previous;
     const percentage = (change / previous) * 100;
     return { trend: change, percentage };
   };
 
-  const officialTrend = calculateTrend(chartData, "official");
-  const blackTrend = calculateTrend(chartData, "blackMarket");
-  const parallelTrend = calculateTrend(chartData, "parallelMarket");
+  // Memoize trend calculations to ensure they update with chartData
+  const officialTrend = useMemo(() => calculateTrend(chartData, "official"), [chartData]);
+  const blackTrend = useMemo(() => calculateTrend(chartData, "blackMarket"), [chartData]);
+  const parallelTrend = useMemo(() => calculateTrend(chartData, "parallelMarket"), [chartData]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {

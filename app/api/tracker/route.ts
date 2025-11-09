@@ -37,6 +37,7 @@ export async function GET() {
     [k: string]: any;
   };
   const cacheKey = "tracker:v2";
+  const historyCacheKey = "tracker:history";
 
   // Return cached value if still valid
   const cached = CACHE[cacheKey];
@@ -47,6 +48,9 @@ export async function GET() {
   }
 
   const now = new Date().toISOString();
+  
+  // Get historical rates for 24h change calculation
+  const history = CACHE[historyCacheKey] || {};
 
   // Assemble rates using the internal cached currency endpoint
 
@@ -98,7 +102,25 @@ export async function GET() {
         const official = Number(quotes[pair]);
         if (!official || Number.isNaN(official)) return null;
         const spreaded = withSpreads(official);
-        return { currency: code, ...addAliases(spreaded) };
+        
+        // Calculate 24h change
+        const previousRate = history[code];
+        let change24h = 0;
+        if (previousRate && previousRate.blackMarket) {
+          change24h = ((spreaded.blackMarket - previousRate.blackMarket) / previousRate.blackMarket) * 100;
+        }
+        
+        // Store current rate for next comparison
+        history[code] = { 
+          blackMarket: spreaded.blackMarket, 
+          timestamp: Date.now() 
+        };
+        
+        return { 
+          currency: code, 
+          ...addAliases(spreaded),
+          change24h: Number(change24h.toFixed(2))
+        };
       })
       .filter(Boolean);
 
@@ -109,6 +131,9 @@ export async function GET() {
       data: result,
       expiresAt: Date.now() + TTL * 1000,
     };
+    
+    // Update history cache (keep for 24 hours)
+    CACHE[historyCacheKey] = history;
 
     return NextResponse.json(result, {
       headers: { "Cache-Control": CACHE_CONTROL_HEADER },
@@ -117,20 +142,40 @@ export async function GET() {
     console.warn("Currencylayer fetch failed, using fallback.", error);
     const fallback = {
       timestamp: now,
-      rates: FALLBACK_RATES.map((r) => ({
-        currency: r.currency,
-        ...addAliases({
-          official: r.official,
-          blackMarket: r.blackMarket,
-          remittance: r.remittance,
-        }),
-      })),
+      rates: FALLBACK_RATES.map((r) => {
+        // Calculate 24h change for fallback data
+        const previousRate = history[r.currency];
+        let change24h = 0;
+        if (previousRate && previousRate.blackMarket) {
+          change24h = ((r.blackMarket - previousRate.blackMarket) / previousRate.blackMarket) * 100;
+        }
+        
+        // Store current rate
+        history[r.currency] = { 
+          blackMarket: r.blackMarket, 
+          timestamp: Date.now() 
+        };
+        
+        return {
+          currency: r.currency,
+          ...addAliases({
+            official: r.official,
+            blackMarket: r.blackMarket,
+            remittance: r.remittance,
+          }),
+          change24h: Number(change24h.toFixed(2))
+        };
+      }),
     };
     // Cache fallback to avoid repeated failures
     CACHE[cacheKey] = {
       data: fallback,
       expiresAt: Date.now() + TTL * 1000,
     };
+    
+    // Update history cache
+    CACHE[historyCacheKey] = history;
+    
     return NextResponse.json(fallback, {
       headers: { "Cache-Control": CACHE_CONTROL_HEADER },
     });

@@ -2,80 +2,117 @@
 
 import { useState, useEffect } from "react"
 
-interface PushSubscription {
-  endpoint: string
-  keys: {
-    p256dh: string
-    auth: string
+declare global {
+  interface Window {
+    OneSignal: any;
   }
 }
 
 export function usePushNotifications() {
   const [isSupported, setIsSupported] = useState(false)
-  const [subscription, setSubscription] = useState<PushSubscription | null>(null)
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check if push notifications are supported
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      setIsSupported(true)
-      checkSubscription()
-    }
+    // Initialize OneSignal
+    initOneSignal()
   }, [])
 
-  const checkSubscription = async () => {
+  const initOneSignal = async () => {
     try {
-      const registration = await navigator.serviceWorker.ready
-      const existingSubscription = await registration.pushManager.getSubscription()
+      // Check if OneSignal is supported
+      if (typeof window === 'undefined') return
 
-      if (existingSubscription) {
-        setSubscription(existingSubscription as any)
-        setIsSubscribed(true)
-      }
+      // Wait for OneSignal to load
+      await waitForOneSignal()
+
+      // Initialize OneSignal with your App ID
+      window.OneSignal = window.OneSignal || []
+      window.OneSignal.push(function() {
+        window.OneSignal.init({
+          appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID || "YOUR_ONESIGNAL_APP_ID",
+          notifyButton: {
+            enable: false, // We'll use our own UI
+          },
+          allowLocalhostAsSecureOrigin: true, // For development
+        })
+
+        // Check if already subscribed
+        window.OneSignal.isPushNotificationsEnabled(function(isEnabled: boolean) {
+          setIsSubscribed(isEnabled)
+          setIsSupported(true)
+        })
+
+        // Get user ID
+        window.OneSignal.getUserId(function(id: string) {
+          if (id) {
+            setUserId(id)
+          }
+        })
+
+        // Listen for subscription changes
+        window.OneSignal.on('subscriptionChange', function(isSubscribed: boolean) {
+          setIsSubscribed(isSubscribed)
+          if (isSubscribed) {
+            window.OneSignal.getUserId(function(id: string) {
+              setUserId(id)
+            })
+          }
+        })
+      })
     } catch (error) {
-      console.error("[v0] Error checking subscription:", error)
+      console.error("Error initializing OneSignal:", error)
     }
   }
 
-  const requestPermission = async () => {
-    if (!isSupported) return false
-
-    const permission = await Notification.requestPermission()
-    return permission === "granted"
+  const waitForOneSignal = (): Promise<void> => {
+    return new Promise((resolve) => {
+      if (window.OneSignal) {
+        resolve()
+      } else {
+        const checkInterval = setInterval(() => {
+          if (window.OneSignal) {
+            clearInterval(checkInterval)
+            resolve()
+          }
+        }, 100)
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          clearInterval(checkInterval)
+          resolve()
+        }, 10000)
+      }
+    })
   }
 
   const subscribe = async () => {
-    if (!isSupported) return false
+    if (!isSupported || !window.OneSignal) return false
 
     setIsLoading(true)
     try {
-      // Register service worker
-      const registration = await navigator.serviceWorker.register("/sw.js")
-      await navigator.serviceWorker.ready
-
-      // Request notification permission
-      const hasPermission = await requestPermission()
-      if (!hasPermission) {
-        throw new Error("Notification permission denied")
-      }
-
-      // Create push subscription
-      // In production, you would use your own VAPID public key
-      const vapidPublicKey = "BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9f8HnVJyWAcJEXADiNXwqNDtHm_GWN6kOSr_7VJjHPS9mQUXEEkU"
-
-      const pushSubscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      await window.OneSignal.push(async function() {
+        await window.OneSignal.showNativePrompt()
       })
-
-      setSubscription(pushSubscription as any)
-      setIsSubscribed(true)
-
-      console.log("[v0] Push subscription created:", pushSubscription)
-      return true
+      
+      // Check if user subscribed
+      const isEnabled = await new Promise<boolean>((resolve) => {
+        window.OneSignal.isPushNotificationsEnabled(resolve)
+      })
+      
+      if (isEnabled) {
+        const id = await new Promise<string>((resolve) => {
+          window.OneSignal.getUserId(resolve)
+        })
+        setUserId(id)
+        setIsSubscribed(true)
+        return true
+      }
+      
+      return false
     } catch (error) {
-      console.error("[v0] Error subscribing to push notifications:", error)
+      console.error("Error subscribing to push notifications:", error)
       return false
     } finally {
       setIsLoading(false)
@@ -83,22 +120,19 @@ export function usePushNotifications() {
   }
 
   const unsubscribe = async () => {
-    if (!subscription) return false
+    if (!window.OneSignal) return false
 
     setIsLoading(true)
     try {
-      const registration = await navigator.serviceWorker.ready
-      const pushSubscription = await registration.pushManager.getSubscription()
-
-      if (pushSubscription) {
-        await pushSubscription.unsubscribe()
-        setSubscription(null)
-        setIsSubscribed(false)
-        console.log("[v0] Push subscription removed")
-        return true
-      }
+      await window.OneSignal.push(function() {
+        window.OneSignal.setSubscription(false)
+      })
+      
+      setIsSubscribed(false)
+      setUserId(null)
+      return true
     } catch (error) {
-      console.error("[v0] Error unsubscribing from push notifications:", error)
+      console.error("Error unsubscribing from push notifications:", error)
       return false
     } finally {
       setIsLoading(false)
@@ -106,7 +140,7 @@ export function usePushNotifications() {
   }
 
   const sendTestNotification = async () => {
-    if (!subscription) return false
+    if (!userId) return false
 
     try {
       const response = await fetch("/api/send-push", {
@@ -115,7 +149,7 @@ export function usePushNotifications() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          subscription,
+          userId,
           currency: "USD",
           condition: "above",
           threshold: 1600,
@@ -127,7 +161,7 @@ export function usePushNotifications() {
       const result = await response.json()
       return result.success
     } catch (error) {
-      console.error("[v0] Error sending test notification:", error)
+      console.error("Error sending test notification:", error)
       return false
     }
   }
@@ -136,22 +170,9 @@ export function usePushNotifications() {
     isSupported,
     isSubscribed,
     isLoading,
+    userId,
     subscribe,
     unsubscribe,
     sendTestNotification,
   }
-}
-
-// Helper function to convert VAPID key
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/")
-
-  const rawData = window.atob(base64)
-  const outputArray = new Uint8Array(rawData.length)
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i)
-  }
-  return outputArray
 }

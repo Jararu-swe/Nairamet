@@ -155,7 +155,7 @@ function AlertsPageContent() {
     pushEnabled: false,
   })
 
-  const { isSupported, isSubscribed, isLoading, subscribe, unsubscribe, sendTestNotification } = usePushNotifications()
+  const { isSupported, isSubscribed, isLoading, userId, subscribe, unsubscribe, sendTestNotification } = usePushNotifications()
 
   const handleSubscribe = async () => {
     const result = await subscribe()
@@ -583,22 +583,32 @@ function AlertsPageContent() {
                 </div>
               </div>
 
-              {/* Push notification toggle */}
-              {isSupported && (
-                <div className="flex items-center gap-2">
+              {/* Notification method toggle */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Notification Method</label>
+                <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
                   <input
                     type="checkbox"
-                    id="pushEnabled"
-                    checked={newAlert.pushEnabled}
+                    id="notificationsEnabled"
+                    checked={newAlert.pushEnabled || true}
                     onChange={(e) => setNewAlert((prev) => ({ ...prev, pushEnabled: e.target.checked }))}
-                    disabled={!isSubscribed}
                     className="rounded"
                   />
-                  <label htmlFor="pushEnabled" className="text-sm">
-                    Also send push notifications {!isSubscribed && "(enable push notifications first)"}
+                  <label htmlFor="notificationsEnabled" className="text-sm flex items-center gap-2">
+                    <Bell className="w-4 h-4" />
+                    <span>
+                      Send notifications via Email
+                      {isSupported && isSubscribed && " & Push"}
+                      {isSupported && !isSubscribed && " (Push available - enable above)"}
+                    </span>
                   </label>
                 </div>
-              )}
+                <p className="text-xs text-muted-foreground">
+                  {isSupported && isSubscribed 
+                    ? "You'll receive both email and push notifications when this alert triggers"
+                    : "You'll receive email notifications when this alert triggers"}
+                </p>
+              </div>
 
               <Button onClick={createAlert} className="w-full md:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
@@ -699,9 +709,9 @@ function AlertsPageContent() {
                 </div>
                 <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <p className="text-xs text-blue-800 dark:text-blue-200">
-                    <strong>How alerts work:</strong> You can create one rate alert that sends 1 email per month. 
-                    When triggered, you'll receive an email notification. The alert resets when the rate moves away from your threshold 
-                    and can trigger again, but you'll only receive 1 email per calendar month. Push notifications have no limit.
+                    <strong>How alerts work:</strong> You can create one rate alert that sends notifications when triggered. 
+                    You'll receive both email and push notifications (if enabled). Email notifications are limited to 1 per month per alert, 
+                    while push notifications have no limit. The alert resets when the rate moves away from your threshold and can trigger again.
                   </p>
                 </div>
               </div>
@@ -749,7 +759,7 @@ function AlertsPageContent() {
                 <div>
                   <h4 className="font-semibold text-sm mb-2">🔔 Pro Tip</h4>
                   <p className="text-sm text-muted-foreground">
-                    Enable push notifications for instant alerts even when you're not checking your email.
+                    Enable push notifications above to receive instant alerts on your device, in addition to email notifications.
                   </p>
                 </div>
               </div>

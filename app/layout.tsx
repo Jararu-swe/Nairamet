@@ -83,9 +83,11 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/Nairamet.svg", type: "image/svg+xml" }
+    ],
+    shortcut: "/Nairamet.svg",
+    apple: "/Nairamet.svg",
   },
   manifest: "/site.webmanifest",
   generator: 'v0.app'
@@ -139,6 +141,11 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        {/* OneSignal SDK */}
+        <script 
+          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" 
+          defer
         />
       </head>
       <body className="antialiased">
