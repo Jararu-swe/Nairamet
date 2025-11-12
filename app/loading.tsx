@@ -22,7 +22,7 @@ export default function Loading() {
             <span className="text-emerald-600 dark:text-emerald-400">Met</span>
           </h2>
           <p className="text-sm text-muted-foreground mt-2 font-medium">
-            Nigeria's #1 FX Platform
+            Nigeria's FX Platform, Simplified
           </p>
         </div>
 

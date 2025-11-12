@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowUpDown, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
-// REMOVE import { ProtectedRoute } from "@/components/protected-route";
+import { ProtectedRoute } from "@/components/protected-route";
 
 // Small helpers to provide a symbol and flag when the API doesn't include them
 function getSymbolForCode(code?: string) {
@@ -530,5 +530,9 @@ function FXTrackerContent() {
 }
 
 export default function FXTracker() {
-  return <FXTrackerContent />;
+  return (
+    <ProtectedRoute>
+      <FXTrackerContent />
+    </ProtectedRoute>
+  );
 }

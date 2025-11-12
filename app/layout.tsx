@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_NG",
     url: "/",
-    title: "NairaMet - Nigeria's #1 FX Platform",
+    title: "NairaMet - Nigeria's FX Platform, Simplified",
     description: "Real-time Naira exchange rates, alerts, charts, and comprehensive FX tools for Nigerian currency markets.",
     siteName: "NairaMet",
     images: [
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "NairaMet - Real-time Naira Exchange Rates",
-    description: "Track USD/NGN, GBP/NGN, EUR/NGN rates with alerts and charts. Nigeria's #1 FX Platform.",
+    description: "Track USD/NGN, GBP/NGN, EUR/NGN rates with alerts and charts. Nigeria's FX Platform, Simplified.",
     images: ["/og-image.png"],
     creator: "@nairamet",
   },
@@ -123,7 +123,7 @@ export default function RootLayout({
     "name": "NairaMet",
     "url": process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
     "logo": `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/Nairamet.svg`,
-    "description": "Nigeria's #1 FX Platform for real-time exchange rates and currency tools",
+    "description": "Nigeria's FX Platform, Simplified - Real-time exchange rates and currency tools",
     "sameAs": [
       "https://twitter.com/nairamet",
       "https://facebook.com/nairamet",

@@ -218,4 +218,19 @@
   body {
     overflow-x: hidden;
   }
+  
+  /* Ensure auth modal is always on top and properly positioned */
+  [role="dialog"], .fixed.inset-0 {
+    position: fixed !important;
+    z-index: 9999 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+  }
+  
+  /* Prevent body scroll when modal is open */
+  body:has(.fixed.inset-0) {
+    overflow: hidden;
+  }
 }

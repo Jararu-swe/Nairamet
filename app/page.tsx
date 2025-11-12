@@ -442,7 +442,7 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold text-white">
                     Naira<span className="text-emerald-500">Met</span>
                   </h3>
-                  <p className="text-xs text-gray-400">Nigeria's #1 FX Platform</p>
+                  <p className="text-xs text-gray-400">Nigeria's FX Platform, Simplified</p>
                 </div>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">

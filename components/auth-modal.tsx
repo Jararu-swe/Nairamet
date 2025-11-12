@@ -1,5 +1,6 @@
 "use client";
-import { useReducer, useState } from "react";
+import { useReducer, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -174,16 +175,33 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
     }
   };
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
+
+  const modalContent = (
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-start justify-center z-[9999] p-4 pt-20 overflow-y-auto"
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999
+      }}
+    >
       <Card className="w-full max-w-md">
         <CardHeader className="relative">
           <Button
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-2"
+            className="absolute right-2 top-2 z-1"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -264,7 +282,7 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-2 top-2"
+                    className="absolute right-2 top-0.5"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -404,4 +422,6 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
       </Card>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
