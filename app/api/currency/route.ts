@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 
-// Shared cache header for CDN/edge caching of API responses
+// Cache for 24 hours to conserve API quota (only ~30 requests/month)
+const CACHE_DURATION = 86400; // 24 hours in seconds
+const STALE_WHILE_REVALIDATE = 172800; // 48 hours in seconds
+
+// Production-ready cache headers for Vercel Edge + Browser caching
 const CACHE_CONTROL_HEADER =
-  process.env.CURRENCY_CACHE_HEADER || "s-maxage=300, stale-while-revalidate=600";
+  process.env.CURRENCY_CACHE_HEADER || 
+  `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
+
+// Mark this route as dynamic to ensure proper caching behavior
+export const dynamic = 'force-static';
+export const revalidate = CACHE_DURATION;
 
 export async function GET() {
   try {
@@ -79,12 +88,15 @@ export async function GET() {
         currenciesParam
       )}`,
       {
-        next: { revalidate: 86400 }, // Cache for 1 day (shared per server instance)
+        next: { revalidate: CACHE_DURATION }, // Cache for 24 hours
         headers: {
           "User-Agent": "NairaMet/1.0",
         },
       }
     );
+
+    // Log API call for monitoring (production: use proper logging service)
+    console.log(`[Currency API] Fetched fresh data at ${new Date().toISOString()}`);
 
     if (!response.ok) {
       throw new Error(`CurrencyLayer API error: ${response.status}`);
