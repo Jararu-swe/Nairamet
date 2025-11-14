@@ -261,7 +261,63 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="login-password">Password</Label>
+                  <button
+                    type="button"
+                    className="text-xs text-emerald-600 hover:text-emerald-700 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isLoading}
+                    onClick={async () => {
+                      // Validate email is provided
+                      if (!formState.email) {
+                        toast({
+                          title: "Email required",
+                          description: "Please enter your email address first.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+
+                      // Validate email format
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      if (!emailRegex.test(formState.email)) {
+                        toast({
+                          title: "Invalid email",
+                          description: "Please enter a valid email address.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      setIsLoading(true);
+                      try {
+                        const { error } = await supabase.auth.resetPasswordForEmail(
+                          formState.email,
+                          {
+                            redirectTo: `${window.location.origin}/reset-password`,
+                          }
+                        );
+                        
+                        if (error) throw error;
+                        
+                        toast({
+                          title: "Check your email",
+                          description: "If an account exists with this email, you'll receive a password reset link shortly. Check your spam folder if you don't see it.",
+                        });
+                      } catch (err: any) {
+                        // Don't reveal if email exists for security
+                        toast({
+                          title: "Check your email",
+                          description: "If an account exists with this email, you'll receive a password reset link shortly.",
+                        });
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
