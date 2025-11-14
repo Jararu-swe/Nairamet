@@ -95,9 +95,22 @@ function ChartsPageContent() {
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [currencyOptions, setCurrencyOptions] = useState(currencies);
+  const [showRotateMessage, setShowRotateMessage] = useState(false);
 
   const POLL_INTERVAL =
     Number(process.env.NAIRAMET_POLL_INTERVAL_SEC || 60) * 1000;
+
+  // Check screen width for rotate message (show for all mobile/tablet portrait)
+  useEffect(() => {
+    const checkWidth = () => {
+      setShowRotateMessage(window.innerWidth < 768);
+    };
+    
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+    
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -313,7 +326,7 @@ function ChartsPageContent() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border rounded-lg p-3 shadow-lg">
+        <div className="bg-background border rounded-lg p-3 shadow-lg relative z-50">
           <p className="font-medium">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="text-sm">
@@ -328,6 +341,26 @@ function ChartsPageContent() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      {/* Rotate phone message for small screens */}
+      {showRotateMessage && (
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center gap-2 relative z-10">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+          >
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <path d="M12 17h.01" />
+          </svg>
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            Rotate your phone to landscape for a better chart viewing experience
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-3xl font-bold text-balance">
@@ -511,11 +544,16 @@ function ChartsPageContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[500px] w-full">
+          <div className="h-[400px] sm:h-[500px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                margin={{ 
+                  top: 20, 
+                  right: window.innerWidth < 400 ? 10 : 30, 
+                  left: window.innerWidth < 400 ? 5 : 20, 
+                  bottom: window.innerWidth < 400 ? 30 : 20 
+                }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -524,28 +562,43 @@ function ChartsPageContent() {
                 />
                 <XAxis
                   dataKey="dateFormatted"
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   interval="preserveStartEnd"
                   axisLine={{ stroke: "hsl(var(--border))" }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
                 />
                 <YAxis
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   domain={["dataMin - 20", "dataMax + 20"]}
                   axisLine={{ stroke: "hsl(var(--border))" }}
-                  tickFormatter={(value) => `₦${value}`}
+                  width={55}
+                  tickFormatter={(value) => `₦${(value/1000).toFixed(1)}k`}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="line" />
+                <Legend 
+                  wrapperStyle={{ paddingTop: "20px", fontSize: "11px" }} 
+                  iconType="line"
+                  formatter={(value) => {
+                    if (typeof window !== 'undefined' && window.innerWidth < 400) {
+                      return value.replace('Official CBN Rate', 'CBN')
+                        .replace('Black Market Rate', 'Black Mkt')
+                        .replace('Parallel Market Rate', 'Parallel');
+                    }
+                    return value;
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey="official"
                   stroke="hsl(160 84% 39%)"
-                  strokeWidth={3}
+                  strokeWidth={typeof window !== 'undefined' && window.innerWidth < 400 ? 2 : 3}
                   name="Official CBN Rate"
                   dot={{
                     fill: "hsl(160 84% 39%)",
                     strokeWidth: 2,
-                    r: 4,
+                    r: typeof window !== 'undefined' && window.innerWidth < 400 ? 3 : 4,
                     stroke: "white",
                   }}
                   activeDot={{
@@ -560,12 +613,12 @@ function ChartsPageContent() {
                   type="monotone"
                   dataKey="blackMarket"
                   stroke="hsl(0 84% 60%)"
-                  strokeWidth={3}
+                  strokeWidth={typeof window !== 'undefined' && window.innerWidth < 400 ? 2 : 3}
                   name="Black Market Rate"
                   dot={{
                     fill: "hsl(0 84% 60%)",
                     strokeWidth: 2,
-                    r: 4,
+                    r: typeof window !== 'undefined' && window.innerWidth < 400 ? 3 : 4,
                     stroke: "white",
                   }}
                   activeDot={{
@@ -580,12 +633,12 @@ function ChartsPageContent() {
                   type="monotone"
                   dataKey="parallelMarket"
                   stroke="hsl(45 93% 47%)"
-                  strokeWidth={3}
+                  strokeWidth={typeof window !== 'undefined' && window.innerWidth < 400 ? 2 : 3}
                   name="Parallel Market Rate"
                   dot={{
                     fill: "hsl(45 93% 47%)",
                     strokeWidth: 2,
-                    r: 4,
+                    r: typeof window !== 'undefined' && window.innerWidth < 400 ? 3 : 4,
                     stroke: "white",
                   }}
                   activeDot={{

@@ -233,4 +233,37 @@
   body:has(.fixed.inset-0) {
     overflow: hidden;
   }
+
+  /* Mobile chart optimizations for screens < 400px */
+  @media (max-width: 400px) {
+    .recharts-legend-wrapper {
+      font-size: 10px !important;
+    }
+    
+    .recharts-cartesian-axis-tick-value {
+      font-size: 9px !important;
+    }
+    
+    .recharts-tooltip-wrapper {
+      font-size: 11px !important;
+    }
+
+    .recharts-legend-item {
+      margin-right: 8px !important;
+    }
+
+    .recharts-surface {
+      overflow: visible;
+    }
+  }
+
+  /* Ensure chart tooltips appear above everything */
+  .recharts-tooltip-wrapper {
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+
+  .recharts-default-tooltip {
+    z-index: 9999 !important;
+  }
 }
