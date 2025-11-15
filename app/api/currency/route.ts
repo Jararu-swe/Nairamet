@@ -10,7 +10,8 @@ const CACHE_CONTROL_HEADER =
   `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
 
 // Enable ISR (Incremental Static Regeneration) with revalidation
-export const revalidate = CACHE_DURATION;
+// Note: Must be a literal number, not a variable
+export const revalidate = 86400; // 24 hours
 
 export async function GET() {
   try {
