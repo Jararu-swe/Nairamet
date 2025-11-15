@@ -9,8 +9,7 @@ const CACHE_CONTROL_HEADER =
   process.env.CURRENCY_CACHE_HEADER || 
   `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
 
-// Mark this route as dynamic to ensure proper caching behavior
-export const dynamic = 'force-static';
+// Enable ISR (Incremental Static Regeneration) with revalidation
 export const revalidate = CACHE_DURATION;
 
 export async function GET() {
