@@ -128,25 +128,25 @@ export default async function BlogPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-emerald-600">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-emerald-600">
                         <div className="flex items-center gap-1">
                           <User className="w-4 h-4" />
-                          {article.author}
+                          <span className="text-xs sm:text-sm">{article.author}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          {new Date(article.date).toLocaleDateString()}
+                          <span className="text-xs sm:text-sm">{new Date(article.date).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {article.readTime} min read
+                          <span className="text-xs sm:text-sm">{article.readTime} min read</span>
                         </div>
                         {/* Removed LikeButton */}
                         {/* <LikeButton articleId={article.id} /> */}
                       </div>
-                      <Link href={`/blog/${encodeURIComponent(article.id)}`}>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700">
+                      <Link href={`/blog/${encodeURIComponent(article.id)}`} className="w-full sm:w-auto">
+                        <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
                           Read More <ArrowRight className="w-4 h-4 ml-1" />
                         </Button>
                       </Link>
@@ -169,7 +169,7 @@ export default async function BlogPage() {
                       key={article.id}
                       className="group border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-4 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all hover:scale-[1.02] bg-white dark:bg-gray-800/50"
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline" className="text-xs border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300">
@@ -177,14 +177,14 @@ export default async function BlogPage() {
                             </Badge>
                           </div>
                           <Link href={`/blog/${encodeURIComponent(article.id)}`}>
-                            <h3 className="font-bold text-lg text-emerald-900 dark:text-emerald-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                            <h3 className="font-bold text-base sm:text-lg text-emerald-900 dark:text-emerald-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                               {article.title}
                             </h3>
                           </Link>
                           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                             {article.excerpt}
                           </p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <User className="w-3 h-3" />
                               <span>{article.author}</span>
@@ -203,12 +203,12 @@ export default async function BlogPage() {
                         </div>
                         <Link
                           href={`/blog/${encodeURIComponent(article.id)}`}
-                          className="shrink-0"
+                          className="w-full sm:w-auto sm:shrink-0"
                         >
                           <Button
                             variant="outline"
                             size="sm"
-                            className="shrink-0 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 group-hover:shadow-sm transition-all"
+                            className="w-full sm:w-auto bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 group-hover:shadow-sm transition-all"
                           >
                             Read <ArrowRight className="w-3 h-3 ml-1" />
                           </Button>
