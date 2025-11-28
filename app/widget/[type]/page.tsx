@@ -313,16 +313,14 @@ export default function WidgetPage({ params }: { params: { type: string } }) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white dark:bg-gray-900 p-3">
-      <div className="max-w-sm mx-auto">
-        {renderWidget()}
-        <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 px-2">
-          <span>Powered by Nairamet</span>
-          <span className="flex items-center gap-1">
-            <RefreshCw className="w-3 h-3" />
-            {lastUpdate.toLocaleTimeString()}
-          </span>
-        </div>
+    <div className="w-full h-full bg-transparent">
+      {renderWidget()}
+      <div className="flex items-center justify-between text-xs text-muted-foreground mt-2 px-2">
+        <span>Powered by Nairamet</span>
+        <span className="flex items-center gap-1">
+          <RefreshCw className="w-3 h-3" />
+          {lastUpdate.toLocaleTimeString()}
+        </span>
       </div>
     </div>
   );

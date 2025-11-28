@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +26,15 @@ import { LiveCurrencyRates } from "@/components/live-currency-rates";
 
 export default function LandingPage() {
   const { isAuthenticated, openAuthModal } = useAuth();
+  const searchParams = useSearchParams();
+
+  // Check if we should open the auth modal (e.g., after password reset)
+  useEffect(() => {
+    const shouldLogin = searchParams.get("login");
+    if (shouldLogin === "true" && !isAuthenticated) {
+      openAuthModal();
+    }
+  }, [searchParams, isAuthenticated, openAuthModal]);
 
   const handleStartFreeClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {

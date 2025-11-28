@@ -1,3 +1,5 @@
+import "@/app/globals.css";
+
 export default function WidgetLayout({
   children,
 }: {
@@ -9,10 +11,15 @@ export default function WidgetLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>{`
           body { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden;
+            margin: 0 !important; 
+            padding: 0 !important; 
+            overflow: hidden !important;
             font-family: system-ui, -apple-system, sans-serif;
+            background: transparent !important;
+          }
+          /* Hide any navbar or header elements */
+          nav, header, .navbar { 
+            display: none !important; 
           }
         `}</style>
       </head>

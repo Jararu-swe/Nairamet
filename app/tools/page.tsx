@@ -262,10 +262,10 @@ function ToolsPageContent() {
         </div>
 
         <Tabs defaultValue="widgets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="widgets">Embeddable Widgets</TabsTrigger>
-            <TabsTrigger value="calculator">Rate Calculator</TabsTrigger>
-            <TabsTrigger value="strength">Currency Strength</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+            <TabsTrigger value="widgets" className="text-xs sm:text-sm">Embeddable Widgets</TabsTrigger>
+            <TabsTrigger value="calculator" className="text-xs sm:text-sm">Rate Calculator</TabsTrigger>
+            <TabsTrigger value="strength" className="text-xs sm:text-sm">Currency Strength</TabsTrigger>
           </TabsList>
 
           <TabsContent value="widgets" className="space-y-6">
@@ -784,24 +784,24 @@ function ToolsPageContent() {
                   {currencyStrength.map((currency) => (
                     <div
                       key={currency.currency}
-                      className="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border dark:border-gray-700 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center font-bold text-emerald-900 dark:text-emerald-100">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center font-bold text-sm sm:text-base text-emerald-900 dark:text-emerald-100">
                           {currency.currency}
                         </div>
                         <div>
-                          <div className="font-semibold dark:text-gray-100">
+                          <div className="font-semibold text-sm sm:text-base dark:text-gray-100">
                             {currency.currency}/NGN
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                             Strength: {currency.strength}%
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="flex-1 sm:w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
                             className={cn(
                               "h-2 rounded-full transition-all",
@@ -815,11 +815,11 @@ function ToolsPageContent() {
                           />
                         </div>
 
-                        <div className="flex items-center gap-1 min-w-[80px]">
+                        <div className="flex items-center gap-1 min-w-[60px] sm:min-w-[80px]">
                           {getTrendIcon(currency.trend)}
                           <span
                             className={cn(
-                              "text-sm font-medium",
+                              "text-xs sm:text-sm font-medium",
                               currency.trend === "up"
                                 ? "text-green-600"
                                 : currency.trend === "down"

@@ -1,6 +1,8 @@
 import Parser from "rss-parser";
+import * as cheerio from "cheerio";
+
+// @ts-ignore - unfluff has no types
 import unfluff from "unfluff";
-import cheerio from "cheerio";
 
 export type ScrapedArticle = {
   id: string;
@@ -11,6 +13,7 @@ export type ScrapedArticle = {
   date?: string;
   source?: string;
   sourceUrl?: string;
+  author?: string;
 };
 
 const parser = new Parser();
@@ -28,8 +31,8 @@ async function fetchNairalandNews(maxThreads = 5) {
     const html = await res.text();
     const $ = cheerio.load(html);
     // Select the latest news thread links (Nairaland structure: every 'td > b > a' in the main table)
-    const threadLinks = [];
-    $("td > b > a").each((_, el) => {
+    const threadLinks: Array<{ href: string; text: string }> = [];
+    $("td > b > a").each((_: number, el: any) => {
       const href = $(el).attr("href");
       const text = $(el).text();
       if (href && text && /^\d+/g.test(href)) {

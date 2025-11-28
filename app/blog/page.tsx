@@ -23,7 +23,6 @@ import { LiveCurrencyRates } from "@/components/live-currency-rates";
 import { MarketSnapshot } from "@/components/market-snapshot";
 // import { LikeButton } from "@/components/like-button";
 import { BlogSidebar } from "@/components/blog-sidebar";
-import { BlogRefreshButton } from "@/components/blog-refresh-button";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -75,10 +74,7 @@ export default async function BlogPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-4">
-            <h1 className="text-4xl font-bold text-emerald-900">Naira Watch</h1>
-            <BlogRefreshButton />
-          </div>
+          <h1 className="text-4xl font-bold text-emerald-900">Naira Watch</h1>
           <p className="text-lg text-emerald-700 max-w-2xl mx-auto">
             Stay informed with weekly summaries, policy analysis, and
             educational insights about Nigerian foreign exchange markets.

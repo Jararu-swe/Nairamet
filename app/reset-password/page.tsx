@@ -26,19 +26,59 @@ export default function ResetPasswordPage() {
   const [isValidSession, setIsValidSession] = useState(false);
 
   useEffect(() => {
-    // Check if user has a valid recovery session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setIsValidSession(true);
-      } else {
+    // Handle the password reset token from URL hash
+    const handlePasswordReset = async () => {
+      try {
+        // Check for hash params (Supabase sends token in URL hash)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const type = hashParams.get('type');
+
+        console.log('Reset password page loaded', { accessToken: !!accessToken, type });
+
+        if (accessToken && type === 'recovery') {
+          // Set the session with the access token
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: hashParams.get('refresh_token') || '',
+          });
+
+          if (error) {
+            console.error('Error setting session:', error);
+            throw error;
+          }
+
+          console.log('Session set successfully', data);
+          setIsValidSession(true);
+          return;
+        }
+
+        // Fallback: Check if user already has a valid session
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Existing session check:', { hasSession: !!session });
+        
+        if (session) {
+          setIsValidSession(true);
+        } else {
+          toast({
+            title: "Invalid or expired link",
+            description: "Please request a new password reset link.",
+            variant: "destructive",
+          });
+          setTimeout(() => router.push("/"), 3000);
+        }
+      } catch (error) {
+        console.error('Password reset error:', error);
         toast({
-          title: "Invalid or expired link",
-          description: "Please request a new password reset link.",
+          title: "Error",
+          description: "Failed to verify reset link. Please try again.",
           variant: "destructive",
         });
         setTimeout(() => router.push("/"), 3000);
       }
-    });
+    };
+
+    handlePasswordReset();
   }, [router, toast]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -87,13 +127,14 @@ export default function ResetPasswordPage() {
 
       toast({
         title: "Password updated successfully",
-        description: "You can now sign in with your new password.",
+        description: "Redirecting you to login...",
       });
 
       // Sign out to force fresh login with new password
       await supabase.auth.signOut();
       
-      setTimeout(() => router.push("/"), 2000);
+      // Redirect to home with a flag to open auth modal
+      setTimeout(() => router.push("/?login=true"), 2000);
     } catch (err: any) {
       toast({
         title: "Error",
