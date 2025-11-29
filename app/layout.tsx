@@ -84,10 +84,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/Nairamet.svg", type: "image/svg+xml" }
+      { url: "/Nairamet.svg", type: "image/svg+xml" },
+       { url: "/Nairamet.ico", type: "image/x-icon" },
+         { url: "/Nairamet.png",  type: "image/png" }
     ],
-    shortcut: "/Nairamet.svg",
-    apple: "/Nairamet.svg",
+    shortcut: "/Nairamet.ico",
+    apple: "/Nairamet.png",
   },
   manifest: "/site.webmanifest",
   generator: 'v0.app'
