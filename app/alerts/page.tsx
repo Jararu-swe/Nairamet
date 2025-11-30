@@ -85,55 +85,60 @@ function AlertsPageContent() {
   )
   const [isLoadingRates, setIsLoadingRates] = useState(false)
 
-  // Fetch real-time rates from API
+  // Fetch real-time rates from tracker API (accurate rates)
   useEffect(() => {
     const fetchRates = async () => {
       setIsLoadingRates(true)
       try {
-        const response = await fetch("/api/currency")
+        // Use tracker API for accurate real-time rates
+        const response = await fetch("/api/tracker", { 
+          cache: "no-store",
+          next: { revalidate: 0 }
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch rates")
+        }
+
         const data = await response.json()
+        const trackerRates = data.rates || []
 
-        if (data.success && data.quotes) {
-          const updatedRates = CURRENCY_CONFIG.map((currConfig) => {
-            const pairKey = `${currConfig.code}NGN`
-            const cbnRate = data.quotes[pairKey]
-            const change = data.changes?.[pairKey] || 0
-
-            if (cbnRate && cbnRate > 0) {
-              return {
-                currency: currConfig.code,
-                symbol: currConfig.symbol,
-                flag: currConfig.flag,
-                cbn: cbnRate,
-                blackMarket: cbnRate * 1.05, // Estimate: 5% above CBN
-                remittance: cbnRate * 1.02, // Estimate: 2% above CBN
-                change24h: change,
-                lastUpdated: new Date().toLocaleTimeString(),
-              }
-            }
+        if (Array.isArray(trackerRates) && trackerRates.length > 0) {
+          const updatedRates = trackerRates.map((rate: any) => {
+            const currencyCode = String(rate.currency || "").toUpperCase()
+            const config = CURRENCY_CONFIG.find(c => c.code === currencyCode)
             
-            // Return with zero rates if not available
+            if (!config) return null
+
+            // Extract real rates from tracker
+            const cbnRate = Number(rate.official || rate.cbn || rate.cbnRate || rate.cbn_rate || 0)
+            const blackMarketRate = Number(rate.blackMarket || rate.black_market || rate.black || 0)
+            const remittanceRate = Number(rate.remittance || rate.parallel || rate.parallelMarket || 0)
+
+            // Only include if we have at least one valid rate
+            if (cbnRate === 0 && blackMarketRate === 0 && remittanceRate === 0) {
+              return null
+            }
+
             return {
-              currency: currConfig.code,
-              symbol: currConfig.symbol,
-              flag: currConfig.flag,
-              cbn: 0,
-              blackMarket: 0,
-              remittance: 0,
-              change24h: 0,
+              currency: currencyCode,
+              symbol: config.symbol,
+              flag: config.flag,
+              cbn: cbnRate,
+              blackMarket: blackMarketRate || cbnRate * 1.03, // Fallback to 3% above CBN if not available
+              remittance: remittanceRate || cbnRate * 1.01, // Fallback to 1% above CBN if not available
+              change24h: 0, // Can be calculated if historical data available
               lastUpdated: new Date().toLocaleTimeString(),
             }
-          })
-          
-          // Filter out currencies with no data
-          const validRates = updatedRates.filter(r => r.cbn > 0)
-          
-          if (validRates.length > 0) {
-            setRates(validRates)
+          }).filter(Boolean) // Remove null entries
+
+          if (updatedRates.length > 0) {
+            setRates(updatedRates as ExchangeRate[])
+            console.log("[Alerts] Loaded accurate rates for", updatedRates.length, "currencies")
           }
         }
       } catch (error) {
-        console.error("[v0] Error fetching rates:", error)
+        console.error("[Alerts] Error fetching rates:", error)
         // Keep existing rates on error
       } finally {
         setIsLoadingRates(false)
@@ -141,8 +146,8 @@ function AlertsPageContent() {
     }
 
     fetchRates()
-    // Refresh rates every 5 minutes
-    const interval = setInterval(fetchRates, 5 * 60 * 1000)
+    // Refresh rates every 60 seconds for accurate monitoring
+    const interval = setInterval(fetchRates, 60 * 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -345,43 +350,33 @@ function AlertsPageContent() {
 
   const checkAlertTrigger = (alert: any) => {
     const rate = rates.find((r) => r.currency === alert.currency)
-    if (!rate) return false
+    if (!rate) {
+      console.warn(`[Alerts] No rate found for currency: ${alert.currency}`)
+      return false
+    }
 
     const currentRate = rate[alert.rateType as keyof ExchangeRate] as number
-    return alert.condition === "above" ? currentRate > alert.threshold : currentRate < alert.threshold
+    
+    if (!currentRate || currentRate === 0) {
+      console.warn(`[Alerts] Invalid rate for ${alert.currency} ${alert.rateType}: ${currentRate}`)
+      return false
+    }
+
+    const isTriggered = alert.condition === "above" 
+      ? currentRate > alert.threshold 
+      : currentRate < alert.threshold
+
+    if (isTriggered) {
+      console.log(`[Alerts] Alert triggered: ${alert.currency} ${alert.rateType} is ${alert.condition} ₦${alert.threshold} (current: ₦${currentRate})`)
+    }
+
+    return isTriggered
   }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Demo Mode Banner */}
-        {!process.env.NEXT_PUBLIC_RESEND_CONFIGURED && (
-          <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <div className="text-amber-600 dark:text-amber-400">ℹ️</div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
-                    Demo Mode Active
-                  </h3>
-                  <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
-                    Alerts are fully functional, but email notifications are logged to console instead of being sent.
-                    To enable real email delivery, configure your RESEND_API_KEY in environment variables.
-                  </p>
-                  <a
-                    href="/ALERTS_SETUP.md"
-                    target="_blank"
-                    className="text-sm text-amber-700 dark:text-amber-300 underline hover:no-underline"
-                  >
-                    View setup guide →
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Monthly Email Quota Banner */}
         <Card className={emailQuotaUsed ? "border-red-200 bg-red-50 dark:bg-red-950/20" : "border-green-200 bg-green-50 dark:bg-green-950/20"}>
           <CardContent className="pt-6">
@@ -584,30 +579,64 @@ function AlertsPageContent() {
               </div>
 
               {/* Notification method toggle */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Notification Method</label>
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Notification Methods</label>
+                
+                {/* Email notification (always enabled) */}
+                <div className="flex items-start gap-3 p-3 border rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800">
                   <input
                     type="checkbox"
-                    id="notificationsEnabled"
-                    checked={newAlert.pushEnabled || true}
-                    onChange={(e) => setNewAlert((prev) => ({ ...prev, pushEnabled: e.target.checked }))}
-                    className="rounded"
+                    checked={true}
+                    disabled
+                    className="mt-0.5 rounded"
                   />
-                  <label htmlFor="notificationsEnabled" className="text-sm flex items-center gap-2">
-                    <Bell className="w-4 h-4" />
-                    <span>
-                      Send notifications via Email
-                      {isSupported && isSubscribed && " & Push"}
-                      {isSupported && !isSubscribed && " (Push available - enable above)"}
-                    </span>
-                  </label>
+                  <div className="flex-1">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <Bell className="w-4 h-4" />
+                      Email Notifications
+                    </label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Always enabled • 1 email per month per alert
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {isSupported && isSubscribed 
-                    ? "You'll receive both email and push notifications when this alert triggers"
-                    : "You'll receive email notifications when this alert triggers"}
-                </p>
+
+                {/* Push notification (optional) */}
+                {isSupported && (
+                  <div className={`flex items-start gap-3 p-3 border rounded-lg ${
+                    isSubscribed 
+                      ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800' 
+                      : 'bg-muted/50 border-border'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      id="pushNotificationsEnabled"
+                      checked={newAlert.pushEnabled}
+                      onChange={(e) => setNewAlert((prev) => ({ ...prev, pushEnabled: e.target.checked }))}
+                      disabled={!isSubscribed}
+                      className="mt-0.5 rounded"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="pushNotificationsEnabled" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
+                        <Bell className="w-4 h-4" />
+                        Push Notifications
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {isSubscribed 
+                          ? "Instant browser notifications • Unlimited" 
+                          : "Enable push notifications above to use this feature"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <p className="text-xs text-blue-800 dark:text-blue-200">
+                    <strong>💡 Tip:</strong> {isSupported && isSubscribed 
+                      ? "Enable both for maximum coverage - email for records, push for instant alerts!"
+                      : "Email notifications are always sent. Enable push notifications above for instant alerts."}
+                  </p>
+                </div>
               </div>
 
               <Button onClick={createAlert} className="w-full md:w-auto">

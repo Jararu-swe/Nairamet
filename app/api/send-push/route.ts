@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { generatePushNotification } from "@/lib/push-notification-template"
 
 interface PushNotificationData {
   userId: string
@@ -6,7 +7,7 @@ interface PushNotificationData {
   condition: "above" | "below"
   threshold: number
   currentRate: number
-  rateType: string
+  rateType: "cbn" | "blackMarket" | "remittance"
 }
 
 export async function POST(request: NextRequest) {
@@ -24,17 +25,27 @@ export async function POST(request: NextRequest) {
     const appId = process.env.ONESIGNAL_APP_ID
     const apiKey = process.env.ONESIGNAL_REST_API_KEY
 
+    // Generate optimized push notification content
+    const notification = generatePushNotification({
+      currency,
+      condition,
+      threshold,
+      currentRate,
+      rateType,
+    })
+
     if (!appId || !apiKey) {
       console.error("OneSignal credentials not configured")
       // For development, log the notification
       console.log("[OneSignal] Would send notification:", {
         userId,
-        title: `${currency}/NGN Rate Alert`,
-        message: `${currency}/NGN ${rateType} rate is ${condition} ₦${threshold.toLocaleString()}. Current: ₦${currentRate.toLocaleString()}`,
+        title: notification.title,
+        message: notification.message,
       })
       return NextResponse.json({
         success: true,
         message: "Push notification logged (OneSignal not configured)",
+        preview: notification,
       })
     }
 
@@ -48,19 +59,16 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         app_id: appId,
         include_player_ids: [userId],
-        headings: { en: `${currency}/NGN Rate Alert` },
-        contents: {
-          en: `${currency}/NGN ${rateType} rate is ${condition} ₦${threshold.toLocaleString()}. Current: ₦${currentRate.toLocaleString()}`,
-        },
-        data: {
-          url: "/alerts",
-          currency,
-          threshold,
-          currentRate,
-        },
-        web_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/alerts`,
+        headings: { en: notification.title },
+        subtitle: { en: notification.subtitle },
+        contents: { en: notification.message },
+        data: notification.data,
+        url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}${notification.data.url}`,
+        web_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}${notification.data.url}`,
         chrome_web_icon: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/Nairamet.svg`,
         chrome_web_badge: `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/Nairamet.svg`,
+        priority: 10, // High priority for rate alerts
+        ttl: 86400, // 24 hours time-to-live
       }),
     })
 

@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 import { getArticles } from '@/lib/blog'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nairamet.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nairamet.com'
 
   // Get all blog articles
   const articles = getArticles()

@@ -214,6 +214,11 @@ export default async function BlogPage() {
                   ))}
               </CardContent>
             </Card>
+
+            {/* News Wire - Scraped Articles */}
+            {scraped && scraped.length > 0 && (
+              <Wire initialItems={scraped} keywords={nairaKeywords} />
+            )}
           </div>
 
           {/* Sidebar */}

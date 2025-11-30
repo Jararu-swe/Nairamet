@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
+import { ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
 import { ProtectedRoute } from "@/components/protected-route";
 
 // Small helpers to provide a symbol and flag when the API doesn't include them
@@ -142,10 +142,6 @@ function FXTrackerContent() {
     }
   };
 
-  const refreshRates = () => {
-    fetchRates();
-  };
-
   useEffect(() => {
     fetchRates();
     const interval = setInterval(fetchRates, 5 * 60 * 1000);
@@ -219,15 +215,6 @@ function FXTrackerContent() {
               Real-time Naira exchange rates and currency converter
             </p>
           </div>
-          <Button
-            onClick={refreshRates}
-            variant="outline"
-            className="w-fit bg-transparent"
-            disabled={loading}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            {loading ? "Refreshing..." : "Refresh Rates"}
-          </Button>
         </div>
 
         {/* Currency Converter */}

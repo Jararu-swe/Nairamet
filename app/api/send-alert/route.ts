@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { generateAlertEmailHTML, generateAlertEmailText } from "@/lib/email-template"
 
 interface AlertEmailData {
   email: string
@@ -6,7 +7,7 @@ interface AlertEmailData {
   condition: "above" | "below"
   threshold: number
   currentRate: number
-  rateType: string
+  rateType: "cbn" | "blackMarket" | "remittance"
 }
 
 export async function POST(request: NextRequest) {
@@ -18,11 +19,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid email address" }, { status: 400 })
     }
 
+    // Generate professional branded email using template
+    const htmlContent = generateAlertEmailHTML({
+      currency,
+      condition,
+      threshold,
+      currentRate,
+      rateType,
+      recipientEmail: email,
+    })
+
+    const textContent = generateAlertEmailText({
+      currency,
+      condition,
+      threshold,
+      currentRate,
+      rateType,
+      recipientEmail: email,
+    })
+
+    const conditionEmoji = condition === 'above' ? '📈' : '📉'
+    const conditionText = condition === 'above' ? 'Above' : 'Below'
+
     const emailContent = {
       to: email,
       from: process.env.EMAIL_FROM || "alerts@nairamet.com",
-      subject: `🚨 FX Alert: ${currency} Rate ${condition.toUpperCase()} ₦${threshold.toLocaleString()}`,
-      html: `
+      subject: `${conditionEmoji} Rate Alert: ${currency}/NGN ${conditionText} ₦${threshold.toLocaleString()}`,
+      html: htmlContent,
+      text: textContent,
+    }
+
+    // Old HTML template removed - using new branded template
+    const oldHtml = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -93,28 +121,7 @@ export async function POST(request: NextRequest) {
           </div>
         </body>
         </html>
-      `,
-      text: `
-FX Rate Alert - ${currency}/NGN
-
-Your rate threshold has been reached!
-
-The ${currency}/NGN rate has gone ${condition} your threshold of ₦${threshold.toLocaleString()}
-
-Current Rate: ₦${currentRate.toLocaleString()}
-
-Alert Details:
-- Currency Pair: ${currency}/NGN
-- Rate Source: ${rateType === "blackMarket" ? "Black Market" : "CBN Official"}
-- Condition: ${condition.charAt(0).toUpperCase() + condition.slice(1)} ₦${threshold.toLocaleString()}
-- Current Rate: ₦${currentRate.toLocaleString()}
-- Time: ${new Date().toLocaleString()}
-
-Visit ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} to view live rates.
-
-This alert was sent because you set up a rate notification for ${currency}.
-      `,
-    }
+      `
 
     console.log("[v0] Sending email alert to:", email)
 
@@ -134,6 +141,7 @@ This alert was sent because you set up a rate notification for ${currency}.
             to: emailContent.to,
             subject: emailContent.subject,
             html: emailContent.html,
+            text: emailContent.text,
           }),
         })
 
