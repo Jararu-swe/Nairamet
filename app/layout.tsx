@@ -124,12 +124,22 @@ export default function RootLayout({
     "@type": "Organization",
     "name": "NairaMet",
     "url": process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com",
-    "logo": {
-      "@type": "ImageObject",
-      "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/Nairamet.png`,
-      "width": "512",
-      "height": "512"
-    },
+    "logo": [
+      {
+        "@type": "ImageObject",
+        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/Nairamet.svg`,
+        "width": "512",
+        "height": "512",
+        "encodingFormat": "image/svg+xml"
+      },
+      {
+        "@type": "ImageObject",
+        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/Nairamet.png`,
+        "width": "512",
+        "height": "512",
+        "encodingFormat": "image/png"
+      }
+    ],
     "description": "Nigeria's FX Platform, Simplified - Real-time exchange rates and currency tools",
     "sameAs": [
       "https://twitter.com/nairamet",
