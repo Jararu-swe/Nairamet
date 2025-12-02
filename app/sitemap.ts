@@ -5,13 +5,13 @@ import { getArticles } from '@/lib/blog'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nairamet.com'
 
-  // Get all blog articles
+  // Get all blog articles (including scraped ones)
   const articles = getArticles()
   const blogPosts = articles.map((article) => ({
-    url: `${baseUrl}/blog/${article.id}`,
-    lastModified: new Date(article.date),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
+    url: `${baseUrl}/blog/${encodeURIComponent(article.id)}`,
+    lastModified: article.date ? new Date(article.date) : new Date(),
+    changeFrequency: article.id.startsWith('scraped:') ? 'daily' as const : 'monthly' as const,
+    priority: article.featured ? 0.8 : 0.6,
   }))
 
   return [

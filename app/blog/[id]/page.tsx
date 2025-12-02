@@ -1,4 +1,4 @@
-// import CommentsSection from "@/components/comments-section";
+import { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -13,6 +13,52 @@ import { getArticleById } from "@/lib/blog";
 type Props = {
   params: { id: string };
 };
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const article = getArticleById(params.id);
+  
+  if (!article) {
+    return {
+      title: "Article Not Found | NairaMet Blog",
+      description: "The requested article could not be found.",
+    };
+  }
+
+  // Clean title and excerpt for metadata
+  const cleanTitle = article.title.replace(/[^\w\s-]/g, "").trim();
+  const cleanExcerpt = article.excerpt.replace(/[^\w\s-.,]/g, "").trim().substring(0, 160);
+  
+  return {
+    title: `${cleanTitle} | NairaMet Blog`,
+    description: cleanExcerpt,
+    keywords: [
+      "naira news",
+      "fx news",
+      "nigeria currency",
+      "exchange rate news",
+      article.category,
+      ...cleanTitle.toLowerCase().split(" ").slice(0, 5),
+    ],
+    authors: article.author ? [{ name: article.author }] : undefined,
+    openGraph: {
+      title: cleanTitle,
+      description: cleanExcerpt,
+      type: "article",
+      publishedTime: article.date,
+      authors: article.author ? [article.author] : undefined,
+      url: `/blog/${params.id}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: cleanTitle,
+      description: cleanExcerpt,
+    },
+    alternates: {
+      canonical: `/blog/${params.id}`,
+    },
+  };
+}
 
 export default function ArticlePage({ params }: Props) {
   const rawId = params.id;
@@ -74,8 +120,66 @@ export default function ArticlePage({ params }: Props) {
     .trim();
   const paragraphs = plainContent.length ? plainContent.split(/\n{2,}/) : [];
 
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": safeTitle,
+    "description": safeExcerpt,
+    "datePublished": article.date,
+    "dateModified": article.date,
+    "author": {
+      "@type": article.originalUrl ? "Organization" : "Person",
+      "name": article.author || "NairaMet Editorial Team",
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "NairaMet",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/Nairamet.png`,
+      },
+    },
+    "articleSection": article.category,
+    "keywords": ["naira", "exchange rate", "fx", "nigeria", article.category].join(", "),
+  };
+
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/blog`,
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": safeTitle,
+        "item": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/blog/${params.id}`,
+      },
+    ],
+  };
+
   return (
-    <div className="container py-8 flex justify-center">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
+      />
+      <div className="container py-8 flex justify-center">
       <div className="w-full max-w-3xl px-2 sm:px-4 md:px-8">
         <div className="mb-6">
           <Link
@@ -152,5 +256,6 @@ export default function ArticlePage({ params }: Props) {
         </div> */}
       </div>
     </div>
+    </>
   );
 }
