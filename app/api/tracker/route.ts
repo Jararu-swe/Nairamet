@@ -27,8 +27,8 @@ const FALLBACK_RATES = [
 ];
 
 export async function GET() {
-  // Simple in-memory cache (module-level)
-  const TTL = Number(process.env.TRACKER_CACHE_TTL || 60); // seconds
+  // Simple in-memory cache (module-level) - 5 minutes to reduce load
+  const TTL = Number(process.env.TRACKER_CACHE_TTL || 300); // seconds (5 minutes)
   // @ts-ignore
   if (!(globalThis as any).__NAIRAMET_TRACKER_CACHE)
     (globalThis as any).__NAIRAMET_TRACKER_CACHE = {};
@@ -43,7 +43,10 @@ export async function GET() {
   const cached = CACHE[cacheKey];
   if (cached && cached.expiresAt && cached.expiresAt > Date.now()) {
     return NextResponse.json(cached.data, {
-      headers: { "Cache-Control": CACHE_CONTROL_HEADER },
+      headers: { 
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "X-Cache-Status": "HIT"
+      },
     });
   }
 
@@ -81,7 +84,7 @@ export async function GET() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const currencyRes = await fetch(`${baseUrl}/api/currency`, {
-      next: { revalidate: 300 }, // small cache for tracker assembly
+      next: { revalidate: 300 }, // 5 minute cache
       headers: { "User-Agent": "NairaMet/Tracker/1.0" },
     });
     if (!currencyRes.ok)
@@ -136,7 +139,10 @@ export async function GET() {
     CACHE[historyCacheKey] = history;
 
     return NextResponse.json(result, {
-      headers: { "Cache-Control": CACHE_CONTROL_HEADER },
+      headers: { 
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "X-Cache-Status": "MISS"
+      },
     });
   } catch (error) {
     console.warn("Currencylayer fetch failed, using fallback.", error);

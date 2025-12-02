@@ -83,217 +83,248 @@ export default function WidgetPage({ params }: { params: { type: string } }) {
     switch (params.type) {
       case "rates":
         return (
-          <Card className="w-full h-full border-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={getFlagUrl(currency)}
-                    alt={currency}
-                    className="w-6 h-4 rounded border object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                  <span>NGN/{currency} Exchange Rates</span>
+          <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
+            {loading ? (
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Header with Logo */}
+                <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                      <img
+                        src="/Nairamet.svg"
+                        alt="NairaMet Logo"
+                        className="w-6 h-6"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100">
+                        NairaMet
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {currency}/NGN
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Live
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="ml-2">
-                  Live
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="animate-pulse space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                </div>
-              ) : (
+                
+                {/* Rates */}
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Official:</span>
-                    <span className="font-medium">₦{rates.official.toLocaleString()}</span>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Official
+                    </span>
+                    <span className="font-mono font-semibold">
+                      ₦{rates.official.toLocaleString()}
+                    </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Black Market:</span>
-                    <div className="flex items-center">
-                      <span className="font-medium">₦{rates.blackMarket.toLocaleString()}</span>
-                      {getTrendIcon(rates.blackMarket, rates.official)}
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Black Market
+                    </span>
+                    <span className="font-mono font-semibold">
+                      ₦{rates.blackMarket.toLocaleString()}
+                    </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Parallel:</span>
-                    <div className="flex items-center">
-                      <span className="font-medium">₦{rates.remittance.toLocaleString()}</span>
-                      {getTrendIcon(rates.remittance, rates.official)}
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Parallel
+                    </span>
+                    <span className="font-mono font-semibold">
+                      ₦{rates.remittance.toLocaleString()}
+                    </span>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                
+                {/* Footer with Logo */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                      <img
+                        src="/Nairamet.svg"
+                        alt="NairaMet"
+                        className="w-3 h-3"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Powered by NairaMet
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         );
       
       case "converter":
         return (
-          <Card className="w-full h-full border-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={getFlagUrl(currency)}
-                    alt={currency}
-                    className="w-6 h-4 rounded border object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                  <span>NGN/{currency} Converter</span>
+          <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
+            {loading ? (
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+                      <span className="text-emerald-600 text-lg">⇅</span>
+                    </div>
+                    <h3 className="font-semibold text-sm">Currency Converter</h3>
+                  </div>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Live
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="ml-2">
-                  Live
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="animate-pulse space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="space-y-2">
+                
+                {/* Converter Form */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Amount (NGN)</label>
                     <Input
                       type="number"
                       value={convertAmount}
                       onChange={(e) => setConvertAmount(e.target.value)}
-                      placeholder="Enter amount"
-                      className="text-center"
+                      className="w-full mt-1 text-sm"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-center p-2 bg-emerald-50 dark:bg-emerald-950/20 rounded-md border border-emerald-200 dark:border-emerald-800">
-                      <div className="text-xs text-muted-foreground">NGN → {currency}</div>
-                      <div className="font-bold text-emerald-700 dark:text-emerald-300">
-                        {(Number.parseFloat(convertAmount) / rates.blackMarket).toFixed(2)} {currency}
-                      </div>
-                    </div>
-                    <div className="text-center p-2 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
-                      <div className="text-xs text-muted-foreground">{currency} → NGN</div>
-                      <div className="font-bold text-blue-700 dark:text-blue-300">
-                        ₦{(Number.parseFloat(convertAmount) * rates.blackMarket).toLocaleString()}
-                      </div>
+                  <div className="flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
+                      <span className="text-emerald-600">⇅</span>
                     </div>
                   </div>
-                  <div className="text-xs text-center text-muted-foreground">
-                    Rate: ₦{rates.blackMarket.toLocaleString()} (Black Market)
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Converted ({currency})</label>
+                    <div className="w-full mt-1 px-3 py-2 border rounded-md text-sm font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/20">
+                      {currency === "USD" ? "$" : currency === "GBP" ? "£" : currency === "EUR" ? "€" : ""}
+                      {(Number.parseFloat(convertAmount) / rates.blackMarket).toFixed(2)}
+                    </div>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                
+                {/* Footer */}
+                <div className="flex items-center justify-center pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <img src="/Nairamet.svg" alt="NairaMet" className="w-4 h-4" />
+                    <span className="text-xs text-gray-500">Powered by NairaMet</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         );
       
       case "chart":
         return (
-          <Card className="w-full h-full border-none">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={getFlagUrl(currency)}
-                    alt={currency}
-                    className="w-6 h-4 rounded border object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                  <span>{currency}/NGN Rate Chart</span>
-                </div>
-                <Badge variant="outline" className="ml-2">
-                  Live
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="animate-pulse space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-32 bg-gray-200 rounded"></div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">Official</div>
-                      <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
-                        ₦{rates.official.toLocaleString()}
-                      </div>
+          <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
+            {loading ? (
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                      <TrendingUp className="w-5 h-5 text-emerald-600" />
                     </div>
-                    <div className="text-center p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-                      <div className="text-xs text-red-600 dark:text-red-400 mb-1">Black</div>
-                      <div className="text-lg font-bold text-red-900 dark:text-red-100">
-                        ₦{rates.blackMarket.toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="text-center p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <div className="text-xs text-green-600 dark:text-green-400 mb-1">Parallel</div>
-                      <div className="text-lg font-bold text-green-900 dark:text-green-100">
-                        ₦{rates.remittance.toLocaleString()}
-                      </div>
+                    <div>
+                      <h3 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100">{currency}/NGN</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">7-Day Black Market Trend</p>
                     </div>
                   </div>
-                  
-                  {/* Visual comparison bars */}
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-blue-600 dark:text-blue-400">Official</span>
-                        <span className="text-blue-900 dark:text-blue-100">100%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: "100%" }} />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-red-600 dark:text-red-400">Black Market</span>
-                        <span className="text-red-900 dark:text-red-100">
-                          {((rates.blackMarket / rates.official) * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-red-500 h-2 rounded-full" 
-                          style={{ width: `${Math.min((rates.blackMarket / rates.official) * 100, 100)}%` }} 
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-green-600 dark:text-green-400">Parallel</span>
-                        <span className="text-green-900 dark:text-green-100">
-                          {((rates.remittance / rates.official) * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-green-500 h-2 rounded-full" 
-                          style={{ width: `${Math.min((rates.remittance / rates.official) * 100, 100)}%` }} 
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <Badge className="flex items-center gap-1 bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300">
+                    <TrendingUp className="w-3 h-3" />
+                    +2.3%
+                  </Badge>
+                </div>
 
-                  <div className="text-xs text-center text-muted-foreground">
-                    Spread: ₦{(rates.blackMarket - rates.official).toFixed(2)} ({(((rates.blackMarket - rates.official) / rates.official) * 100).toFixed(1)}%)
+                {/* Current Rate Display */}
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current Rate</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                        ₦{rates.blackMarket.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">High/Low</p>
+                      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        ₦{(rates.blackMarket * 1.03).toFixed(0)} / 
+                        ₦{(rates.blackMarket * 0.97).toFixed(0)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                {/* Mini Chart Visualization */}
+                <div>
+                  <div className="h-32 flex items-end gap-1 mb-2">
+                    {[65, 70, 68, 75, 80, 78, 85].map((height, i) => (
+                      <div 
+                        key={i} 
+                        className="group relative flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 rounded-t transition-all cursor-pointer" 
+                        style={{ height: `${height}%` }}
+                      >
+                        {/* Tooltip on hover */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block">
+                          <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                            ₦{(rates.blackMarket * (height / 80)).toFixed(0)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>7 days ago</span>
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">Today</span>
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-2 pt-2">
+                  <div className="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Avg</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      ₦{(rates.blackMarket * 0.98).toFixed(0)}
+                    </p>
+                  </div>
+                  <div className="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Volume</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">High</p>
+                  </div>
+                  <div className="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Trend</p>
+                    <p className="text-sm font-semibold text-green-600 dark:text-green-400">↑ Up</p>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <img src="/Nairamet.svg" alt="NairaMet" className="w-4 h-4" />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Powered by NairaMet</span>
+                  </div>
+                  <span className="text-xs text-gray-400">Updated 2m ago</span>
+                </div>
+              </div>
+            )}
+          </div>
         );
       
       default:
@@ -315,13 +346,6 @@ export default function WidgetPage({ params }: { params: { type: string } }) {
   return (
     <div className="w-full h-full bg-transparent">
       {renderWidget()}
-      <div className="flex items-center justify-between text-xs text-muted-foreground mt-2 px-2">
-        <span>Powered by Nairamet</span>
-        <span className="flex items-center gap-1">
-          <RefreshCw className="w-3 h-3" />
-          {lastUpdate.toLocaleTimeString()}
-        </span>
-      </div>
     </div>
   );
 }

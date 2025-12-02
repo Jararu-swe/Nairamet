@@ -38,21 +38,25 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const featuredArticles = getArticles();
-  // Filter scraped RSS items for naira/exchange related keywords
+  // Strict FX-related keywords for better filtering
   const nairaKeywords = [
-    "naira",
-    "ngn",
-    "naira to",
-    "exchange rate",
-    "exchange",
-    "fx",
-    "forex",
-    "parallel",
-    "black market",
-    "cbn",
-    "central bank",
-    "dollar",
-    "usd",
+    // Currency codes
+    "naira", "ngn", "usd/ngn", "gbp/ngn", "eur/ngn",
+    
+    // Exchange rate terms (more specific)
+    "exchange rate", "forex", "fx rate", "currency rate",
+    "black market rate", "parallel market", "cbn rate",
+    
+    // Institutions
+    "cbn", "central bank of nigeria", "fmdq",
+    
+    // Specific phrases
+    "dollar to naira", "pound to naira", "euro to naira",
+    "naira devaluation", "naira appreciation", "naira depreciation",
+    "fx market", "currency market", "foreign exchange",
+    "fx policy", "fx liquidity", "fx allocation",
+    
+    // Avoid generic terms that match too much
   ];
 
   const scraped = getCachedArticlesFiltered(nairaKeywords);

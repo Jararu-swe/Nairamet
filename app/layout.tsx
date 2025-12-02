@@ -88,7 +88,7 @@ export const metadata: Metadata = {
        { url: "/Nairamet.ico", type: "image/x-icon" },
          { url: "/Nairamet.png",  type: "image/png" }
     ],
-    shortcut: "/Nairamet.ico",
+    shortcut: "/Nairamet.png",
     apple: "/Nairamet.png",
   },
   manifest: "/site.webmanifest",

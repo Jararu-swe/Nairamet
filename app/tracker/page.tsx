@@ -85,7 +85,8 @@ function FXTrackerContent() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/tracker", { cache: "no-store" });
+      // Add timestamp to prevent browser caching
+      const res = await fetch(`/api/tracker?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch live rates");
       const data = await res.json();
 
@@ -144,6 +145,7 @@ function FXTrackerContent() {
 
   useEffect(() => {
     fetchRates();
+    // Fetch every 5 minutes to match cache duration
     const interval = setInterval(fetchRates, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -215,6 +217,14 @@ function FXTrackerContent() {
               Real-time Naira exchange rates and currency converter
             </p>
           </div>
+          <Button 
+            onClick={fetchRates} 
+            disabled={loading}
+            variant="outline"
+            className="w-fit"
+          >
+            {loading ? "Updating..." : "Refresh Rates"}
+          </Button>
         </div>
 
         {/* Currency Converter */}
