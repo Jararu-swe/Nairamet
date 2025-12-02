@@ -36,7 +36,9 @@ export async function GET() {
   const CACHE = (globalThis as any).__NAIRAMET_TRACKER_CACHE as {
     [k: string]: any;
   };
-  const cacheKey = "tracker:v2";
+  // TESTING: Cache key changes every 2 minutes (change to 6 hours for production)
+  const cacheVersion = Math.floor(Date.now() / (2 * 60 * 1000)); // 2 minutes for testing
+  const cacheKey = `tracker:v3:${cacheVersion}`;
   const historyCacheKey = "tracker:history";
 
   // Return cached value if still valid
@@ -83,8 +85,10 @@ export async function GET() {
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const currencyRes = await fetch(`${baseUrl}/api/currency`, {
-      next: { revalidate: 300 }, // 5 minute cache
+    // TESTING: Cache-busting parameter based on 2-minute intervals (change to 6 hours for production)
+    const cacheVersion = Math.floor(Date.now() / (2 * 60 * 1000)); // 2 minutes for testing
+    const currencyRes = await fetch(`${baseUrl}/api/currency?v=${cacheVersion}`, {
+      next: { revalidate: 120 }, // 2 minute cache for testing
       headers: { "User-Agent": "NairaMet/Tracker/1.0" },
     });
     if (!currencyRes.ok)
