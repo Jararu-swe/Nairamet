@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-// Cache for 6 hours to stay within 100 API calls/month limit (~80 calls/month with buffer)
-const CACHE_DURATION = 21600; // 6 hours in seconds
-const STALE_WHILE_REVALIDATE = 43200; // 12 hours in seconds
+// Cache for 12 hours = 60 API calls/month (2 calls/day × 30 days)
+const CACHE_DURATION = 43200; // 12 hours in seconds
+const STALE_WHILE_REVALIDATE = 86400; // 24 hours in seconds
 
 // Production-ready cache headers for Vercel Edge + Browser caching
 const CACHE_CONTROL_HEADER =
@@ -11,7 +11,7 @@ const CACHE_CONTROL_HEADER =
 
 // Enable ISR (Incremental Static Regeneration) with revalidation
 // Note: Must be a literal number, not a variable
-export const revalidate = 21600; // 6 hours
+export const revalidate = 43200; // 12 hours
 
 export async function GET() {
   try {
@@ -82,13 +82,13 @@ export async function GET() {
       );
     }
 
-    // Fetch from CurrencyLayer API (request broad set) — cached for 6 hours
+    // Fetch from CurrencyLayer API (request broad set) — cached for 12 hours
     const response = await fetch(
       `https://api.currencylayer.com/live?access_key=${encodeURIComponent(apiKey)}&source=USD&format=1&change=1&currencies=${encodeURIComponent(
         currenciesParam
       )}`,
       {
-        next: { revalidate: CACHE_DURATION }, // Cache for 6 hours
+        next: { revalidate: CACHE_DURATION }, // Cache for 12 hours
         headers: {
           "User-Agent": "NairaMet/1.0",
         },

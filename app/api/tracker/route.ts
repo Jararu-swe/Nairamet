@@ -36,8 +36,8 @@ export async function GET() {
   const CACHE = (globalThis as any).__NAIRAMET_TRACKER_CACHE as {
     [k: string]: any;
   };
-  // Cache key changes every 6 hours to force refresh
-  const cacheVersion = Math.floor(Date.now() / (6 * 60 * 60 * 1000));
+  // Cache key changes every 12 hours to force refresh
+  const cacheVersion = Math.floor(Date.now() / (12 * 60 * 60 * 1000));
   const cacheKey = `tracker:v3:${cacheVersion}`;
   const historyCacheKey = "tracker:history";
 
@@ -85,8 +85,8 @@ export async function GET() {
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    // Add cache-busting parameter based on 6-hour intervals
-    const cacheVersion = Math.floor(Date.now() / (6 * 60 * 60 * 1000));
+    // Cache-busting parameter based on 12-hour intervals
+    const cacheVersion = Math.floor(Date.now() / (12 * 60 * 60 * 1000));
     const currencyRes = await fetch(`${baseUrl}/api/currency?v=${cacheVersion}`, {
       next: { revalidate: 300 }, // 5 minute cache
       headers: { "User-Agent": "NairaMet/Tracker/1.0" },
