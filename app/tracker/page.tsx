@@ -81,10 +81,20 @@ function FXTrackerContent() {
     "cbn" | "blackMarket" | "parallelMarket"
   >("blackMarket");
 
-  const fetchRates = async () => {
+  const fetchRates = async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
+      
+      // If force refresh, call admin endpoint first to clear cache
+      if (forceRefresh) {
+        try {
+          await fetch('/api/admin/refresh-rates', { cache: "no-store" });
+        } catch (e) {
+          console.warn('Force refresh failed, fetching normally');
+        }
+      }
+      
       // Add timestamp to prevent browser caching
       const res = await fetch(`/api/tracker?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch live rates");
@@ -218,7 +228,7 @@ function FXTrackerContent() {
             </p>
           </div>
           <Button 
-            onClick={fetchRates} 
+            onClick={() => fetchRates(false)} 
             disabled={loading}
             variant="outline"
             className="w-fit"

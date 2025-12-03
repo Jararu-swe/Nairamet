@@ -27,8 +27,8 @@ const FALLBACK_RATES = [
 ];
 
 export async function GET() {
-  // Simple in-memory cache (module-level) - 5 minutes to reduce load
-  const TTL = Number(process.env.TRACKER_CACHE_TTL || 300); // seconds (5 minutes)
+  // Simple in-memory cache (module-level) - 24 hours to match API cache
+  const TTL = Number(process.env.TRACKER_CACHE_TTL || 86400); // seconds (24 hours)
   // @ts-ignore
   if (!(globalThis as any).__NAIRAMET_TRACKER_CACHE)
     (globalThis as any).__NAIRAMET_TRACKER_CACHE = {};
@@ -38,21 +38,19 @@ export async function GET() {
   };
   // Cache key changes every 24 hours to match currency API cache
   const cacheVersion = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
-  const cacheKey = `tracker:v6:${cacheVersion}`;
-  const historyCacheKey = "tracker:history";
+  const cacheKey = `tracker:v7:${cacheVersion}`;
+  const historyCacheKey = `tracker:history:${cacheVersion}`;
 
   // Return cached value if still valid
   const cached = CACHE[cacheKey];
   if (cached && cached.expiresAt && cached.expiresAt > Date.now()) {
     return NextResponse.json(cached.data, {
       headers: { 
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=172800",
         "X-Cache-Status": "HIT"
       },
     });
   }
-
-  const now = new Date();
   
   // Get historical rates for 24h change calculation
   const history = CACHE[historyCacheKey] || {};
@@ -84,21 +82,58 @@ export async function GET() {
   });
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    // Cache-busting parameter based on 24-hour intervals to match currency API
-    const cacheBuster = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
-    const currencyRes = await fetch(`${baseUrl}/api/currency?v=${cacheBuster}`, {
-      next: { revalidate: 300 }, // 5 minute cache
-      headers: { "User-Agent": "NairaMet/Tracker/1.0" },
-    });
-    if (!currencyRes.ok)
-      throw new Error(`Currency API HTTP ${currencyRes.status}`);
-    const currencyData = await currencyRes.json();
+    // Import currency API logic directly instead of self-referencing fetch
+    // This avoids circular dependencies and works better on Vercel Edge
+    const apiKey = process.env.CURRENCYLAYER_API_KEY || process.env.CURRENCY_LAYER_API_KEY || "";
+    
+    if (!apiKey) {
+      throw new Error("Currency API key not configured");
+    }
 
-    const quotes: Record<string, number> = currencyData.quotes || {};
+    const currenciesParam = process.env.CURRENCYLAYER_CURRENCIES || [
+      "USD", "NGN", "GBP", "EUR", "CNY", "JPY", "CAD", "AUD", "NZD", "ZAR", 
+      "CHF", "SEK", "NOK", "DKK", "GHS", "XOF", "XAF", "KES", "UGX", "TZS", 
+      "EGP", "MAD", "TND", "ZMW", "SAR", "AED", "QAR", "KWD", "BHD", "INR", 
+      "PKR", "BDT", "GMD", "SLL", "LRD", "CDF", "ETB", "SOS"
+    ].join(",");
+
+    // Fetch directly from CurrencyLayer
+    const currencyRes = await fetch(
+      `https://api.currencylayer.com/live?access_key=${encodeURIComponent(apiKey)}&source=USD&format=1&currencies=${encodeURIComponent(currenciesParam)}`,
+      {
+        next: { revalidate: 86400 }, // 24 hour cache to match currency API
+        headers: { "User-Agent": "NairaMet/Tracker/1.0" },
+      }
+    );
+    
+    if (!currencyRes.ok) {
+      throw new Error(`CurrencyLayer API HTTP ${currencyRes.status}`);
+    }
+    
+    const currencyData = await currencyRes.json();
+    
+    if (!currencyData.success) {
+      throw new Error(`CurrencyLayer error: ${currencyData.error?.info || "Unknown"}`);
+    }
+
+    // Build XXXNGN pairs from USD quotes
+    const rawQuotes = currencyData.quotes as Record<string, number>;
+    const directUsdToNgn = rawQuotes.USDNGN || 1650;
+    
+    const quotes: Record<string, number> = { USDNGN: directUsdToNgn };
+    Object.keys(rawQuotes).forEach((k) => {
+      if (k.startsWith("USD") && k.length === 6) {
+        const cur = k.slice(3);
+        const usdToCur = rawQuotes[k];
+        if (typeof usdToCur === "number" && usdToCur > 0) {
+          quotes[`${cur}NGN`] = directUsdToNgn / usdToCur;
+        }
+      }
+    });
+
     const usdNgn = Number(quotes["USDNGN"] || 0);
     if (!usdNgn || Number.isNaN(usdNgn)) {
-      throw new Error("Currency API missing USDNGN");
+      throw new Error("CurrencyLayer missing USDNGN");
     }
 
     // Build rates from `${CODE}NGN` pairs (e.g., GBPNGN → GBP)
@@ -127,14 +162,14 @@ export async function GET() {
           currency: code, 
           ...addAliases(spreaded),
           change24h: Number(change24h.toFixed(2)),
-          lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+          lastUpdated: new Date(currencyData.timestamp * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
         };
       })
       .filter(Boolean);
 
     const result = { 
-      timestamp: now.toISOString(), 
-      lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      timestamp: new Date(currencyData.timestamp * 1000).toISOString(), 
+      lastUpdated: new Date(currencyData.timestamp * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       rates: liveRates 
     };
 
@@ -149,12 +184,13 @@ export async function GET() {
 
     return NextResponse.json(result, {
       headers: { 
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=172800",
         "X-Cache-Status": "MISS"
       },
     });
   } catch (error) {
-    console.warn("Currencylayer fetch failed, using fallback.", error);
+    console.warn("CurrencyLayer fetch failed, using fallback.", error);
+    const now = new Date();
     const fallback = {
       timestamp: now.toISOString(),
       lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
