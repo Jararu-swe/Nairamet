@@ -10,20 +10,20 @@ const PARALLEL_SPREAD = Number(
 const CACHE_CONTROL_HEADER =
   process.env.TRACKER_CACHE_HEADER || "s-maxage=300, stale-while-revalidate=600";
 
-// Expanded fallback data used when live fetch fails
+// Updated fallback data with more current rates (as of Dec 2024)
 const FALLBACK_RATES = [
-  { currency: "USD", official: 1580, blackMarket: 1620, remittance: 1595 },
-  { currency: "GBP", official: 1950, blackMarket: 2000, remittance: 1975 },
-  { currency: "EUR", official: 1720, blackMarket: 1760, remittance: 1740 },
-  { currency: "CNY", official: 218, blackMarket: 225, remittance: 220 },
-  { currency: "CAD", official: 1150, blackMarket: 1180, remittance: 1165 },
-  { currency: "AUD", official: 1020, blackMarket: 1050, remittance: 1035 },
-  { currency: "JPY", official: 10.2, blackMarket: 10.5, remittance: 10.35 },
-  { currency: "CHF", official: 1750, blackMarket: 1790, remittance: 1770 },
-  { currency: "ZAR", official: 85, blackMarket: 88, remittance: 86.5 },
-  { currency: "AED", official: 430, blackMarket: 442, remittance: 436 },
-  { currency: "SAR", official: 420, blackMarket: 432, remittance: 426 },
-  { currency: "GHS", official: 120, blackMarket: 124, remittance: 122 },
+  { currency: "USD", official: 1650, blackMarket: 1708, remittance: 1691 },
+  { currency: "GBP", official: 2090, blackMarket: 2163, remittance: 2142 },
+  { currency: "EUR", official: 1780, blackMarket: 1842, remittance: 1825 },
+  { currency: "CNY", official: 228, blackMarket: 236, remittance: 234 },
+  { currency: "CAD", official: 1180, blackMarket: 1221, remittance: 1210 },
+  { currency: "AUD", official: 1070, blackMarket: 1107, remittance: 1097 },
+  { currency: "JPY", official: 10.8, blackMarket: 11.2, remittance: 11.1 },
+  { currency: "CHF", official: 1850, blackMarket: 1915, remittance: 1897 },
+  { currency: "ZAR", official: 90, blackMarket: 93, remittance: 92 },
+  { currency: "AED", official: 449, blackMarket: 465, remittance: 460 },
+  { currency: "SAR", official: 440, blackMarket: 455, remittance: 451 },
+  { currency: "GHS", official: 125, blackMarket: 129, remittance: 128 },
 ];
 
 export async function GET() {
@@ -36,9 +36,9 @@ export async function GET() {
   const CACHE = (globalThis as any).__NAIRAMET_TRACKER_CACHE as {
     [k: string]: any;
   };
-  // Cache key changes every 12 hours to force refresh
-  const cacheVersion = Math.floor(Date.now() / (12 * 60 * 60 * 1000));
-  const cacheKey = `tracker:v3:${cacheVersion}`;
+  // Cache key changes every 24 hours to match currency API cache
+  const cacheVersion = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
+  const cacheKey = `tracker:v6:${cacheVersion}`;
   const historyCacheKey = "tracker:history";
 
   // Return cached value if still valid
@@ -52,7 +52,7 @@ export async function GET() {
     });
   }
 
-  const now = new Date().toISOString();
+  const now = new Date();
   
   // Get historical rates for 24h change calculation
   const history = CACHE[historyCacheKey] || {};
@@ -85,9 +85,9 @@ export async function GET() {
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    // Cache-busting parameter based on 12-hour intervals
-    const cacheVersion = Math.floor(Date.now() / (12 * 60 * 60 * 1000));
-    const currencyRes = await fetch(`${baseUrl}/api/currency?v=${cacheVersion}`, {
+    // Cache-busting parameter based on 24-hour intervals to match currency API
+    const cacheBuster = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
+    const currencyRes = await fetch(`${baseUrl}/api/currency?v=${cacheBuster}`, {
       next: { revalidate: 300 }, // 5 minute cache
       headers: { "User-Agent": "NairaMet/Tracker/1.0" },
     });
@@ -126,12 +126,17 @@ export async function GET() {
         return { 
           currency: code, 
           ...addAliases(spreaded),
-          change24h: Number(change24h.toFixed(2))
+          change24h: Number(change24h.toFixed(2)),
+          lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
         };
       })
       .filter(Boolean);
 
-    const result = { timestamp: now, rates: liveRates };
+    const result = { 
+      timestamp: now.toISOString(), 
+      lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      rates: liveRates 
+    };
 
     // Cache the result
     CACHE[cacheKey] = {
@@ -151,7 +156,8 @@ export async function GET() {
   } catch (error) {
     console.warn("Currencylayer fetch failed, using fallback.", error);
     const fallback = {
-      timestamp: now,
+      timestamp: now.toISOString(),
+      lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       rates: FALLBACK_RATES.map((r) => {
         // Calculate 24h change for fallback data
         const previousRate = history[r.currency];
@@ -173,7 +179,8 @@ export async function GET() {
             blackMarket: r.blackMarket,
             remittance: r.remittance,
           }),
-          change24h: Number(change24h.toFixed(2))
+          change24h: Number(change24h.toFixed(2)),
+          lastUpdated: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
         };
       }),
     };
