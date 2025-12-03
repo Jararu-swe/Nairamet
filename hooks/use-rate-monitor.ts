@@ -81,10 +81,11 @@ export function useRateMonitor(
   }, [alerts, checkInterval])
 
   useEffect(() => {
-    if (isMonitoring && rates.length > 0) {
+    if (isMonitoring && rates.length > 0 && alerts.length > 0) {
+      console.log("[RateMonitor] Rates updated, checking alerts...")
       checkAlerts()
     }
-  }, [rates])
+  }, [rates, isMonitoring, alerts])
 
   const startMonitoring = () => {
     if (intervalRef.current) return
@@ -112,18 +113,36 @@ export function useRateMonitor(
   }
 
   const checkAlerts = () => {
-    if (!rates.length || !alerts.length) return
+    if (!rates.length || !alerts.length) {
+      console.log("[RateMonitor] Skipping check - no rates or alerts")
+      return
+    }
 
     setLastCheck(new Date())
+    console.log(`[RateMonitor] Checking ${alerts.length} alerts against ${rates.length} rates`)
 
     for (const alert of alerts) {
-      if (!alert.isActive) continue
+      if (!alert.isActive) {
+        console.log(`[RateMonitor] Skipping inactive alert: ${alert.currency}`)
+        continue
+      }
 
       const rate = rates.find((r) => r.currency === alert.currency)
-      if (!rate) continue
+      if (!rate) {
+        console.log(`[RateMonitor] No rate found for ${alert.currency}`)
+        continue
+      }
 
       const currentRate = rate[alert.rateType]
+      
+      if (!currentRate || currentRate === 0) {
+        console.log(`[RateMonitor] Invalid rate for ${alert.currency} ${alert.rateType}: ${currentRate}`)
+        continue
+      }
+
       const isTriggered = alert.condition === "above" ? currentRate > alert.threshold : currentRate < alert.threshold
+
+      console.log(`[RateMonitor] ${alert.currency} ${alert.rateType}: ₦${currentRate} ${alert.condition} ₦${alert.threshold} = ${isTriggered ? 'TRIGGERED' : 'not triggered'}`)
 
       if (isTriggered) {
         // Prevent duplicate alerts - only send once per alert until condition is no longer met
@@ -132,11 +151,11 @@ export function useRateMonitor(
         if (!alertHistoryRef.current.has(alertKey)) {
           // Check monthly email quota
           if (emailQuotaUsed) {
-            console.log(`[v0] Alert triggered but monthly email quota used: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
+            console.log(`[RateMonitor] Alert triggered but monthly email quota used: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
             // Still mark as triggered to prevent repeated checks, but don't send email
             alertHistoryRef.current.add(alertKey)
           } else {
-            console.log(`[v0] Alert triggered: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
+            console.log(`[RateMonitor] 🚨 ALERT TRIGGERED: ${alert.currency} ${alert.condition} ₦${alert.threshold} (current: ₦${currentRate})`)
             onAlertTriggered(alert, currentRate)
             alertHistoryRef.current.add(alertKey)
             
@@ -146,13 +165,15 @@ export function useRateMonitor(
             setEmailQuotaUsed(true)
             localStorage.setItem('nairamet_last_email_sent', now.toISOString())
           }
+        } else {
+          console.log(`[RateMonitor] Alert already triggered (waiting for reset): ${alert.currency}`)
         }
       } else {
         // Reset alert when condition is no longer met (allows re-triggering)
         const alertKey = `${alert.id}`
         if (alertHistoryRef.current.has(alertKey)) {
           alertHistoryRef.current.delete(alertKey)
-          console.log(`[v0] Alert reset: ${alert.currency} ${alert.condition} ₦${alert.threshold} - condition no longer met`)
+          console.log(`[RateMonitor] Alert reset: ${alert.currency} ${alert.condition} ₦${alert.threshold} - condition no longer met`)
         }
       }
     }

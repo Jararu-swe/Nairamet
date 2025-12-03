@@ -205,7 +205,7 @@ function AlertsPageContent() {
   } = useAlertStorage()
 
   const handleAlertTriggered = async (alert: any, currentRate: number) => {
-    console.log(`[v0] Processing triggered alert: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
+    console.log(`[Alerts] Processing triggered alert: ${alert.currency} ${alert.condition} ₦${alert.threshold}`)
 
     let emailSent = false
     let pushSent = false
@@ -226,34 +226,41 @@ function AlertsPageContent() {
       })
       const result = await response.json()
       emailSent = result.success
+      
+      if (emailSent) {
+        console.log("[Alerts] Email notification sent successfully")
+      } else {
+        console.error("[Alerts] Email notification failed:", result.error)
+      }
     } catch (error) {
-      console.error("[v0] Error sending alert email:", error)
+      console.error("[Alerts] Error sending alert email:", error)
     }
 
     // Send push notification if enabled
-    if (alert.pushEnabled && isSubscribed) {
+    if (alert.pushEnabled && isSubscribed && userId) {
       try {
-        const registration = await navigator.serviceWorker.ready
-        const subscription = await registration.pushManager.getSubscription()
-
-        if (subscription) {
-          const response = await fetch("/api/send-push", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              subscription,
-              currency: alert.currency,
-              condition: alert.condition,
-              threshold: alert.threshold,
-              currentRate: currentRate,
-              rateType: alert.rateType,
-            }),
-          })
-          const result = await response.json()
-          pushSent = result.success
+        const response = await fetch("/api/send-push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: userId,
+            currency: alert.currency,
+            condition: alert.condition,
+            threshold: alert.threshold,
+            currentRate: currentRate,
+            rateType: alert.rateType,
+          }),
+        })
+        const result = await response.json()
+        pushSent = result.success
+        
+        if (pushSent) {
+          console.log("[Alerts] Push notification sent successfully")
+        } else {
+          console.error("[Alerts] Push notification failed:", result.error)
         }
       } catch (error) {
-        console.error("[v0] Error sending push notification:", error)
+        console.error("[Alerts] Error sending push notification:", error)
       }
     }
 
@@ -262,6 +269,11 @@ function AlertsPageContent() {
       email: emailSent,
       push: pushSent,
     })
+    
+    // Show success toast
+    if (emailSent || pushSent) {
+      success(`Alert sent! ${alert.currency} is now ${alert.condition} ₦${alert.threshold}`)
+    }
   }
 
   const { isMonitoring, forceCheck, getMonitoringStats, emailQuotaUsed, lastEmailSent } = useRateMonitor(
@@ -723,6 +735,17 @@ function AlertsPageContent() {
                             <p className="font-mono text-sm">₦{currentRate.toLocaleString()}</p>
                             <p className="text-xs text-muted-foreground">Current</p>
                           </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              info("Testing alert notification...")
+                              handleAlertTriggered(alert, currentRate)
+                            }}
+                            className="text-xs"
+                          >
+                            Test
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
