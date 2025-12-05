@@ -17,7 +17,7 @@ import { usePushNotifications } from "@/hooks/use-push-notifications"
 import { useAlertStorage } from "@/hooks/use-alert-storage"
 import { useRateMonitor } from "@/hooks/use-rate-monitor"
 import { MonitoringDashboard } from "@/components/monitoring-dashboard"
-import { ProtectedRoute } from "@/components/protected-route"
+import { useAuth } from "@/contexts/auth-context"
 import { useToast, ToastContainer } from "@/components/ui/toast"
 
 // Helper function to get country code for currency
@@ -70,6 +70,7 @@ const CURRENCY_CONFIG = [
 ]
 
 function AlertsPageContent() {
+  const { user, isAuthenticated, openAuthModal } = useAuth()
   const { toasts, removeToast, success, error, info } = useToast()
   const [rates, setRates] = useState<ExchangeRate[]>(
     CURRENCY_CONFIG.map(curr => ({
@@ -156,9 +157,16 @@ function AlertsPageContent() {
     rateType: "blackMarket" as const,
     condition: "above" as const,
     threshold: "",
-    email: "",
+    email: user?.email || "",
     pushEnabled: false,
   })
+
+  // Update email when user signs in
+  useEffect(() => {
+    if (user?.email && !newAlert.email) {
+      setNewAlert((prev) => ({ ...prev, email: user.email || "" }))
+    }
+  }, [user?.email])
 
   const { isSupported, isSubscribed, isLoading, userId, subscribe, unsubscribe, sendTestNotification } = usePushNotifications()
 
@@ -309,18 +317,28 @@ function AlertsPageContent() {
   }
 
   const createAlert = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      openAuthModal()
+      info("Please sign in to create alerts")
+      return
+    }
+
     // Check if user already has an alert
     if (alerts.length >= 1) {
       error("You can only create one rate alert. Delete your existing alert to create a new one.")
       return
     }
 
-    if (!newAlert.threshold || !newAlert.email) {
-      error("Please fill in all required fields")
+    if (!newAlert.threshold) {
+      error("Please enter a threshold value")
       return
     }
 
-    if (!newAlert.email.includes("@")) {
+    // Use authenticated user's email
+    const alertEmail = user?.email || newAlert.email
+
+    if (!alertEmail || !alertEmail.includes("@")) {
       error("Please enter a valid email address")
       return
     }
@@ -330,7 +348,7 @@ function AlertsPageContent() {
       rateType: newAlert.rateType,
       condition: newAlert.condition,
       threshold: Number.parseFloat(newAlert.threshold),
-      email: newAlert.email,
+      email: alertEmail,
       pushEnabled: newAlert.pushEnabled && isSubscribed,
       isActive: true,
     })
@@ -342,7 +360,7 @@ function AlertsPageContent() {
       rateType: "blackMarket",
       condition: "above",
       threshold: "",
-      email: "",
+      email: user?.email || "",
       pushEnabled: false,
     })
   }
@@ -429,10 +447,25 @@ function AlertsPageContent() {
               <div className={`w-2 h-2 rounded-full ${isMonitoring ? "bg-green-500 animate-pulse" : "bg-gray-400"}`} />
               {isMonitoring ? "Monitoring active" : "Monitoring inactive"}
             </div>
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="bg-transparent">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh Rates
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  console.log("[Alerts] Manual check triggered")
+                  forceCheck()
+                  info("Checking alerts now...")
+                }} 
+                className="bg-transparent"
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Check Now
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="bg-transparent">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Rates
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -514,7 +547,26 @@ function AlertsPageContent() {
             {/* Create New Alert */}
             {alerts.length < 1 ? (
               <div className="border rounded-lg p-4 space-y-4">
-                <h3 className="font-semibold">Create Your Alert</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Create Your Alert</h3>
+                  {!isAuthenticated && (
+                    <Button
+                      onClick={() => openAuthModal()}
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                    >
+                      Sign In to Create Alert
+                    </Button>
+                  )}
+                </div>
+                {!isAuthenticated && (
+                  <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      💡 <strong>Sign in required:</strong> You need to sign in to create and manage rate alerts. Your email will be used for notifications.
+                    </p>
+                  </div>
+                )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Currency</label>
@@ -582,11 +634,19 @@ function AlertsPageContent() {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Email</label>
                   <Input
-                    value={newAlert.email}
-                    onChange={(e) => setNewAlert((prev) => ({ ...prev, email: e.target.value }))}
-                    placeholder="your@email.com"
+                    value={isAuthenticated ? user?.email || "" : newAlert.email}
+                    onChange={(e) => !isAuthenticated && setNewAlert((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder={isAuthenticated ? user?.email || "your@email.com" : "Sign in to use your email"}
                     type="email"
+                    readOnly={isAuthenticated}
+                    disabled={isAuthenticated}
+                    className={isAuthenticated ? "bg-muted cursor-not-allowed" : ""}
                   />
+                  {isAuthenticated && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Using your account email
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -696,7 +756,7 @@ function AlertsPageContent() {
                     return (
                       <div
                         key={alert.id}
-                        className={`flex items-center justify-between p-3 rounded-lg border ${
+                        className={`rounded-lg border ${
                           isTriggered && alert.isActive 
                             ? hasBeenTriggered 
                               ? "bg-amber-50 dark:bg-amber-950/10 border-amber-300 dark:border-amber-800" 
@@ -704,56 +764,98 @@ function AlertsPageContent() {
                             : "bg-muted/50"
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <Button variant="ghost" size="sm" onClick={() => toggleAlert(alert.id)} className="p-1">
-                            {alert.isActive ? (
-                              <Bell className="w-4 h-4 text-primary" />
-                            ) : (
-                              <BellOff className="w-4 h-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                          <div>
-                            <p className="font-medium">
-                              {alert.currency} {alert.condition} ₦{alert.threshold.toLocaleString()}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {getRateTypeLabel(alert.rateType)} • {alert.email}
-                              {alert.pushEnabled && " • Push enabled"}
-                            </p>
+                        {/* Main Alert Info */}
+                        <div className="flex items-center justify-between p-3">
+                          <div className="flex items-center gap-3">
+                            <Button variant="ghost" size="sm" onClick={() => toggleAlert(alert.id)} className="p-1">
+                              {alert.isActive ? (
+                                <Bell className="w-4 h-4 text-primary" />
+                              ) : (
+                                <BellOff className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                            <div>
+                              <p className="font-medium">
+                                {alert.currency} {alert.condition} ₦{alert.threshold.toLocaleString()}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {getRateTypeLabel(alert.rateType)} • {alert.email}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {isTriggered && alert.isActive && (
-                            <Badge 
-                              variant={hasBeenTriggered ? "secondary" : "destructive"} 
+                          <div className="flex items-center gap-2">
+                            {isTriggered && alert.isActive && (
+                              <Badge 
+                                variant={hasBeenTriggered ? "secondary" : "destructive"} 
+                                className="text-xs"
+                              >
+                                {hasBeenTriggered ? "SENT" : "TRIGGERED"}
+                              </Badge>
+                            )}
+                            <div className="text-right">
+                              <p className="font-mono text-sm">₦{currentRate.toLocaleString()}</p>
+                              <p className="text-xs text-muted-foreground">Current</p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                info("Testing alert notification...")
+                                handleAlertTriggered(alert, currentRate)
+                              }}
                               className="text-xs"
                             >
-                              {hasBeenTriggered ? "SENT" : "TRIGGERED"}
-                            </Badge>
-                          )}
-                          <div className="text-right">
-                            <p className="font-mono text-sm">₦{currentRate.toLocaleString()}</p>
-                            <p className="text-xs text-muted-foreground">Current</p>
+                              Test
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteAlert(alert.id)}
+                              className="p-1 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              info("Testing alert notification...")
-                              handleAlertTriggered(alert, currentRate)
-                            }}
-                            className="text-xs"
-                          >
-                            Test
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteAlert(alert.id)}
-                            className="p-1 text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                        </div>
+
+                        {/* Notification Settings */}
+                        <div className="border-t px-3 py-2 bg-background/50">
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs text-muted-foreground">
+                              <strong>Notifications:</strong> Email (always enabled)
+                            </div>
+                            {isSupported && (
+                              <div className="flex items-center gap-2">
+                                <label 
+                                  htmlFor={`push-toggle-${alert.id}`}
+                                  className="text-xs font-medium cursor-pointer flex items-center gap-2"
+                                >
+                                  <Smartphone className="w-3.5 h-3.5" />
+                                  Push Notifications
+                                </label>
+                                <input
+                                  id={`push-toggle-${alert.id}`}
+                                  type="checkbox"
+                                  checked={alert.pushEnabled}
+                                  onChange={(e) => {
+                                    if (!isSubscribed) {
+                                      info("Please enable push notifications first")
+                                      return
+                                    }
+                                    updateAlert(alert.id, { pushEnabled: e.target.checked })
+                                    success(e.target.checked ? "Push notifications enabled" : "Push notifications disabled")
+                                  }}
+                                  disabled={!isSubscribed}
+                                  className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 cursor-pointer"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          {isSupported && !isSubscribed && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                              Enable push notifications above to receive instant alerts
+                            </p>
+                          )}
                         </div>
                       </div>
                     )
@@ -836,9 +938,5 @@ function AlertsPageContent() {
 }
 
 export default function AlertsPage() {
-  return (
-    <ProtectedRoute>
-      <AlertsPageContent />
-    </ProtectedRoute>
-  )
+  return <AlertsPageContent />
 }

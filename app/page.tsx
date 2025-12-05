@@ -59,7 +59,7 @@ export default function LandingPage() {
       description:
         "Weekly summaries, policy analysis, and educational content about Nigerian FX markets",
       href: "/blog",
-      color: "text-red-600",
+      color: "text-emerald-600",
       isFree: true,
     },
     {
@@ -68,7 +68,7 @@ export default function LandingPage() {
       description:
         "Get notified via email and push notifications when rates hit your target thresholds",
       href: "/alerts",
-      color: "text-blue-600",
+      color: "text-emerald-600",
       isFree: true,
     },
     {
@@ -77,7 +77,7 @@ export default function LandingPage() {
       description:
         "Visualize rate trends over time with interactive charts and compare official vs black market rates",
       href: "/charts",
-      color: "text-purple-600",
+      color: "text-emerald-600",
       isFree: true,
     },
     {
@@ -86,7 +86,7 @@ export default function LandingPage() {
       description:
         "Find historical rates for any date, calculate averages, and export data as PDF/CSV",
       href: "/logs",
-      color: "text-orange-600",
+      color: "text-emerald-600",
       isFree: true,
     },
     {
@@ -95,16 +95,36 @@ export default function LandingPage() {
       description:
         "Embeddable widgets, advanced calculators, and currency strength maps for developers",
       href: "/tools",
-      color: "text-teal-600",
+      color: "text-emerald-600",
       isFree: true,
     },
   ];
 
   const stats = [
-    { label: "Active Users", value: "50K+", icon: Users },
-    { label: "Rate Updates Daily", value: "1M+", icon: Zap },
-    { label: "Accuracy Rate", value: "98%", icon: Shield },
-    { label: "User Rating", value: "4.8/5", icon: Star },
+    { 
+      label: "Exchange Rate Data Points", 
+      value: "1M+", 
+      subtitle: "Processed Daily",
+      icon: Zap 
+    },
+    { 
+      label: "Real-Time Updates", 
+      value: "24/7", 
+      subtitle: "Live FX Monitoring",
+      icon: Shield 
+    },
+    { 
+      label: "Currency Sources", 
+      value: "3+", 
+      subtitle: "CBN, BDC & Parallel",
+      icon: Users 
+    },
+    { 
+      label: "Conversion Engine", 
+      value: "Fast", 
+      subtitle: "Optimized & Reliable",
+      icon: Star 
+    },
   ];
 
   const pricingFeatures = {
@@ -190,7 +210,6 @@ export default function LandingPage() {
                 className="bg-emerald-600 hover:bg-emerald-700 transition-colors"
               >
                 <Link href="/tracker" prefetch={true}>
-                  <Gift className="w-4 h-4 mr-2" />
                   Start Free Today
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
@@ -206,14 +225,35 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-emerald-600 text-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="py-20 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">
+              Trusted by Traders & Students Nationwide
+            </h2>
+            <p className="text-emerald-100 text-base md:text-lg">
+              Optimized for Daily Traders & Students Abroad
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <stat.icon className="w-8 h-8 mx-auto mb-2 opacity-80" />
-                <div className="text-3xl font-bold mb-1">{stat.value}</div>
-                <div className="text-emerald-100 text-sm">{stat.label}</div>
+              <div 
+                key={index} 
+                className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105"
+              >
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/20 mb-4">
+                  <stat.icon className="w-7 h-7" />
+                </div>
+                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
+                <div className="text-white font-semibold text-sm md:text-base mb-1">{stat.label}</div>
+                <div className="text-emerald-100 text-xs md:text-sm">{stat.subtitle}</div>
               </div>
             ))}
           </div>
@@ -286,62 +326,74 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50 dark:bg-gray-900/50">
+      {/* 100% Free Features Section */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-background">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-700 border-emerald-200 text-sm px-4 py-1">
+              100% FREE FOREVER
+            </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Simple, Transparent Pricing
+              All Features. No Hidden Costs.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start free, upgrade when you need advanced features
+              Everything you need for FX trading and currency conversion — completely free
             </p>
           </div>
 
-          <div className="flex justify-center max-w-5xl mx-auto">
-            {/* Free Plan (improved) */}
-            <div className="w-full sm:w-3/4 lg:w-1/2">
-              <Card className="relative border-emerald-100">
-                <CardHeader className="text-center pb-6">
-                  <Badge className="w-fit mx-auto mb-4 bg-emerald-100 text-emerald-700 border-emerald-200">
-                    MOST POPULAR
-                  </Badge>
-                  <CardTitle className="text-2xl mb-1">Free</CardTitle>
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">
-                    Completely free
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    Full access to live rates, alerts, tools and 7-day
-                    historical data.
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="text-sm text-muted-foreground font-medium mb-2">
-                    Included
-                  </div>
-                  <ul className="space-y-3">
-                    {pricingFeatures.free.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {pricingFeatures.free.map((feature, index) => (
+              <div 
+                key={index} 
+                className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-300 hover:shadow-lg"
+              >
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                  <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">{feature}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <Card className="border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+              <CardContent className="p-8 text-center">
+                <h3 className="text-2xl font-bold text-foreground mb-3">
+                  Ready to Get Started?
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  No credit card required. No hidden fees. Just sign up and start tracking rates.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
                     asChild
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    size="lg"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
                     <Link href="/tracker" onClick={handleStartFreeClick}>
-                      Use Live Rates — Get Started
+                      Start Using Live Rates
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    No credit card required • Free for personal & small business
-                    use
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                  >
+                    <Link href="/alerts">
+                      Set Up Rate Alerts
+                      <Bell className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Join thousands of traders and students using NairaMet daily
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -423,7 +475,6 @@ export default function LandingPage() {
               className="bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <Link href="/tracker" onClick={handleStartFreeClick}>
-                <Gift className="w-4 h-4 mr-2" />
                 Start Free
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>

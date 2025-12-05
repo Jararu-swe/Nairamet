@@ -30,7 +30,7 @@ import {
   Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ProtectedRoute } from "@/components/protected-route";
+
 
 // Helper function to get country code for currency
 const getCountryCodeForCurrency = (currency: string): string => {
@@ -879,9 +879,5 @@ function ToolsPageContent() {
 }
 
 export default function ToolsPage() {
-  return (
-    <ProtectedRoute>
-      <ToolsPageContent />
-    </ProtectedRoute>
-  );
+  return <ToolsPageContent />;
 }

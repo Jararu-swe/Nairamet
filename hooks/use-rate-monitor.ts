@@ -68,50 +68,6 @@ export function useRateMonitor(
     return () => clearInterval(quotaInterval)
   }, [lastEmailSent])
 
-  useEffect(() => {
-    const hasActiveAlerts = alerts.some((alert) => alert.isActive)
-
-    if (hasActiveAlerts && !isMonitoring) {
-      startMonitoring()
-    } else if (!hasActiveAlerts && isMonitoring) {
-      stopMonitoring()
-    }
-
-    return () => stopMonitoring()
-  }, [alerts, checkInterval])
-
-  useEffect(() => {
-    if (isMonitoring && rates.length > 0 && alerts.length > 0) {
-      console.log("[RateMonitor] Rates updated, checking alerts...")
-      checkAlerts()
-    }
-  }, [rates, isMonitoring, alerts])
-
-  const startMonitoring = () => {
-    if (intervalRef.current) return
-
-    console.log("[v0] Starting rate monitoring...")
-    setIsMonitoring(true)
-
-    // Set up periodic checks
-    intervalRef.current = setInterval(
-      () => {
-        checkAlerts()
-        setChecksPerformed((prev) => prev + 1)
-      },
-      checkInterval * 60 * 1000,
-    ) // Convert minutes to milliseconds
-  }
-
-  const stopMonitoring = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-    setIsMonitoring(false)
-    console.log("[v0] Stopped rate monitoring")
-  }
-
   const checkAlerts = () => {
     if (!rates.length || !alerts.length) {
       console.log("[RateMonitor] Skipping check - no rates or alerts")
@@ -177,6 +133,54 @@ export function useRateMonitor(
         }
       }
     }
+  }
+
+  useEffect(() => {
+    const hasActiveAlerts = alerts.some((alert) => alert.isActive)
+
+    if (hasActiveAlerts && !isMonitoring) {
+      startMonitoring()
+    } else if (!hasActiveAlerts && isMonitoring) {
+      stopMonitoring()
+    }
+
+    return () => stopMonitoring()
+  }, [alerts])
+
+  useEffect(() => {
+    if (isMonitoring && rates.length > 0 && alerts.length > 0) {
+      console.log("[RateMonitor] Rates updated, checking alerts...")
+      checkAlerts()
+    }
+  }, [rates, isMonitoring, alerts, emailQuotaUsed])
+
+  const startMonitoring = () => {
+    if (intervalRef.current) return
+
+    console.log("[RateMonitor] Starting rate monitoring...")
+    setIsMonitoring(true)
+
+    // Initial check
+    checkAlerts()
+
+    // Set up periodic checks
+    intervalRef.current = setInterval(
+      () => {
+        console.log("[RateMonitor] Periodic check triggered")
+        checkAlerts()
+        setChecksPerformed((prev) => prev + 1)
+      },
+      checkInterval * 60 * 1000,
+    ) // Convert minutes to milliseconds
+  }
+
+  const stopMonitoring = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    setIsMonitoring(false)
+    console.log("[RateMonitor] Stopped rate monitoring")
   }
 
   const forceCheck = () => {

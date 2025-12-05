@@ -27,7 +27,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
-import { ProtectedRoute } from "@/components/protected-route";
+
 
 // Mock historical data generator (can accept custom base rates for non-default currencies)
 const generateHistoricalData = (
@@ -712,9 +712,5 @@ function ChartsPageContent() {
 }
 
 export default function ChartsPage() {
-  return (
-    <ProtectedRoute>
-      <ChartsPageContent />
-    </ProtectedRoute>
-  );
+  return <ChartsPageContent />;
 }

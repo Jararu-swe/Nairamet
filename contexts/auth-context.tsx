@@ -69,6 +69,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (response.ok) {
               const userData = await response.json();
               setUser(userData.user as User);
+              
+              // Check if there's a stored return path (from before OAuth redirect)
+              try {
+                if (typeof window !== "undefined") {
+                  const returnPath = window.localStorage.getItem("nairamet:returnTo");
+                  const currentPath = window.location.pathname;
+                  console.log("[Auth] Init - checking for return path:", returnPath, "current:", currentPath);
+                  
+                  if (returnPath && returnPath !== "/" && returnPath !== currentPath) {
+                    console.log("[Auth] Init - redirecting to stored path:", returnPath);
+                    window.localStorage.removeItem("nairamet:returnTo");
+                    // Use window.location for more reliable redirect after OAuth
+                    window.location.href = returnPath;
+                    return; // Exit early to prevent further processing
+                  } else if (returnPath) {
+                    console.log("[Auth] Init - already on target page, clearing stored path");
+                    window.localStorage.removeItem("nairamet:returnTo");
+                  }
+                }
+              } catch {}
             } else {
               // Fallback to Supabase user if API fails (e.g., DB not configured)
               setUser({
@@ -127,30 +147,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               const userData = await response.json();
               setUser(userData.user as User);
 
-              // Redirect to welcome page after email verification
-              if (userData.isNewUser) {
-                setJustSignedUp(true);
-                try {
-                  if (typeof window !== "undefined") {
-                    window.localStorage.setItem("nairamet:justSignedUp", "true");
-                  }
-                } catch {}
-                router.push("/welcome");
-              }
-              // If there was an intended return target, navigate there.
-              // Prefer the in-memory ref, otherwise fall back to localStorage
+              // Check if there was an intended return target
               let target = authReturnToRef.current;
+              console.log("[Auth] After sign in - ref target:", target);
+              
               if (!target) {
                 try {
                   target =
                     typeof window !== "undefined"
                       ? window.localStorage.getItem("nairamet:returnTo")
                       : null;
+                  console.log("[Auth] After sign in - localStorage target:", target);
                 } catch {
                   target = null;
                 }
               }
+
+              // If there's a return target, go there instead of welcome page
               if (target) {
+                console.log("[Auth] Redirecting to return target:", target);
                 router.push(target);
                 setAuthReturnTo(null);
                 authReturnToRef.current = null;
@@ -159,6 +174,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     window.localStorage.removeItem("nairamet:returnTo");
                   }
                 } catch {}
+              } else if (userData.isNewUser) {
+                // Only redirect to welcome page if no return target and user is new
+                console.log("[Auth] New user, redirecting to welcome");
+                setJustSignedUp(true);
+                try {
+                  if (typeof window !== "undefined") {
+                    window.localStorage.setItem("nairamet:justSignedUp", "true");
+                  }
+                } catch {}
+                router.push("/welcome");
+              } else {
+                console.log("[Auth] No redirect needed, staying on current page");
               }
             } else {
               setUser({
@@ -234,13 +261,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const openAuthModal = (returnTo?: string) => {
-    if (returnTo) {
-      setAuthReturnTo(returnTo);
+    // If no returnTo is provided, use the current page
+    const targetPath = returnTo || (typeof window !== "undefined" ? window.location.pathname : null);
+    
+    console.log("[Auth] Opening auth modal, returnTo:", targetPath);
+    
+    if (targetPath && targetPath !== "/") {
+      setAuthReturnTo(targetPath);
       // keep ref in sync
-      authReturnToRef.current = returnTo;
+      authReturnToRef.current = targetPath;
       try {
         if (typeof window !== "undefined") {
-          window.localStorage.setItem("nairamet:returnTo", returnTo);
+          window.localStorage.setItem("nairamet:returnTo", targetPath);
+          console.log("[Auth] Stored return path in localStorage:", targetPath);
         }
       } catch {}
     }
@@ -322,6 +355,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // When AuthModal reports auth, we'll just close the modal.
           // The Supabase auth listener above will populate the user object
           // and handle redirect to any stored returnTo target.
+          // DON'T clear the return path here - let the auth listener handle it
           setAuthModalOpen(false);
         }}
       />

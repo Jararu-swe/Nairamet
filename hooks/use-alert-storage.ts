@@ -57,15 +57,13 @@ export function useAlertStorage() {
   }, [])
 
   useEffect(() => {
-    if (alerts.length > 0) {
-      localStorage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(alerts))
-    }
+    // Always save to localStorage, even if empty (to persist deletions)
+    localStorage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(alerts))
   }, [alerts])
 
   useEffect(() => {
-    if (alertHistory.length > 0) {
-      localStorage.setItem(ALERT_HISTORY_STORAGE_KEY, JSON.stringify(alertHistory))
-    }
+    // Always save to localStorage, even if empty (to persist deletions)
+    localStorage.setItem(ALERT_HISTORY_STORAGE_KEY, JSON.stringify(alertHistory))
   }, [alertHistory])
 
   useEffect(() => {
@@ -123,7 +121,12 @@ export function useAlertStorage() {
   }
 
   const deleteAlert = (id: string) => {
-    setAlerts((prev) => prev.filter((alert) => alert.id !== id))
+    setAlerts((prev) => {
+      const filtered = prev.filter((alert) => alert.id !== id)
+      // Immediately update localStorage to ensure deletion persists
+      localStorage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(filtered))
+      return filtered
+    })
   }
 
   const addAlertHistory = (

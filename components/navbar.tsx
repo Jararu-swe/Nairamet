@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import NairametSvg from "@/public/Nairamet.svg";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
+import { SignInBanner } from "@/components/sign-in-banner";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -146,6 +147,9 @@ export function Navbar() {
             </Link>
 
             <div className="flex items-center gap-2">
+              {/* Sign In Banner - inline for non-authenticated users */}
+              {!isAuthenticated && <SignInBanner />}
+              
               {isAuthenticated && (
                 <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                   <div className="w-7 h-7 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
@@ -204,7 +208,7 @@ export function Navbar() {
           {isOpen && (
             <div className="border-t bg-background/95 backdrop-blur shadow-lg">
               <div className="py-4 space-y-2">
-                {isAuthenticated ? (
+                {isAuthenticated && (
                   <div className="px-4 mb-3">
                     <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
                       <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
@@ -227,21 +231,6 @@ export function Navbar() {
                         <LogOut className="w-4 h-4" />
                       </Button>
                     </div>
-                  </div>
-                ) : (
-                  <div className="px-4 mb-3">
-                    <Button
-                      onClick={handleAuthAction}
-                      className="w-full justify-start gap-3 h-auto py-3 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    >
-                      <LogIn className="w-5 h-5" />
-                      <div className="text-left">
-                        <div className="font-medium">Sign In / Sign Up</div>
-                        <div className="text-sm opacity-90">
-                          Access all features
-                        </div>
-                      </div>
-                    </Button>
                   </div>
                 )}
 

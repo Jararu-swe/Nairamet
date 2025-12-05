@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     "dollar to naira",
     "black market rate",
     "CBN rate",
+    "cbn exchange rate dollar to naira today",
     "parallel market",
     "forex Nigeria",
     "currency converter",

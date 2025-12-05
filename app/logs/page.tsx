@@ -27,7 +27,7 @@ import {
   isWithinInterval,
   parseISO,
 } from "date-fns";
-import { ProtectedRoute } from "@/components/protected-route";
+
 
 // Helper function to get country code for currency
 function getCountryCodeForCurrency(currency: string): string {
@@ -890,9 +890,5 @@ function LogsPageContent() {
 }
 
 export default function LogsPage() {
-  return (
-    <ProtectedRoute>
-      <LogsPageContent />
-    </ProtectedRoute>
-  );
+  return <LogsPageContent />;
 }

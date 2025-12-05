@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
-import { ProtectedRoute } from "@/components/protected-route";
+
 
 // Small helpers to provide a symbol and flag when the API doesn't include them
 function getSymbolForCode(code?: string) {
@@ -537,9 +537,5 @@ function FXTrackerContent() {
 }
 
 export default function FXTracker() {
-  return (
-    <ProtectedRoute>
-      <FXTrackerContent />
-    </ProtectedRoute>
-  );
+  return <FXTrackerContent />;
 }

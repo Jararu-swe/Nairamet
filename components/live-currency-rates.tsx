@@ -300,64 +300,95 @@ export function LiveCurrencyRates() {
   }
 
   return (
-    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 max-w-4xl mx-auto border">
+    <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-4 md:p-6 max-w-4xl mx-auto border border-gray-200 dark:border-gray-700 shadow-lg">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm text-muted-foreground">
+          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h3 className="font-bold text-base text-foreground">
             Live Exchange Rates
           </h3>
           {loading && (
-            <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
+            <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" />
           )}
         </div>
-        <div className="text-xs text-muted-foreground">
-          Updated: {lastUpdated}
+        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
+            {lastUpdated}
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {rates.map((item) => (
-          <div key={item.currency} className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <img
-                src={getFlagUrl(item.currency)}
-                alt={`${item.currency} flag`}
-                width="24"
-                height="16"
-                loading="lazy"
-                className="w-6 h-4 rounded border object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-              <span className="font-semibold text-sm">{item.currency}/NGN</span>
+          <div 
+            key={item.currency} 
+            className="p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-200 hover:shadow-md"
+          >
+            {/* Currency Header */}
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-700">
+                <img
+                  src={getFlagUrl(item.currency)}
+                  alt={`${item.currency} flag`}
+                  width="24"
+                  height="24"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              </div>
+              <span className="font-bold text-xs text-foreground">{item.currency}/NGN</span>
             </div>
-            <div className="font-bold text-lg">{formatRate(item.rate)}</div>
-            {/* show parallel rate below main rate */}
-            <div className="text-xs text-muted-foreground">
-              Parallel: {formatRate(item.parallel)}
+            
+            {/* Main Rate */}
+            <div className="text-center mb-2">
+              <div className="font-bold text-lg text-foreground">{formatRate(item.rate)}</div>
+              <div className="text-xs text-muted-foreground">Official</div>
             </div>
-            <div className="flex items-center justify-center gap-1 mt-1">
-              {item.change >= 0 ? (
-                <TrendingUp className="w-3 h-3 text-emerald-600" />
-              ) : (
-                <TrendingDown className="w-3 h-3 text-red-600" />
-              )}
-              <span
-                className={`text-xs ${
-                  item.change >= 0 ? "text-emerald-600" : "text-red-600"
-                }`}
-              >
-                {formatChange(item.change)}
-              </span>
+            
+            {/* Parallel Rate */}
+            <div className="text-center mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
+              <div className="text-sm font-medium text-muted-foreground">{formatRate(item.parallel)}</div>
+              <div className="text-xs text-muted-foreground">Parallel</div>
+            </div>
+            
+            {/* Change Indicator */}
+            <div className="flex items-center justify-center">
+              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${
+                item.change >= 0 
+                  ? "bg-emerald-100 dark:bg-emerald-900/30" 
+                  : "bg-red-100 dark:bg-red-900/30"
+              }`}>
+                {item.change >= 0 ? (
+                  <TrendingUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <TrendingDown className="w-3 h-3 text-red-600 dark:text-red-400" />
+                )}
+                <span
+                  className={`text-xs font-semibold ${
+                    item.change >= 0 
+                      ? "text-emerald-600 dark:text-emerald-400" 
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {formatChange(item.change)}
+                </span>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       {error && (
-        <div className="mt-2 text-xs text-amber-600 text-center">
-          {error} - Showing cached rates
+        <div className="mt-3 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <p className="text-xs text-amber-700 dark:text-amber-300 text-center">
+            {error} - Showing cached rates
+          </p>
         </div>
       )}
     </div>
