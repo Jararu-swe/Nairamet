@@ -197,11 +197,21 @@ function ToolsPageContent() {
 
   const generateWidgetCode = (type: string, currency: string) => {
     const baseUrl = window.location.origin || "https://your-fx-tracker.com";
-    // include a simple query to select source (official|black|parallel)
+    
+    // Set height based on widget type
+    let height = 500; // default
+    if (type === "rates") {
+      height = 250; // Live Rates Display
+    } else if (type === "converter") {
+      height = 350; // Currency Converter
+    } else if (type === "chart") {
+      height = 500; // Mini Chart
+    }
+    
     return `<iframe 
   src="${baseUrl}/widget/${type}?currency=${currency}" 
   width="400" 
-  height="500" 
+  height="${height}" 
   frameborder="0"
   scrolling="no"
   style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
