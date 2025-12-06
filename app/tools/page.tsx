@@ -200,10 +200,11 @@ function ToolsPageContent() {
     // include a simple query to select source (official|black|parallel)
     return `<iframe 
   src="${baseUrl}/widget/${type}?currency=${currency}" 
-  width="320" 
-  height="220" 
+  width="400" 
+  height="500" 
   frameborder="0"
-  style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  scrolling="no"
+  style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
 </iframe>`;
   };
 

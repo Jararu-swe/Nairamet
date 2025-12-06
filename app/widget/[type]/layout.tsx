@@ -10,12 +10,22 @@ export default function WidgetLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>{`
-          body { 
+          html, body { 
             margin: 0 !important; 
             padding: 0 !important; 
             overflow: hidden !important;
             font-family: system-ui, -apple-system, sans-serif;
             background: transparent !important;
+            height: 100%;
+            width: 100%;
+          }
+          /* Hide scrollbars completely */
+          ::-webkit-scrollbar {
+            display: none;
+          }
+          * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
           }
           /* Hide any navbar or header elements */
           nav, header, .navbar { 

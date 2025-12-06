@@ -654,31 +654,12 @@ function AlertsPageContent() {
               <div className="space-y-3">
                 <label className="text-sm font-medium">Notification Methods</label>
                 
-                {/* Email notification (always enabled) */}
-                <div className="flex items-start gap-3 p-3 border rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800">
-                  <input
-                    type="checkbox"
-                    checked={true}
-                    disabled
-                    className="mt-0.5 rounded"
-                  />
-                  <div className="flex-1">
-                    <label className="text-sm font-medium flex items-center gap-2">
-                      <Bell className="w-4 h-4" />
-                      Email Notifications
-                    </label>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Always enabled • 1 email per month per alert
-                    </p>
-                  </div>
-                </div>
-
-                {/* Push notification (optional) */}
+                {/* Push notification (PRIMARY - featured first) */}
                 {isSupported && (
-                  <div className={`flex items-start gap-3 p-3 border rounded-lg ${
+                  <div className={`flex items-start gap-3 p-4 border-2 rounded-lg ${
                     isSubscribed 
-                      ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800' 
-                      : 'bg-muted/50 border-border'
+                      ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-300 dark:border-emerald-700' 
+                      : 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-300 dark:border-blue-700'
                   }`}>
                     <input
                       type="checkbox"
@@ -689,24 +670,43 @@ function AlertsPageContent() {
                       className="mt-0.5 rounded"
                     />
                     <div className="flex-1">
-                      <label htmlFor="pushNotificationsEnabled" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
-                        <Bell className="w-4 h-4" />
-                        Push Notifications
+                      <label htmlFor="pushNotificationsEnabled" className="text-sm font-bold flex items-center gap-2 cursor-pointer">
+                        <Bell className="w-5 h-5" />
+                        Push Notifications (Recommended)
                       </label>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs font-medium mt-1">
                         {isSubscribed 
-                          ? "Instant browser notifications • Unlimited" 
-                          : "Enable push notifications above to use this feature"}
+                          ? "✅ Instant browser alerts • Unlimited • No delays" 
+                          : "⚡ Enable push notifications above for instant alerts"}
                       </p>
                     </div>
                   </div>
                 )}
 
-                <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <p className="text-xs text-blue-800 dark:text-blue-200">
-                    <strong>💡 Tip:</strong> {isSupported && isSubscribed 
-                      ? "Enable both for maximum coverage - email for records, push for instant alerts!"
-                      : "Email notifications are always sent. Enable push notifications above for instant alerts."}
+                {/* Email notification (secondary - smaller) */}
+                <div className="flex items-start gap-3 p-3 border rounded-lg bg-muted/30 border-muted">
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    disabled
+                    className="mt-0.5 rounded opacity-50"
+                  />
+                  <div className="flex-1">
+                    <label className="text-xs font-medium flex items-center gap-2 text-muted-foreground">
+                      <Bell className="w-3.5 h-3.5" />
+                      Email Backup (Optional)
+                    </label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      1 email per month • Slower delivery
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                  <p className="text-xs text-emerald-800 dark:text-emerald-200">
+                    <strong>⚡ Best Experience:</strong> {isSupported && isSubscribed 
+                      ? "Push notifications enabled! You'll get instant alerts with no limits."
+                      : "Enable push notifications above for instant, unlimited alerts delivered directly to your device."}
                   </p>
                 </div>
               </div>
@@ -861,11 +861,11 @@ function AlertsPageContent() {
                     )
                   })}
                 </div>
-                <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <p className="text-xs text-blue-800 dark:text-blue-200">
-                    <strong>How alerts work:</strong> You can create one rate alert that sends notifications when triggered. 
-                    You'll receive both email and push notifications (if enabled). Email notifications are limited to 1 per month per alert, 
-                    while push notifications have no limit. The alert resets when the rate moves away from your threshold and can trigger again.
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                  <p className="text-xs text-emerald-800 dark:text-emerald-200">
+                    <strong>How alerts work:</strong> Create one rate alert and get instant push notifications when triggered. 
+                    Push notifications are unlimited and instant. Email backup is included (1 per month). 
+                    The alert resets when the rate moves away from your threshold and can trigger again.
                   </p>
                 </div>
               </div>
@@ -911,9 +911,9 @@ function AlertsPageContent() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-2">🔔 Pro Tip</h4>
+                  <h4 className="font-semibold text-sm mb-2">⚡ Pro Tip</h4>
                   <p className="text-sm text-muted-foreground">
-                    Enable push notifications above to receive instant alerts on your device, in addition to email notifications.
+                    Push notifications are the fastest way to get alerts! Enable them above for instant, unlimited notifications delivered directly to your browser.
                   </p>
                 </div>
               </div>
