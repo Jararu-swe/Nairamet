@@ -160,12 +160,31 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        {/* Cookiebot CMP - Google Certified Consent Management Platform */}
+        {process.env.NEXT_PUBLIC_COOKIEBOT_ID && (
+          <script
+            id="Cookiebot"
+            src="https://consent.cookiebot.com/uc.js"
+            data-cbid={process.env.NEXT_PUBLIC_COOKIEBOT_ID}
+            data-blockingmode="auto"
+            type="text/javascript"
+            async
+          />
+        )}
         {/* OneSignal SDK - async for better performance */}
         <script 
           src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" 
           defer
           async
         />
+        {/* Google AdSense */}
+        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+          />
+        )}
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />
