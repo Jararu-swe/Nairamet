@@ -9,7 +9,7 @@
 
 ### Step 2: Add Domain
 1. Click "Add domain"
-2. Enter: `nairamet.com`
+2. Enter: `www.nairamet.com`
 3. Click "Create domain"
 
 ### Step 3: Get Your ID
