@@ -20,7 +20,7 @@ const parser = new Parser();
 
 // Module-level cache
 let cached: { articles: ScrapedArticle[]; fetchedAt: number } | null = null;
-const CACHE_TTL = 1000 * 60 * 15; // 15 minutes
+const CACHE_TTL = 1000 * 60 * 60 * 12; // 12 hours
 
 async function fetchNairalandNews(maxThreads = 5) {
   const results: ScrapedArticle[] = [];

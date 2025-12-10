@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 /**
  * Combined cron job that updates both articles and currency rates
- * This saves a cron job slot on Vercel Hobby plan
+ * Runs once daily at 6 AM UTC with 12-hour caching
  */
 export async function GET(request: Request) {
   const results = {
@@ -17,8 +17,13 @@ export async function GET(request: Request) {
       { cache: 'no-store' }
     );
     const articlesData = await articlesRes.json();
-    results.articles = { success: true, error: null, data: articlesData };
-    console.log('[Cron] Articles updated successfully');
+    results.articles = { 
+      success: true, 
+      error: null, 
+      data: articlesData,
+      articlesCount: articlesData.articles?.length || 0 
+    };
+    console.log('[Cron] Articles updated successfully:', articlesData.articles?.length || 0, 'articles');
   } catch (error) {
     results.articles = { success: false, error: String(error) };
     console.error('[Cron] Articles update failed:', error);
@@ -41,6 +46,8 @@ export async function GET(request: Request) {
   return NextResponse.json({
     success: results.articles.success && results.currency.success,
     timestamp: new Date().toISOString(),
+    schedule: 'Daily at 06:00 UTC',
+    caching: 'Articles: 12 hours, Currency: 12 hours',
     results,
   });
 }

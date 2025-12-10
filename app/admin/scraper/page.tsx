@@ -134,9 +134,9 @@ export default function ScraperAdminPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3 border rounded">
                 <div>
-                  <p className="font-medium">Article Scraping Cron</p>
+                  <p className="font-medium">Combined Daily Update Cron</p>
                   <p className="text-sm text-muted-foreground">
-                    Runs every 12 hours (00:00, 12:00 UTC) - 2x daily
+                    Runs once daily at 06:00 UTC (6 AM) - Updates both articles & rates
                   </p>
                 </div>
                 <Badge>Active</Badge>
@@ -144,22 +144,22 @@ export default function ScraperAdminPage() {
               
               <div className="flex items-center justify-between p-3 border rounded">
                 <div>
-                  <p className="font-medium">Currency Rates Cron</p>
+                  <p className="font-medium">Article Cache Duration</p>
                   <p className="text-sm text-muted-foreground">
-                    Runs once daily at 06:00 UTC (6 AM)
+                    Articles cached for 12 hours
                   </p>
                 </div>
-                <Badge>Active</Badge>
+                <Badge variant="outline">12 hours</Badge>
               </div>
               
               <div className="flex items-center justify-between p-3 border rounded">
                 <div>
-                  <p className="font-medium">Cache Duration</p>
+                  <p className="font-medium">Currency Cache Duration</p>
                   <p className="text-sm text-muted-foreground">
-                    Articles cached for 15 minutes
+                    Rates cached for 12 hours
                   </p>
                 </div>
-                <Badge variant="outline">15 min</Badge>
+                <Badge variant="outline">12 hours</Badge>
               </div>
             </div>
           </CardContent>

@@ -1,11 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/scrape-articles",
-      "schedule": "0 */12 * * *"
-    },
-    {
-      "path": "/api/cron/update-rates",
+      "path": "/api/cron/daily-update",
       "schedule": "0 6 * * *"
     }
   ]
