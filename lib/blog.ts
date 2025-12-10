@@ -1,9 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
 
 export type Article = {
   id: string;
@@ -19,8 +15,8 @@ export type Article = {
   featured?: boolean;
 };
 
-// Function to read markdown content
-async function readMarkdownFile(filename: string): Promise<string> {
+// Function to read markdown content (currently unused but kept for future use)
+function readMarkdownFile(filename: string): string {
   try {
     const filePath = path.join(process.cwd(), "data", filename);
     if (!fs.existsSync(filePath)) return "";
@@ -30,12 +26,6 @@ async function readMarkdownFile(filename: string): Promise<string> {
     console.error(`Failed to read ${filename}`, err);
     return "";
   }
-}
-
-// Function to convert markdown to HTML
-async function markdownToHtml(markdown: string): Promise<string> {
-  const result = await remark().use(html).process(markdown);
-  return result.toString();
 }
 
 export const articles: Article[] = [
@@ -73,12 +63,12 @@ export const articles: Article[] = [
     excerpt: "Nigeria's cryptocurrency sector has experienced remarkable growth, with transactions valued at over $50 billion between July 2023 and June 2024, according to the SEC.",
     content: "Nigeria's cryptocurrency sector has experienced remarkable growth, with transactions valued at over $50 billion between July 2023 and June 2024, according to the Securities and Exchange Commission (SEC). This surge in digital asset activity highlights a significant shift in how Nigerians are approaching financial investments and services.\n\nNigerians aren't just speculating for quick profits. They're treating digital assets like real financial instruments, using them to save, move, and hedge money in a system that often feels unstable. For millions of Nigerians, crypto has become an indispensable tool to combat soaring inflation—which surpassed 32% in August 2024—and the continuous devaluation of the Naira.",
     author: "Financial Analysis Team",
-    date: "2025-10-27",
+    date: "2024-10-27",
     readTime: "5 min read",
     category: "Cryptocurrency",
     originalUrl: "https://news.google.com/rss/articles/CBMinAFBVV95cUxOMGFPc3FGbkt0VXJuakU1TnZWekFfdVdmM3hwR1hmUUl3Qmk3WEZPbV8tcVhfdUFtdUZzUXkyMGY3ZTA3TDY4dlBzODhPZTNlT21CT0l4TlZXaWYxYnllb2JpZFlucVAtOFF1ZGp2UWxqTXk1cTZWWE10QzRHVC1YLWcwRWRmd25DNEptMVlXSjFJWUpJcHlrSHVhS0g?oc=5",
     trend: "up",
-    featured: true,
+    featured: false,
   },
   {    id: "3",    title: "CBN's New FX Policy: What It Means for You",    excerpt:
       "Central Bank announces new foreign exchange guidelines. We break down the key changes and their impact on exchange rates.",

@@ -86,8 +86,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/Nairamet.svg", type: "image/svg+xml" },
-       { url: "/Nairamet.ico", type: "image/x-icon" },
-         { url: "/Nairamet.png",  type: "image/png" }
+      { url: "/Nairamet.png", type: "image/png" }
     ],
     shortcut: "/Nairamet.png",
     apple: "/Nairamet.png",
