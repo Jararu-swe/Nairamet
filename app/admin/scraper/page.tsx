@@ -134,9 +134,19 @@ export default function ScraperAdminPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3 border rounded">
                 <div>
-                  <p className="font-medium">Cron Job Schedule</p>
+                  <p className="font-medium">Article Scraping Cron</p>
                   <p className="text-sm text-muted-foreground">
-                    Runs every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
+                    Runs every 12 hours (00:00, 12:00 UTC) - 2x daily
+                  </p>
+                </div>
+                <Badge>Active</Badge>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <p className="font-medium">Currency Rates Cron</p>
+                  <p className="text-sm text-muted-foreground">
+                    Runs once daily at 06:00 UTC (6 AM)
                   </p>
                 </div>
                 <Badge>Active</Badge>
