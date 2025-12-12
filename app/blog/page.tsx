@@ -25,16 +25,68 @@ import { MarketSnapshot } from "@/components/market-snapshot";
 import { BlogSidebar } from "@/components/blog-sidebar";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Naira Watch - FX News, Analysis & Insights",
-  description: "Stay informed with weekly summaries, policy analysis, and educational insights about Nigerian foreign exchange markets. Latest Naira news and FX trends.",
-  keywords: ["naira news", "fx analysis", "nigeria currency", "exchange rate news", "cbn policy", "forex insights"],
-  openGraph: {
-    title: "Naira Watch - FX News & Analysis | NairaMet",
-    description: "Latest news, analysis, and insights about Nigerian foreign exchange markets and Naira rates.",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const articles = getArticles();
+  const latestArticle = articles.find(a => a.featured) || articles[0];
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nairamet.com';
+  
+  return {
+    title: "Naira Watch - FX News, Analysis & Insights | NairaMet",
+    description: `Stay informed with the latest Nigerian FX news and analysis. ${articles.length}+ articles covering exchange rates, CBN policy, and market insights.`,
+    keywords: [
+      "naira news",
+      "fx analysis",
+      "nigeria currency",
+      "exchange rate news",
+      "cbn policy",
+      "forex insights",
+      "naira exchange rate",
+      "black market rate",
+      "parallel market",
+      "fx market nigeria",
+    ],
+    authors: [{ name: "NairaMet Editorial Team" }],
+    creator: "NairaMet",
+    publisher: "NairaMet",
+    openGraph: {
+      title: "Naira Watch - FX News & Analysis | NairaMet",
+      description: "Latest news, analysis, and insights about Nigerian foreign exchange markets and Naira rates.",
+      type: "website",
+      url: `${baseUrl}/blog`,
+      siteName: "NairaMet",
+      locale: "en_NG",
+      images: [
+        {
+          url: `${baseUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: "NairaMet - Naira Watch FX News",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Naira Watch - FX News & Analysis",
+      description: "Latest Nigerian FX news, exchange rate analysis, and market insights.",
+      creator: "@nairamet",
+      images: [`${baseUrl}/og-image.png`],
+    },
+    alternates: {
+      canonical: `${baseUrl}/blog`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}
 
 export default async function BlogPage() {
   const featuredArticles = getArticles();

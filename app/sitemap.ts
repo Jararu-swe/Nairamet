@@ -2,6 +2,50 @@ import { MetadataRoute } from 'next'
 
 import { getArticles } from '@/lib/blog'
 
+// Currency pairs for programmatic SEO
+const CURRENCY_PAIRS = [
+  "usd-ngn", "gbp-ngn", "eur-ngn", "cny-ngn",
+  "zar-ngn", "ghs-ngn", "kes-ngn", "aed-ngn", "sar-ngn", 
+  "inr-ngn", "jpy-ngn", "cad-ngn", "aud-ngn",
+];
+
+// Popular amounts for converter pages
+const POPULAR_AMOUNTS = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 5000, 10000];
+
+function generateCurrencyPairPages(baseUrl: string) {
+  return CURRENCY_PAIRS.map((pair) => ({
+    url: `${baseUrl}/rates/${pair}`,
+    lastModified: new Date(),
+    changeFrequency: 'hourly' as const,
+    priority: pair.startsWith('usd') || pair.startsWith('gbp') || pair.startsWith('eur') ? 0.9 : 0.8,
+  }));
+}
+
+function generateConverterPages(baseUrl: string) {
+  const pages = [];
+  const converterCurrencies = ["usd", "gbp", "eur", "cny", "aed", "sar"];
+  for (const currency of converterCurrencies) {
+    for (const amount of POPULAR_AMOUNTS) {
+      pages.push({
+        url: `${baseUrl}/convert/${amount}-${currency}-to-ngn`,
+        lastModified: new Date(),
+        changeFrequency: 'hourly' as const,
+        priority: amount >= 100 ? 0.7 : 0.6,
+      });
+    }
+  }
+  return pages;
+}
+
+function generateHistoricalPages(baseUrl: string) {
+  return CURRENCY_PAIRS.map((pair) => ({
+    url: `${baseUrl}/rates/${pair}/history`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }));
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nairamet.com'
 
@@ -88,30 +132,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     // Currency pair pages for SEO
-    {
-      url: `${baseUrl}/rates/usd-ngn`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/rates/gbp-ngn`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/rates/eur-ngn`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/rates/cny-ngn`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.8,
-    },
+    ...generateCurrencyPairPages(baseUrl),
+    // Amount converter pages
+    ...generateConverterPages(baseUrl),
+    // Historical rate pages
+    ...generateHistoricalPages(baseUrl),
     // Add all blog posts
     ...blogPosts,
   ]

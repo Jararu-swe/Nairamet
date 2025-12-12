@@ -14,48 +14,80 @@ type Props = {
   params: { id: string };
 };
 
-// Generate metadata for SEO
+// Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = getArticleById(params.id);
   
   if (!article) {
     return {
-      title: "Article Not Found | NairaMet Blog",
+      title: "Article Not Found | NairaMet",
       description: "The requested article could not be found.",
+      robots: {
+        index: false,
+        follow: true,
+      },
     };
   }
 
   // Clean title and excerpt for metadata
   const cleanTitle = article.title.replace(/[^\w\s-]/g, "").trim();
   const cleanExcerpt = article.excerpt.replace(/[^\w\s-.,]/g, "").trim().substring(0, 160);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nairamet.com';
   
   return {
-    title: `${cleanTitle} | NairaMet Blog`,
+    title: `${cleanTitle} | NairaMet`,
     description: cleanExcerpt,
     keywords: [
       "naira news",
       "fx news",
       "nigeria currency",
       "exchange rate news",
+      "cbn news",
       article.category,
-      ...cleanTitle.toLowerCase().split(" ").slice(0, 5),
+      ...cleanTitle.toLowerCase().split(" ").filter(w => w.length > 3).slice(0, 5),
     ],
-    authors: article.author ? [{ name: article.author }] : undefined,
+    authors: article.author ? [{ name: article.author }] : [{ name: "NairaMet Editorial Team" }],
+    creator: article.author || "NairaMet",
+    publisher: "NairaMet",
     openGraph: {
       title: cleanTitle,
       description: cleanExcerpt,
       type: "article",
       publishedTime: article.date,
-      authors: article.author ? [article.author] : undefined,
-      url: `/blog/${params.id}`,
+      modifiedTime: article.date,
+      authors: article.author ? [article.author] : ["NairaMet Editorial Team"],
+      url: `${baseUrl}/blog/${params.id}`,
+      siteName: "NairaMet",
+      locale: "en_NG",
+      images: [
+        {
+          url: `${baseUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: cleanTitle,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: cleanTitle,
       description: cleanExcerpt,
+      creator: "@nairamet",
+      images: [`${baseUrl}/og-image.png`],
     },
     alternates: {
-      canonical: `/blog/${params.id}`,
+      canonical: `${baseUrl}/blog/${params.id}`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }
