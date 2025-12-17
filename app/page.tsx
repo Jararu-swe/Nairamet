@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,11 +18,11 @@ import {
   Shield,
   Zap,
   Check,
-  Gift,
 } from "lucide-react";
 import RequireAuthButton from "@/components/require-auth-button";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
+import { InContentAd, BottomBannerAd } from "@/components/adsense-ad";
 
 export default function LandingPage() {
   const { isAuthenticated, openAuthModal } = useAuth();
@@ -176,6 +176,70 @@ export default function LandingPage() {
     },
   ];
 
+  // Random currency
+  const currencies = [
+        "USD", 
+        "GBP", 
+        "EUR", 
+        "CNY", 
+        "JPY",
+        "CAD",
+        "AUD",
+        "NZD",
+        "ZAR",
+        "CHF",
+        "SEK",
+        "NOK",
+        "DKK",
+        "GHS",
+        "XOF",
+        "XAF",
+        "KES",
+        "UGX",
+        "TZS",
+        "EGP",
+        "MAD",
+        "TND",
+        "ZMW",
+        "XOF",
+        "XAF",
+        "CFA",
+        "SAR",
+        "AED",
+        "QAR",
+        "KWD",
+        "BHD",
+        "INR",
+        "PKR",
+        "BDT",
+        "GMD",
+        "SLL",
+        "LRD",
+        "CDF",
+        "ETB",
+        "SOS"];
+  const [currency, setCurrency] = useState("USD");
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+
+      setTimeout(() => {
+        setCurrency(prev => {
+          const next = currencies.filter(c => c !== prev);
+          return next[Math.floor(Math.random() * next.length)];
+        });
+        setFade(true);
+      }, 300); // fade duration
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
+
+
   return (
     <div className="min-h-screen bg-background">
       {/* AuthModal is rendered globally by AuthProvider */}
@@ -193,7 +257,9 @@ export default function LandingPage() {
                 🇳🇬 Nigeria’s FX, Simplified
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold text-foreground text-balance">
-                Track Naira Exchange Rates
+                Track <span className="sr-only">Dollar</span><span className={`inline-block text-emerald-600 transition-all duration-300 ease-in-out ${
+          fade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+        }`}>{currency}</span> to Naira 
                 <span className="text-emerald-600"> Like a Pro</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
@@ -219,6 +285,11 @@ export default function LandingPage() {
             {/* Live Rate Preview - Deferred for better LCP */}
             <div className="mt-8">
               <LiveCurrencyRates />
+            </div>
+
+            {/* Ad Placement 1: After hero section */}
+            <div className="mt-8 flex justify-center">
+              <InContentAd />
             </div>
           </div>
         </div>
@@ -402,7 +473,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Trusted by Nigerian Traders
+            Trusted by Nigerian Forex Traders & Students
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               See what our users say about NairaMet
@@ -628,6 +699,15 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Ad Placement 2: Before footer */}
+      <div className="max-w-7xl mx-auto px-4 py-8 flex justify-center">
+        <BottomBannerAd />
+      </div>
     </div>
   );
 }
+function setCurrency(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+
