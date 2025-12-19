@@ -198,8 +198,12 @@ export function BottomBannerAd() {
       );
       if (adsPersonalization === "false") return;
 
-      // Show banner (AdSenseAd will still gate rendering according to page rules)
-      setVisible(true);
+      // Show banner after a short delay to avoid being intrusive
+      const timer = setTimeout(() => {
+        setVisible(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
     } catch (err) {
       console.warn("BottomBannerAd init error", err);
     }
@@ -220,43 +224,80 @@ export function BottomBannerAd() {
     <div
       role="region"
       aria-label="Sponsored content"
-      className="fixed bottom-4 left-4 right-4 z-50 flex justify-center px-4"
+      className="fixed bottom-0 left-0 right-0 z-40 animate-in slide-in-from-bottom duration-300"
     >
-      <div className="w-full max-w-7xl bg-white/95 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg flex items-center gap-4 p-3 transition-transform transform hover:scale-[1.01]">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold px-2 py-1 rounded bg-amber-100 text-amber-800">
-            Sponsored
-          </span>
-        </div>
+      <div className="bg-white/98 dark:bg-gray-900/98 border-t border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <span className="text-xs font-semibold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+              Ad
+            </span>
+          </div>
 
-        <div className="flex-1">
-          <AdSenseAd
-            adSlot="1234567893" /* Replace with your actual ad slot */
-            adFormat="horizontal"
-            className="w-full"
-          />
-        </div>
-
-        <button
-          onClick={dismiss}
-          aria-label="Dismiss advertisement"
-          className="ml-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-muted-foreground"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-5 h-5"
-            aria-hidden
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 11-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z"
-              clipRule="evenodd"
+          <div className="flex-1 min-w-0">
+            <AdSenseAd
+              adSlot="1234567893" /* Replace with your actual ad slot */
+              adFormat="horizontal"
+              className="w-full"
             />
-          </svg>
-        </button>
+          </div>
+
+          <button
+            onClick={dismiss}
+            aria-label="Dismiss advertisement"
+            className="flex-shrink-0 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-muted-foreground transition-colors"
+            title="Close ad"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-5 h-5"
+              aria-hidden
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 11-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
+// New: Subtle in-feed ad that blends with content
+export function InFeedAd() {
+  return (
+    <div className="my-8 p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs font-medium text-muted-foreground">Sponsored</span>
+      </div>
+      <AdSenseAd
+        adSlot="1234567894" // Replace with your actual ad slot
+        adFormat="fluid"
+        className="min-h-[100px]"
+      />
+    </div>
+  );
+}
+
+// New: Sidebar ad with better styling
+export function SidebarAdCard() {
+  return (
+    <div className="sticky top-20 p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs font-medium text-muted-foreground">Sponsored</span>
+      </div>
+      <AdSenseAd
+        adSlot="1234567895" // Replace with your actual ad slot
+        adFormat="vertical"
+        fullWidthResponsive={false}
+        className="min-h-[250px]"
+      />
+    </div>
+  );
+}
+

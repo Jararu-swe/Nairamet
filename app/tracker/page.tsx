@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
-import { InContentAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
 
 
 // Small helpers to provide a symbol and flag when the API doesn't include them
@@ -236,11 +236,6 @@ function FXTrackerContent() {
           >
             {loading ? "Updating..." : "Refresh Rates"}
           </Button>
-        </div>
-
-        {/* Ad Placement 1: After header */}
-        <div className="flex justify-center">
-          <InContentAd />
         </div>
 
         {/* Currency Converter */}
@@ -538,11 +533,12 @@ function FXTrackerContent() {
           </p>
         </div>
 
-        {/* Ad Placement 2: Before footer */}
-        <div className="flex justify-center py-6">
-          <BottomBannerAd />
-        </div>
+        {/* Subtle in-feed ad after main content */}
+        <InFeedAd />
       </div>
+
+      {/* Bottom banner ad */}
+      <BottomBannerAd />
     </div>
   );
 }

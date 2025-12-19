@@ -19,6 +19,7 @@ import {
 import { FAQSection } from "@/components/faq-section";
 import { pricingFAQs } from "@/lib/faq-data";
 import { productSchema } from "@/lib/seo-config";
+import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
 
 export const metadata: Metadata = {
   title: "Pricing Plans - Free & Premium FX Tools",
@@ -323,6 +324,11 @@ export default function PricingPage() {
         <FAQSection faqs={pricingFAQs} />
       </section>
 
+      {/* In-feed ad after FAQ */}
+      <div className="max-w-4xl mx-auto px-4 pb-8">
+        <InFeedAd />
+      </div>
+
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -330,6 +336,9 @@ export default function PricingPage() {
           __html: JSON.stringify(productSchema),
         }}
       />
+
+      {/* Bottom banner ad */}
+      <BottomBannerAd />
     </div>
   );
 }

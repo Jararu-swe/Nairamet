@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { FileText, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
+import { BottomBannerAd } from "@/components/adsense-ad";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions - Service Agreement",
@@ -336,6 +337,9 @@ export default function TermsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Bottom banner ad */}
+      <BottomBannerAd />
     </div>
   );
 }

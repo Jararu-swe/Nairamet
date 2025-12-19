@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
+import { BottomBannerAd } from "@/components/adsense-ad";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - How We Protect Your Data",
@@ -427,6 +428,9 @@ export default function PrivacyPolicyPage() {
           </Link>
         </div>
       </div>
+
+      {/* Bottom banner ad */}
+      <BottomBannerAd />
     </div>
   );
 }

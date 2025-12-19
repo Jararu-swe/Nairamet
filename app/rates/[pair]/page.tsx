@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
+import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
 
 const SUPPORTED_PAIRS = [
   "usd-ngn", "gbp-ngn", "eur-ngn", "cny-ngn",
@@ -227,6 +228,9 @@ export default async function CurrencyPairPage({
                 </CardContent>
               </Card>
 
+              {/* In-feed ad after content */}
+              <InFeedAd />
+
               <div className="text-center">
                 <Button asChild size="lg" className="bg-emerald-600">
                   <Link href="/tracker">View All Exchange Rates</Link>
@@ -243,6 +247,9 @@ export default async function CurrencyPairPage({
             </Card>
           )}
         </div>
+
+        {/* Bottom banner ad */}
+        <BottomBannerAd />
       </div>
     </>
   );

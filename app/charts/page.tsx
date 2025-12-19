@@ -27,6 +27,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
+import { SidebarAdCard, BottomBannerAd } from "@/components/adsense-ad";
 
 
 // Mock historical data generator (can accept custom base rates for non-default currencies)
@@ -340,7 +341,10 @@ function ChartsPageContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="max-w-7xl mx-auto p-4 md:p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main content */}
+        <div className="lg:col-span-3 space-y-6">
       {/* Rotate phone message for small screens */}
       {showRotateMessage && (
         <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center gap-2 relative z-10">
@@ -707,6 +711,16 @@ function ChartsPageContent() {
           </div>
         </CardContent>
       </Card>
+        </div>
+
+        {/* Sidebar with ad */}
+        <div className="lg:col-span-1">
+          <SidebarAdCard />
+        </div>
+      </div>
+
+      {/* Bottom banner ad */}
+      <BottomBannerAd />
     </div>
   );
 }

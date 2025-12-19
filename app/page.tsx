@@ -22,7 +22,7 @@ import {
 import RequireAuthButton from "@/components/require-auth-button";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
-import { InContentAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
 
 export default function LandingPage() {
   const { isAuthenticated, openAuthModal } = useAuth();
@@ -292,14 +292,14 @@ export default function LandingPage() {
             <div className="mt-8">
               <LiveCurrencyRates />
             </div>
-
-            {/* Ad Placement 1: After hero section */}
-            <div className="mt-8 flex justify-center">
-              <InContentAd />
-            </div>
           </div>
         </div>
       </section>
+
+      {/* Ad Placement 1: Subtle in-feed ad after hero */}
+      <div className="max-w-7xl mx-auto px-4">
+        <InFeedAd />
+      </div>
 
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white relative overflow-hidden">
@@ -771,10 +771,8 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Ad Placement 2: Before footer */}
-      <div className="max-w-7xl mx-auto px-4 py-8 flex justify-center">
-        <BottomBannerAd />
-      </div>
+      {/* Bottom banner ad - appears after delay */}
+      <BottomBannerAd />
     </div>
   );
 }
