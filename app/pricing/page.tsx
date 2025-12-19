@@ -16,6 +16,9 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { FAQSection } from "@/components/faq-section";
+import { pricingFAQs } from "@/lib/faq-data";
+import { productSchema } from "@/lib/seo-config";
 
 export const metadata: Metadata = {
   title: "Pricing Plans - Free & Premium FX Tools",
@@ -314,6 +317,19 @@ export default function PricingPage() {
           </p>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <section className="max-w-4xl mx-auto px-4 py-16">
+        <FAQSection faqs={pricingFAQs} />
+      </section>
+
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productSchema),
+        }}
+      />
     </div>
   );
 }
