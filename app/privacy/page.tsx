@@ -1,7 +1,36 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy - How We Protect Your Data",
+  description:
+    "Learn how NairaMet collects, uses, and protects your personal information. Our commitment to your privacy and data security.",
+  keywords: [
+    "privacy policy",
+    "data protection",
+    "user privacy",
+    "nairamet privacy",
+    "data security",
+    "GDPR compliance",
+    "cookie policy",
+  ],
+  openGraph: {
+    title: "Privacy Policy | NairaMet",
+    description:
+      "Learn how NairaMet collects, uses, and protects your personal information.",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/privacy",
+  },
+};
 
 export default function PrivacyPolicyPage() {
   return (

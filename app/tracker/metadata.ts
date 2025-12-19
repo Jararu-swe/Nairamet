@@ -1,36 +1,43 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Live Exchange Rates - USD, GBP, EUR to Naira",
+  title: "Live Currency Tracker - Real-time Naira Exchange Rates",
   description:
-    "Real-time USD/NGN, GBP/NGN, EUR/NGN exchange rates. Track CBN official, black market, and parallel market rates with live updates. Free currency converter included.",
+    "Track live USD/NGN, GBP/NGN, EUR/NGN, and other currency pairs in real-time. Compare CBN official, black market, and parallel market rates with 24-hour changes and historical data.",
   keywords: [
-    "USD to NGN",
-    "GBP to NGN",
-    "EUR to NGN",
-    "dollar to naira today",
-    "pound to naira",
-    "euro to naira",
+    "currency tracker",
     "live exchange rates",
-    "naira exchange rate today",
-    "black market rate",
+    "naira tracker",
+    "USD to NGN live",
+    "GBP to NGN live",
+    "EUR to NGN live",
+    "real-time forex",
+    "currency monitor",
+    "FX tracker Nigeria",
+    "black market rate live",
     "CBN rate today",
     "parallel market rate",
-    "currency converter",
-    "forex rates Nigeria",
   ],
   openGraph: {
-    title: "Live Exchange Rates - Real-time Naira FX Tracker",
+    title: "Live Currency Tracker | NairaMet",
     description:
-      "Track USD/NGN, GBP/NGN, EUR/NGN rates in real-time. Compare CBN, black market, and parallel rates. Free currency converter.",
+      "Track live Naira exchange rates across multiple currencies. Real-time updates every 5 minutes with CBN, black market, and parallel rates.",
     type: "website",
-    url: "/tracker",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "NairaMet Currency Tracker",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Live Naira Exchange Rates",
+    title: "Live Currency Tracker | NairaMet",
     description:
-      "Real-time USD/NGN, GBP/NGN, EUR/NGN rates. Track CBN, black market & parallel rates.",
+      "Track live Naira exchange rates across multiple currencies with real-time updates.",
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: "/tracker",

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,30 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Pricing Plans - Free & Premium FX Tools",
+  description:
+    "Choose the perfect plan for your FX needs. Free plan with real-time rates and alerts. Premium plan with unlimited alerts, API access, and advanced analytics. Starting at ₦2,500/month.",
+  keywords: [
+    "nairamet pricing",
+    "fx tools pricing",
+    "currency tracker pricing",
+    "exchange rate alerts pricing",
+    "forex api pricing",
+    "premium fx tools",
+    "naira rate subscription",
+  ],
+  openGraph: {
+    title: "Pricing Plans | NairaMet",
+    description:
+      "Free and Premium plans for Nigerian FX tracking. Get unlimited alerts, API access, and advanced analytics.",
+    type: "website",
+  },
+  alternates: {
+    canonical: "/pricing",
+  },
+};
 
 export default function PricingPage() {
   const pricingFeatures = {

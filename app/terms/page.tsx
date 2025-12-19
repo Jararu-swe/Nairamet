@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -7,6 +8,33 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { FileText, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions - Service Agreement",
+  description:
+    "Terms and conditions for using NairaMet exchange rate services. Read our service agreement, user responsibilities, and terms of use.",
+  keywords: [
+    "terms and conditions",
+    "terms of service",
+    "user agreement",
+    "nairamet terms",
+    "service terms",
+    "legal terms",
+  ],
+  openGraph: {
+    title: "Terms and Conditions | NairaMet",
+    description:
+      "Terms and conditions for using NairaMet exchange rate services.",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/terms",
+  },
+};
 
 export default function TermsPage() {
   return (

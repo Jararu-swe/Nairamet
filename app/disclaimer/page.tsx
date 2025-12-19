@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -7,6 +8,33 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Disclaimer - Terms of Use",
+  description:
+    "Important disclaimer and terms of use for NairaMet exchange rate services. Understand the limitations and proper use of our FX data and tools.",
+  keywords: [
+    "disclaimer",
+    "terms of use",
+    "legal notice",
+    "nairamet disclaimer",
+    "exchange rate disclaimer",
+    "forex disclaimer",
+  ],
+  openGraph: {
+    title: "Disclaimer | NairaMet",
+    description:
+      "Important disclaimer and terms of use for NairaMet exchange rate services.",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/disclaimer",
+  },
+};
 
 export default function DisclaimerPage() {
   return (
