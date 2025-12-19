@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
@@ -22,10 +17,12 @@ export default function PrivacyPolicyPage() {
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-emerald-700 dark:text-emerald-300">
             <Calendar className="w-4 h-4" />
-            <span>Effective Date: January 1, 2024</span>
+            <span>Effective Date: January 1, 2026</span>
           </div>
           <p className="text-emerald-700 dark:text-emerald-300 max-w-2xl mx-auto">
-            At Nairamet, your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services.
+            At Nairamet, your privacy is important to us. This Privacy Policy
+            explains how we collect, use, and protect your personal information
+            when you use our website and services.
           </p>
         </div>
 
@@ -33,7 +30,8 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-muted-foreground">
-              By using Nairamet, you agree to the practices described in this policy.
+              By using Nairamet, you agree to the practices described in this
+              policy.
             </p>
           </CardContent>
         </Card>
@@ -42,7 +40,12 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">1</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                1
+              </Badge>
               Information We Collect
             </CardTitle>
           </CardHeader>
@@ -58,7 +61,9 @@ export default function PrivacyPolicyPage() {
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold mb-1">Transactional Information:</h4>
+                <h4 className="font-semibold mb-1">
+                  Transactional Information:
+                </h4>
                 <p className="text-sm text-muted-foreground">
                   Details of currency exchanges, deposits, or withdrawals.
                 </p>
@@ -66,13 +71,15 @@ export default function PrivacyPolicyPage() {
               <div>
                 <h4 className="font-semibold mb-1">Usage Information:</h4>
                 <p className="text-sm text-muted-foreground">
-                  IP address, browser type, device information, pages visited, and interaction with our services.
+                  IP address, browser type, device information, pages visited,
+                  and interaction with our services.
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-1">Cookies & Tracking Data:</h4>
                 <p className="text-sm text-muted-foreground">
-                  To enhance user experience, track usage, and deliver personalized content.
+                  To enhance user experience, track usage, and deliver
+                  personalized content.
                 </p>
               </div>
             </div>
@@ -83,7 +90,12 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">2</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                2
+              </Badge>
               How We Use Your Information
             </CardTitle>
           </CardHeader>
@@ -98,7 +110,9 @@ export default function PrivacyPolicyPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-600 mt-1">•</span>
-                <span>Send you important updates, alerts, and push notifications.</span>
+                <span>
+                  Send you important updates, alerts, and push notifications.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-600 mt-1">•</span>
@@ -106,7 +120,9 @@ export default function PrivacyPolicyPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-600 mt-1">•</span>
-                <span>Prevent fraud and ensure the security of transactions.</span>
+                <span>
+                  Prevent fraud and ensure the security of transactions.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-600 mt-1">•</span>
@@ -120,13 +136,19 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">3</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                3
+              </Badge>
               Cookies and Tracking
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Nairamet uses cookies and similar technologies to improve your browsing experience. Cookies help us:
+              Nairamet uses cookies and similar technologies to improve your
+              browsing experience. Cookies help us:
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
@@ -143,7 +165,31 @@ export default function PrivacyPolicyPage() {
               </li>
             </ul>
             <p className="text-sm text-muted-foreground">
-              You can manage or disable cookies via your browser settings, but some features may not function properly if cookies are disabled.
+              You can manage or disable cookies via your browser settings, but
+              some features may not function properly if cookies are disabled.
+            </p>
+
+            <h4 className="font-semibold">Manage your cookie preferences</h4>
+            <p className="text-sm text-muted-foreground">
+              To change cookie preferences at any time, visit the{" "}
+              <Link
+                href="/cookies"
+                className="text-emerald-600 hover:underline"
+              >
+                Cookie Settings
+              </Link>{" "}
+              page. Your selection is saved locally in your browser under the
+              key{" "}
+              <code className="bg-muted px-1 rounded">
+                nairamet:cookie_consent
+              </code>
+              . When you reject personalized ads, we set a flag on the page (
+              <code className="bg-muted px-1 rounded">
+                data-ads-personalization="false"
+              </code>
+              ) so ad components and banners will avoid personalized
+              advertising. To fully clear your choice, remove the key from your
+              browser's localStorage or use the Cookie Settings page.
             </p>
           </CardContent>
         </Card>
@@ -152,7 +198,12 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">4</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                4
+              </Badge>
               Sharing Your Information
             </CardTitle>
           </CardHeader>
@@ -175,7 +226,8 @@ export default function PrivacyPolicyPage() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              All third parties are required to handle your data securely and only for the purposes we specify.
+              All third parties are required to handle your data securely and
+              only for the purposes we specify.
             </p>
           </CardContent>
         </Card>
@@ -184,13 +236,19 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">5</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                5
+              </Badge>
               Data Security
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              We implement appropriate technical and organizational measures to protect your data, including:
+              We implement appropriate technical and organizational measures to
+              protect your data, including:
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
@@ -207,7 +265,8 @@ export default function PrivacyPolicyPage() {
               </li>
             </ul>
             <p className="text-sm text-muted-foreground italic">
-              While we strive to protect your information, no method of transmission over the internet is 100% secure.
+              While we strive to protect your information, no method of
+              transmission over the internet is 100% secure.
             </p>
           </CardContent>
         </Card>
@@ -216,7 +275,12 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">6</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                6
+              </Badge>
               Your Rights
             </CardTitle>
           </CardHeader>
@@ -233,14 +297,20 @@ export default function PrivacyPolicyPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-600 mt-1">•</span>
-                <span>Opt-out of marketing communications and push notifications.</span>
+                <span>
+                  Opt-out of marketing communications and push notifications.
+                </span>
               </li>
             </ul>
             <p className="text-sm text-muted-foreground">
               To exercise your rights, please contact us at{" "}
-              <a href="mailto:support@nairamet.com" className="text-emerald-600 hover:underline">
+              <a
+                href="mailto:support@nairamet.com"
+                className="text-emerald-600 hover:underline"
+              >
                 support@nairamet.com
-              </a>.
+              </a>
+              .
             </p>
           </CardContent>
         </Card>
@@ -249,13 +319,19 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">7</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                7
+              </Badge>
               Children's Privacy
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Nairamet is not intended for children under 18 years. We do not knowingly collect personal data from children.
+              Nairamet is not intended for children under 18 years. We do not
+              knowingly collect personal data from children.
             </p>
           </CardContent>
         </Card>
@@ -264,13 +340,21 @@ export default function PrivacyPolicyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">8</Badge>
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                8
+              </Badge>
               Changes to This Policy
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              We may update this Privacy Policy from time to time. We will notify users of significant changes via our website or email. Continued use of Nairamet after changes constitutes acceptance of the updated policy.
+              We may update this Privacy Policy from time to time. We will
+              notify users of significant changes via our website or email.
+              Continued use of Nairamet after changes constitutes acceptance of
+              the updated policy.
             </p>
           </CardContent>
         </Card>
@@ -290,7 +374,10 @@ export default function PrivacyPolicyPage() {
             <div className="space-y-1 text-sm">
               <p className="text-emerald-600 dark:text-emerald-400">
                 <strong>Email:</strong>{" "}
-                <a href="mailto:support@nairamet.com" className="hover:underline">
+                <a
+                  href="mailto:support@nairamet.com"
+                  className="hover:underline"
+                >
                   support@nairamet.com
                 </a>
               </p>

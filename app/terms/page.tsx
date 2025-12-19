@@ -22,7 +22,7 @@ export default function TermsPage() {
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-blue-700 dark:text-blue-300">
             <Calendar className="w-4 h-4" />
-            <span>Effective Date: January 1, 2024</span>
+            <span>Effective Date: January 1, 2026</span>
           </div>
           <p className="text-blue-700 dark:text-blue-300 max-w-2xl mx-auto">
             Welcome to Nairamet. By accessing or using our services, you agree to be bound by these Terms and Conditions.

@@ -7,18 +7,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  Clock,
-  User,
-  ArrowRight,
-  Heart,
-} from "lucide-react";
+import { Calendar, Clock, User, ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
 import { getArticles } from "@/lib/blog";
 // import NewsletterForm from "@/components/newsletter-form";
-import { getCachedArticlesFiltered } from "@/lib/scraper";
-import Wire from "@/components/wire";
+// removed Wire/scraper integration per policy: wire component removed
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
 import { MarketSnapshot } from "@/components/market-snapshot";
 // import { LikeButton } from "@/components/like-button";
@@ -27,9 +20,9 @@ import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
   const articles = getArticles();
-  const latestArticle = articles.find(a => a.featured) || articles[0];
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nairamet.com';
-  
+  const latestArticle = articles.find((a) => a.featured) || articles[0];
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com";
+
   return {
     title: "Naira Watch - FX News, Analysis & Insights | NairaMet",
     description: `Stay informed with the latest Nigerian FX news and analysis. ${articles.length}+ articles covering exchange rates, CBN policy, and market insights.`,
@@ -50,7 +43,8 @@ export async function generateMetadata(): Promise<Metadata> {
     publisher: "NairaMet",
     openGraph: {
       title: "Naira Watch - FX News & Analysis | NairaMet",
-      description: "Latest news, analysis, and insights about Nigerian foreign exchange markets and Naira rates.",
+      description:
+        "Latest news, analysis, and insights about Nigerian foreign exchange markets and Naira rates.",
       type: "website",
       url: `${baseUrl}/blog`,
       siteName: "NairaMet",
@@ -67,7 +61,8 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: "Naira Watch - FX News & Analysis",
-      description: "Latest Nigerian FX news, exchange rate analysis, and market insights.",
+      description:
+        "Latest Nigerian FX news, exchange rate analysis, and market insights.",
       creator: "@nairamet",
       images: [`${baseUrl}/og-image.png`],
     },
@@ -80,9 +75,9 @@ export async function generateMetadata(): Promise<Metadata> {
       googleBot: {
         index: true,
         follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   };
@@ -93,25 +88,44 @@ export default async function BlogPage() {
   // Strict FX-related keywords for better filtering
   const nairaKeywords = [
     // Currency codes
-    "naira", "ngn", "usd/ngn", "gbp/ngn", "eur/ngn",
-    
+    "naira",
+    "ngn",
+    "usd/ngn",
+    "gbp/ngn",
+    "eur/ngn",
+
     // Exchange rate terms (more specific)
-    "exchange rate", "forex", "fx rate", "currency rate",
-    "black market rate", "parallel market", "cbn rate",
-    
+    "exchange rate",
+    "forex",
+    "fx rate",
+    "currency rate",
+    "black market rate",
+    "parallel market",
+    "cbn rate",
+
     // Institutions
-    "cbn", "central bank of nigeria", "fmdq",
-    
+    "cbn",
+    "central bank of nigeria",
+    "fmdq",
+
     // Specific phrases
-    "dollar to naira", "pound to naira", "euro to naira",
-    "naira devaluation", "naira appreciation", "naira depreciation",
-    "fx market", "currency market", "foreign exchange",
-    "fx policy", "fx liquidity", "fx allocation",
-    
+    "dollar to naira",
+    "pound to naira",
+    "euro to naira",
+    "naira devaluation",
+    "naira appreciation",
+    "naira depreciation",
+    "fx market",
+    "currency market",
+    "foreign exchange",
+    "fx policy",
+    "fx liquidity",
+    "fx allocation",
+
     // Avoid generic terms that match too much
   ];
 
-  const scraped = getCachedArticlesFiltered(nairaKeywords);
+  // scraped wire removed — content will be the curated articles only
 
   const categories = [
     { name: "Weekly Summary", count: 12, color: "bg-blue-100 text-blue-800" },
@@ -123,7 +137,6 @@ export default async function BlogPage() {
       color: "bg-orange-100 text-orange-800",
     },
   ];
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
@@ -142,8 +155,6 @@ export default async function BlogPage() {
 
         {/* Market Snapshot - Dynamic data */}
         <MarketSnapshot />
-
-
 
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Main Content */}
@@ -184,20 +195,29 @@ export default async function BlogPage() {
                       <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-emerald-600">
                         <div className="flex items-center gap-1">
                           <User className="w-4 h-4" />
-                          <span className="text-xs sm:text-sm">{article.author}</span>
+                          <span className="text-xs sm:text-sm">
+                            {article.author}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          <span className="text-xs sm:text-sm">{new Date(article.date).toLocaleDateString()}</span>
+                          <span className="text-xs sm:text-sm">
+                            {new Date(article.date).toLocaleDateString()}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <span className="text-xs sm:text-sm">{article.readTime} min read</span>
+                          <span className="text-xs sm:text-sm">
+                            {article.readTime} min read
+                          </span>
                         </div>
                         {/* Removed LikeButton */}
                         {/* <LikeButton articleId={article.id} /> */}
                       </div>
-                      <Link href={`/blog/${encodeURIComponent(article.id)}`} className="w-full sm:w-auto">
+                      <Link
+                        href={`/blog/${encodeURIComponent(article.id)}`}
+                        className="w-full sm:w-auto"
+                      >
                         <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
                           Read More <ArrowRight className="w-4 h-4 ml-1" />
                         </Button>
@@ -208,7 +228,10 @@ export default async function BlogPage() {
               ))}
 
             {/* Recent Articles */}
-            <Card id="recent-articles" className="border-emerald-200 dark:border-emerald-800 shadow-lg">
+            <Card
+              id="recent-articles"
+              className="border-emerald-200 dark:border-emerald-800 shadow-lg"
+            >
               <CardHeader>
                 <CardTitle>Recent Articles</CardTitle>
                 <CardDescription>Latest insights and analysis</CardDescription>
@@ -224,11 +247,16 @@ export default async function BlogPage() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300">
+                            <Badge
+                              variant="outline"
+                              className="text-xs border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300"
+                            >
                               {article.category}
                             </Badge>
                           </div>
-                          <Link href={`/blog/${encodeURIComponent(article.id)}`}>
+                          <Link
+                            href={`/blog/${encodeURIComponent(article.id)}`}
+                          >
                             <h3 className="font-bold text-base sm:text-lg text-emerald-900 dark:text-emerald-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                               {article.title}
                             </h3>
@@ -271,10 +299,7 @@ export default async function BlogPage() {
               </CardContent>
             </Card>
 
-            {/* News Wire - Scraped Articles */}
-            {scraped && scraped.length > 0 && (
-              <Wire initialItems={scraped} keywords={nairaKeywords} />
-            )}
+            {/* News Wire removed */}
           </div>
 
           {/* Sidebar */}

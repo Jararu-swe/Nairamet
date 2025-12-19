@@ -1,0 +1,4 @@
+# Placeholder ads.txt for NairaMet
+# Replace pub-0000000000000000 with your real AdSense publisher ID (pub-XXXXXXXXXXXXXXX)
+# Format: <domain>, <publisher id>, <relationship>, <cert authority id>
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

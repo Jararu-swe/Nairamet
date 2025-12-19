@@ -1,25 +1,27 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import "./globals.css"
-import { Navbar } from "@/components/navbar"
-import { AuthProvider } from "@/contexts/auth-context"
+import type React from "react";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { Navbar } from "@/components/navbar";
+import { AuthProvider } from "@/contexts/auth-context";
 
 const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
-})
+});
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-})
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://nairamet.com'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"
+  ),
   title: {
     default: "NairaMet - Real-time Naira Exchange Rates & FX Tools",
-    template: "%s | NairaMet"
+    template: "%s | NairaMet",
   },
   description:
     "Track USD/NGN, GBP/NGN, EUR/NGN, CNY/NGN exchange rates with alerts, charts, and comprehensive FX tools for Nigerian currency markets. Get real-time CBN, black market, and parallel market rates.",
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
     "dollar to naira",
     "black market rate",
     "CBN rate",
-    "cbn exchange rate", 
+    "cbn exchange rate",
     "dollar to naira today",
     "parallel market",
     "forex Nigeria",
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
     "FX rates Nigeria",
     "exchange rate alerts",
     "naira charts",
-    "Nigerian currency"
+    "Nigerian currency",
   ],
   authors: [{ name: "NairaMet" }],
   creator: "NairaMet",
@@ -55,7 +57,8 @@ export const metadata: Metadata = {
     locale: "en_NG",
     url: "/",
     title: "NairaMet - Nigeria's FX Platform, Simplified",
-    description: "Real-time Naira exchange rates, alerts, charts, and comprehensive FX tools for Nigerian currency markets.",
+    description:
+      "Real-time Naira exchange rates, alerts, charts, and comprehensive FX tools for Nigerian currency markets.",
     siteName: "NairaMet",
     images: [
       {
@@ -69,7 +72,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "NairaMet - Real-time Naira Exchange Rates",
-    description: "Track USD/NGN, GBP/NGN, EUR/NGN rates with alerts and charts. Nigeria's FX Platform, Simplified.",
+    description:
+      "Track USD/NGN, GBP/NGN, EUR/NGN rates with alerts and charts. Nigeria's FX Platform, Simplified.",
     images: ["/og-image.png"],
     creator: "@nairamet",
   },
@@ -79,84 +83,94 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
       { url: "/Nairamet.svg", type: "image/svg+xml" },
-      { url: "/Nairamet.png", type: "image/png", sizes: "512x512" }
+      { url: "/Nairamet.png", type: "image/png", sizes: "512x512" },
     ],
     shortcut: "/favicon.ico",
-    apple: [
-      { url: "/Nairamet.png", sizes: "180x180", type: "image/png" }
-    ],
-    other: [
-      { rel: "mask-icon", url: "/Nairamet.svg", color: "#10b981" }
-    ],
+    apple: [{ url: "/Nairamet.png", sizes: "180x180", type: "image/png" }],
+    other: [{ rel: "mask-icon", url: "/Nairamet.svg", color: "#10b981" }],
   },
   manifest: "/site.webmanifest",
-  generator: 'v0.app'
-}
+  generator: "v0.app",
+};
 
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
+import CookieConsent from "@/components/cookie-consent";
+import AdScript from "@/components/ad-script";
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "NairaMet",
-    "alternateName": "Naira Met",
-    "url": process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
-    "description": "Real-time Naira exchange rates, alerts, charts, and comprehensive FX tools for Nigerian currency markets",
-    "potentialAction": {
+    name: "NairaMet",
+    alternateName: "Naira Met",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
+    description:
+      "Real-time Naira exchange rates, alerts, charts, and comprehensive FX tools for Nigerian currency markets",
+    potentialAction: {
       "@type": "SearchAction",
-      "target": {
+      target: {
         "@type": "EntryPoint",
-        "urlTemplate": `${process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"}/search?q={search_term_string}`
+        urlTemplate: `${
+          process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"
+        }/search?q={search_term_string}`,
       },
-      "query-input": "required name=search_term_string"
-    }
+      "query-input": "required name=search_term_string",
+    },
   };
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "NairaMet",
-    "url": process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com",
-    "logo": [
+    name: "NairaMet",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com",
+    logo: [
       {
         "@type": "ImageObject",
-        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/Nairamet.svg`,
-        "width": "512",
-        "height": "512",
-        "encodingFormat": "image/svg+xml"
+        url: `${
+          process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"
+        }/Nairamet.svg`,
+        width: "512",
+        height: "512",
+        encodingFormat: "image/svg+xml",
       },
       {
         "@type": "ImageObject",
-        "url": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/Nairamet.png`,
-        "width": "512",
-        "height": "512",
-        "encodingFormat": "image/png"
-      }
+        url: `${
+          process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"
+        }/Nairamet.png`,
+        width: "512",
+        height: "512",
+        encodingFormat: "image/png",
+      },
     ],
-    "description": "Nigeria's FX Platform, Simplified - Real-time exchange rates and currency tools",
-    "sameAs": [
+    description:
+      "Nigeria's FX Platform, Simplified - Real-time exchange rates and currency tools",
+    sameAs: [
       "https://twitter.com/nairamet",
       "https://facebook.com/nairamet",
-      "https://linkedin.com/company/nairamet"
-    ]
+      "https://linkedin.com/company/nairamet",
+    ],
   };
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           type="application/ld+json"
@@ -164,7 +178,9 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
         />
         {/* Cookiebot CMP - Google Certified Consent Management Platform */}
         {process.env.NEXT_PUBLIC_COOKIEBOT_ID && (
@@ -178,19 +194,12 @@ export default function RootLayout({
           />
         )}
         {/* OneSignal SDK - async for better performance */}
-        <script 
-          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" 
+        <script
+          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
           defer
           async
         />
-        {/* Google AdSense */}
-        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
-            crossOrigin="anonymous"
-          />
-        )}
+        {/* Google AdSense is injected client-side by `AdScript` when user consent allows personalized ads */}
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />
@@ -199,10 +208,36 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <Navbar />
-            {children}
+            <main className="min-h-[60vh]">{children}</main>
+            {/* Cookie consent component (client-side) */}
+            <CookieConsent />
+            {/* Client-injected AdSense script (respects cookie consent) */}
+            <AdScript />
+
+            <footer className="border-t bg-background/95 mt-8">
+              <div className="max-w-7xl mx-auto p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+                <div>
+                  <span className="font-semibold">NairaMet</span>
+                  <span className="ml-2">
+                    — Real-time Naira exchange rates & FX tools
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <a href="/privacy" className="hover:underline">
+                    Privacy Policy
+                  </a>
+                  <a href="/terms" className="hover:underline">
+                    Terms
+                  </a>
+                  <a href="/ads.txt" className="hover:underline">
+                    ads.txt
+                  </a>
+                </div>
+              </div>
+            </footer>
           </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

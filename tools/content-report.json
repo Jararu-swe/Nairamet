@@ -1,0 +1,124 @@
+{
+  "scanned": 26,
+  "lowContentCount": 3,
+  "lowContentFiles": [
+    {
+      "file": "app\\widget\\[type]\\layout.tsx",
+      "words": 20
+    },
+    {
+      "file": "app\\loading.tsx",
+      "words": 23
+    },
+    {
+      "file": "app\\performance-monitor.tsx",
+      "words": 126
+    }
+  ],
+  "allFiles": [
+    {
+      "file": "app\\widget\\[type]\\layout.tsx",
+      "words": 20
+    },
+    {
+      "file": "app\\loading.tsx",
+      "words": 23
+    },
+    {
+      "file": "app\\performance-monitor.tsx",
+      "words": 126
+    },
+    {
+      "file": "app\\tracker\\layout.tsx",
+      "words": 269
+    },
+    {
+      "file": "app\\tools\\test-embed.html",
+      "words": 278
+    },
+    {
+      "file": "app\\forgot-password\\page.tsx",
+      "words": 294
+    },
+    {
+      "file": "app\\admin\\scraper\\page.tsx",
+      "words": 310
+    },
+    {
+      "file": "app\\cookies\\page.tsx",
+      "words": 370
+    },
+    {
+      "file": "app\\reset-password\\page.tsx",
+      "words": 387
+    },
+    {
+      "file": "app\\pricing\\page.tsx",
+      "words": 419
+    },
+    {
+      "file": "app\\blog\\page.tsx",
+      "words": 447
+    },
+    {
+      "file": "app\\privacy\\page.tsx",
+      "words": 500
+    },
+    {
+      "file": "app\\layout.tsx",
+      "words": 503
+    },
+    {
+      "file": "app\\widget\\[type]\\page.tsx",
+      "words": 503
+    },
+    {
+      "file": "app\\blog\\[id]\\page.tsx",
+      "words": 527
+    },
+    {
+      "file": "app\\rates\\[pair]\\history\\page.tsx",
+      "words": 545
+    },
+    {
+      "file": "app\\convert\\[slug]\\page.tsx",
+      "words": 572
+    },
+    {
+      "file": "app\\disclaimer\\page.tsx",
+      "words": 579
+    },
+    {
+      "file": "app\\rates\\[pair]\\page.tsx",
+      "words": 605
+    },
+    {
+      "file": "app\\terms\\page.tsx",
+      "words": 804
+    },
+    {
+      "file": "app\\tracker\\page.tsx",
+      "words": 993
+    },
+    {
+      "file": "app\\page.tsx",
+      "words": 1026
+    },
+    {
+      "file": "app\\tools\\page.tsx",
+      "words": 1250
+    },
+    {
+      "file": "app\\charts\\page.tsx",
+      "words": 1284
+    },
+    {
+      "file": "app\\logs\\page.tsx",
+      "words": 1696
+    },
+    {
+      "file": "app\\alerts\\page.tsx",
+      "words": 2094
+    }
+  ]
+}

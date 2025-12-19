@@ -101,29 +101,29 @@ export default function LandingPage() {
   ];
 
   const stats = [
-    { 
-      label: "Exchange Rate Data Points", 
-      value: "1M+", 
+    {
+      label: "Exchange Rate Data Points",
+      value: "1M+",
       subtitle: "Processed Daily",
-      icon: Zap 
+      icon: Zap,
     },
-    { 
-      label: "Real-Time Updates", 
-      value: "24/7", 
+    {
+      label: "Real-Time Updates",
+      value: "24/7",
       subtitle: "Live FX Monitoring",
-      icon: Shield 
+      icon: Shield,
     },
-    { 
-      label: "Currency Sources", 
-      value: "3+", 
+    {
+      label: "Currency Sources",
+      value: "3+",
       subtitle: "CBN, BDC & Parallel",
-      icon: Users 
+      icon: Users,
     },
-    { 
-      label: "Conversion Engine", 
-      value: "Fast", 
+    {
+      label: "Conversion Engine",
+      value: "Fast",
       subtitle: "Optimized & Reliable",
-      icon: Star 
+      icon: Star,
     },
   ];
 
@@ -178,46 +178,47 @@ export default function LandingPage() {
 
   // Random currency
   const currencies = [
-        "USD", 
-        "GBP", 
-        "EUR", 
-        "CNY", 
-        "JPY",
-        "CAD",
-        "AUD",
-        "NZD",
-        "ZAR",
-        "CHF",
-        "SEK",
-        "NOK",
-        "DKK",
-        "GHS",
-        "XOF",
-        "XAF",
-        "KES",
-        "UGX",
-        "TZS",
-        "EGP",
-        "MAD",
-        "TND",
-        "ZMW",
-        "XOF",
-        "XAF",
-        "CFA",
-        "SAR",
-        "AED",
-        "QAR",
-        "KWD",
-        "BHD",
-        "INR",
-        "PKR",
-        "BDT",
-        "GMD",
-        "SLL",
-        "LRD",
-        "CDF",
-        "ETB",
-        "SOS"];
+    "USD",
+    "GBP",
+    "EUR",
+    "CNY",
+    "JPY",
+    "CAD",
+    "AUD",
+    "NZD",
+    "ZAR",
+    "CHF",
+    "SEK",
+    "NOK",
+    "DKK",
+    "GHS",
+    "XOF",
+    "XAF",
+    "KES",
+    "UGX",
+    "TZS",
+    "EGP",
+    "MAD",
+    "TND",
+    "ZMW",
+    "XOF",
+    "XAF",
+    "CFA",
+    "SAR",
+    "AED",
+    "QAR",
+    "KWD",
+    "BHD",
+    "INR",
+    "PKR",
+    "BDT",
+    "GMD",
+    "SLL",
+    "LRD",
+    "CDF",
+    "ETB",
+    "SOS",
+  ];
   const [currency, setCurrency] = useState("USD");
   const [fade, setFade] = useState(true);
 
@@ -226,8 +227,8 @@ export default function LandingPage() {
       setFade(false);
 
       setTimeout(() => {
-        setCurrency(prev => {
-          const next = currencies.filter(c => c !== prev);
+        setCurrency((prev) => {
+          const next = currencies.filter((c) => c !== prev);
           return next[Math.floor(Math.random() * next.length)];
         });
         setFade(true);
@@ -236,9 +237,6 @@ export default function LandingPage() {
 
     return () => clearInterval(interval);
   }, []);
-
-
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -257,15 +255,23 @@ export default function LandingPage() {
                 🇳🇬 Nigeria’s FX, Simplified
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold text-foreground text-balance">
-                Track <span className="sr-only">Dollar</span><span className={`inline-block text-emerald-600 transition-all duration-300 ease-in-out ${
-          fade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-        }`}>{currency}</span> to Naira 
+                Track <span className="sr-only">Dollar</span>
+                <span
+                  className={`inline-block text-emerald-600 transition-all duration-300 ease-in-out ${
+                    fade
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-2"
+                  }`}
+                >
+                  {currency}
+                </span>{" "}
+                to Naira
                 <span className="text-emerald-600"> Like a Pro</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
-                Get real-time USD/NGN, GBP/NGN, EUR/NGN rates and more from CBN, black
-                market, and parallel sources. Set alerts, analyze trends, and
-                make informed currency decisions.
+                Get real-time USD/NGN, GBP/NGN, EUR/NGN rates and more from CBN,
+                black market, and parallel sources. Set alerts, analyze trends,
+                and make informed currency decisions.
               </p>
             </div>
 
@@ -302,7 +308,7 @@ export default function LandingPage() {
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold mb-3">
@@ -312,19 +318,25 @@ export default function LandingPage() {
               Optimized for Daily Traders & Students Abroad
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105"
               >
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/20 mb-4">
                   <stat.icon className="w-7 h-7" />
                 </div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
-                <div className="text-white font-semibold text-sm md:text-base mb-1">{stat.label}</div>
-                <div className="text-emerald-100 text-xs md:text-sm">{stat.subtitle}</div>
+                <div className="text-4xl md:text-5xl font-bold mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-white font-semibold text-sm md:text-base mb-1">
+                  {stat.label}
+                </div>
+                <div className="text-emerald-100 text-xs md:text-sm">
+                  {stat.subtitle}
+                </div>
               </div>
             ))}
           </div>
@@ -408,21 +420,24 @@ export default function LandingPage() {
               All Features. No Hidden Costs.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need for FX trading and currency conversion — completely free
+              Everything you need for FX trading and currency conversion —
+              completely free
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {pricingFeatures.free.map((feature, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-300 hover:shadow-lg"
               >
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                   <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">{feature}</h3>
+                  <h3 className="font-semibold text-foreground mb-1">
+                    {feature}
+                  </h3>
                 </div>
               </div>
             ))}
@@ -435,7 +450,8 @@ export default function LandingPage() {
                   Ready to Get Started?
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  No credit card required. No hidden fees. Just sign up and start tracking rates.
+                  No credit card required. No hidden fees. Just sign up and
+                  start tracking rates.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
@@ -473,7 +489,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Trusted by Nigerian Forex Traders & Students
+              Trusted by Nigerian Forex Traders & Students
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               See what our users say about NairaMet
@@ -482,15 +498,19 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className="relative hover:shadow-xl transition-shadow duration-300 border-2 hover:border-emerald-200 dark:hover:border-emerald-800"
               >
                 <CardContent className="pt-6 pb-6">
                   {/* Quote Icon */}
                   <div className="absolute top-4 right-4 text-emerald-100 dark:text-emerald-900">
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                    <svg
+                      className="w-8 h-8"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                     </svg>
                   </div>
 
@@ -518,7 +538,9 @@ export default function LandingPage() {
 
                   {/* Divider */}
                   <div className="border-t pt-4">
-                    <div className="font-semibold text-foreground">{testimonial.name}</div>
+                    <div className="font-semibold text-foreground">
+                      {testimonial.name}
+                    </div>
                     <div className="text-sm text-muted-foreground mt-1">
                       {testimonial.role}
                     </div>
@@ -567,7 +589,7 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
                   <img
                     src="/Nairamet.svg"
-                    alt="NairaMet Logo"
+                    alt="NairaMet – Naira Exchange Rate Platform"
                     className="w-8 h-8"
                   />
                 </div>
@@ -575,17 +597,28 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold text-white">
                     Naira<span className="text-emerald-500">Met</span>
                   </h3>
-                  <p className="text-xs text-gray-400">Nigeria's FX Platform, Simplified</p>
+                  <p className="text-xs text-gray-400">
+                    Nigeria's FX Platform, Simplified
+                  </p>
                 </div>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Nigeria's most trusted platform for real-time exchange rates, market insights, and FX analytics. Get accurate data from multiple sources including CBN, black market, and parallel rates.
+                Nigeria's most trusted platform for real-time exchange rates,
+                market insights, and FX analytics. Get accurate data from
+                multiple sources including CBN, black market, and parallel
+                rates.
               </p>
               <div className="flex gap-2">
-                <Badge variant="secondary" className="bg-emerald-900 text-emerald-100 border-emerald-700">
+                <Badge
+                  variant="secondary"
+                  className="bg-emerald-900 text-emerald-100 border-emerald-700"
+                >
                   Made in Nigeria 🇳🇬
                 </Badge>
-                <Badge variant="secondary" className="bg-blue-900 text-blue-100 border-blue-700">
+                <Badge
+                  variant="secondary"
+                  className="bg-blue-900 text-blue-100 border-blue-700"
+                >
                   100% Free
                 </Badge>
               </div>
@@ -599,22 +632,35 @@ export default function LandingPage() {
               </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/tracker" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/tracker"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Live Rates
                   </Link>
                 </li>
                 <li>
-                  <Link href="/alerts" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/alerts"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Rate Alerts
                   </Link>
                 </li>
                 <li>
-                  <Link href="/charts" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
-                    <span className="text-emerald-500">→</span> Historical Charts
+                  <Link
+                    href="/charts"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
+                    <span className="text-emerald-500">→</span> Historical
+                    Charts
                   </Link>
                 </li>
                 <li>
-                  <Link href="/logs" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/logs"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Rate Logs
                   </Link>
                 </li>
@@ -629,22 +675,38 @@ export default function LandingPage() {
               </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/blog" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/blog"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Naira Watch
                   </Link>
                 </li>
                 <li>
-                  <Link href="/tools" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/tools"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Widgets & Tools
                   </Link>
                 </li>
                 <li>
-                  <a href="https://www.cbn.gov.ng" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <a
+                    href="https://www.cbn.gov.ng"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> CBN Official
                   </a>
                 </li>
                 <li>
-                  <a href="https://www.fmdqgroup.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <a
+                    href="https://www.fmdqgroup.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> FMDQ Data
                   </a>
                 </li>
@@ -659,17 +721,26 @@ export default function LandingPage() {
               </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/privacy" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/privacy"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/terms"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/disclaimer" className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                  <Link
+                    href="/disclaimer"
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                  >
                     <span className="text-emerald-500">→</span> Disclaimer
                   </Link>
                 </li>
@@ -710,4 +781,3 @@ export default function LandingPage() {
 function setCurrency(arg0: string) {
   throw new Error("Function not implemented.");
 }
-

@@ -154,7 +154,7 @@ export class UserStorage {
   static rateAlert(
     params: {
       currency: string;
-      rateType: "official" | "black_market" | "remittance";
+      rateType: "official" | "black_market" | "remittance" | "parallel";
       condition: "above" | "below";
       threshold: number;
       isActive?: boolean;
