@@ -33,9 +33,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { pair: string };
+  params: Promise<{ pair: string }>;
 }): Promise<Metadata> {
-  const pairInfo = PAIR_INFO[params.pair];
+  const { pair } = await params;
+  const pairInfo = PAIR_INFO[pair];
   if (!pairInfo) return {};
 
   return {
@@ -72,9 +73,10 @@ async function getRateData(currency: string) {
 export default async function HistoryPage({
   params,
 }: {
-  params: { pair: string };
+  params: Promise<{ pair: string }>;
 }) {
-  const pairInfo = PAIR_INFO[params.pair];
+  const { pair } = await params;
+  const pairInfo = PAIR_INFO[pair];
   if (!pairInfo) notFound();
 
   const rateData = await getRateData(pairInfo.from);

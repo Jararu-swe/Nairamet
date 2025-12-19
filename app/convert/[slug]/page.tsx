@@ -50,9 +50,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const parsed = parseSlug(params.slug);
+  const { slug } = await params;
+  const parsed = parseSlug(slug);
   if (!parsed) return {};
 
   const { amount, from, to } = parsed;
@@ -94,9 +95,10 @@ async function getRateData(currency: string) {
 export default async function ConvertPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const parsed = parseSlug(params.slug);
+  const { slug } = await params;
+  const parsed = parseSlug(slug);
   if (!parsed) notFound();
 
   const { amount, from, to } = parsed;

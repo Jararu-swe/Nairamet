@@ -27,7 +27,7 @@ const getFlagUrl = (currency: string): string => {
   return `https://flagcdn.com/w40/${countryCode}.png`;
 };
 
-export default function WidgetPage({ params }: { params: { type: string } }) {
+export default function WidgetPage() {
   const searchParams = useSearchParams();
   const currency = searchParams.get("currency") || "USD";
   const [rates, setRates] = useState<any>({

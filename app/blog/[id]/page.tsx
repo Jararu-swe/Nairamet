@@ -11,12 +11,13 @@ import Link from "next/link";
 import { getArticleById } from "@/lib/blog";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = getArticleById(params.id);
+  const { id } = await params;
+  const article = getArticleById(id);
   
   if (!article) {
     return {
@@ -56,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: article.date,
       modifiedTime: article.date,
       authors: article.author ? [article.author] : ["NairaMet Editorial Team"],
-      url: `${baseUrl}/blog/${params.id}`,
+      url: `${baseUrl}/blog/${id}`,
       siteName: "NairaMet",
       locale: "en_NG",
       images: [
@@ -92,8 +93,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function ArticlePage({ params }: Props) {
-  const rawId = params.id;
+export default async function ArticlePage({ params }: Props) {
+  const { id: rawId } = await params;
   const article = getArticleById(rawId);
 
   if (!article) {
