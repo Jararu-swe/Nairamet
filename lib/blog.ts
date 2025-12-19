@@ -15,323 +15,34 @@ export type Article = {
   featured?: boolean;
 };
 
-// Function to read markdown content (currently unused but kept for future use)
-function readMarkdownFile(filename: string): string {
+// Minimal static articles list. Keep concise to avoid large inline strings.
+export const articles: Article[] = [
+  {
+    id: "1",
+    title: "Welcome to NairaMet - Naira Watch",
+    excerpt: "Weekly summaries, policy analysis and market insights on the naira.",
+    content: "This is a short welcome article. For full posts use markdown files in /data.",
+    author: "NairaMet Editorial Team",
+    date: new Date().toISOString(),
+    readTime: "2",
+    category: "Weekly Summary",
+    trend: null,
+    featured: true,
+  },
+];
+
+export function readMarkdownFile(filename: string): string {
   try {
     const filePath = path.join(process.cwd(), "data", filename);
     if (!fs.existsSync(filePath)) return "";
-    const content = fs.readFileSync(filePath, "utf-8");
-    return content;
+    return fs.readFileSync(filePath, "utf-8");
   } catch (err) {
     console.error(`Failed to read ${filename}`, err);
     return "";
   }
 }
 
-export const articles: Article[] = [
-  {
-    id: "1",
-    title: "Understanding the Nigerian Foreign Exchange Market: A Comprehensive Guide for 2025",
-    excerpt:
-      "Navigate Nigeria's complex FX landscape with our complete guide covering official rates, parallel markets, CBN policies, and practical strategies for businesses and individuals.",
-    content: `The Nigerian foreign exchange market is one of the most dynamic and complex in Africa, characterized by multiple exchange rate windows, significant spreads between official and parallel market rates, and frequent policy changes. Understanding this landscape is crucial for businesses, investors, and individuals looking to navigate Nigeria's economy effectively.
-
-## The Structure of Nigeria's FX Market
-
-Nigeria operates a managed float exchange rate system, where the Central Bank of Nigeria (CBN) plays a significant role in determining the naira's value. However, the reality is more nuanced, with several distinct markets operating simultaneously:
-
-### 1. The Official Market (I&E Window)
-
-The Investors and Exporters (I&E) Window, established in 2017, serves as the primary official market for FX transactions. This window was designed to improve price discovery and increase liquidity in the Nigerian FX market. Rates here are determined by market forces but with CBN intervention when deemed necessary.
-
-The I&E Window handles transactions for:
-- Invisible transactions (business travel, medical expenses, school fees)
-- Capital transactions (loan repayments, dividends, capital repatriation)
-- Import and export proceeds
-- Portfolio investments
-
-### 2. The Parallel Market (Black Market)
-
-The parallel market, often called the black market, operates outside official channels and typically offers rates 5-15% higher than official rates. This market exists due to:
-- Limited FX availability in official channels
-- Bureaucratic hurdles in accessing official FX
-- Faster transaction processing
-- No documentation requirements for small amounts
-
-While technically illegal, the parallel market is widely used and serves as a price discovery mechanism, often reflecting true market sentiment better than official rates.
-
-### 3. The Bureau de Change (BDC) Market
-
-Licensed BDCs serve as intermediaries, particularly for retail FX transactions. The CBN periodically supplies dollars to BDCs to serve as a buffer and help stabilize rates. However, BDC rates typically track closer to parallel market rates than official rates.
-
-## Key Factors Influencing Exchange Rates
-
-### Oil Prices and Production
-
-As Nigeria's primary export and source of foreign exchange, oil prices directly impact the naira's strength. When oil prices rise, Nigeria earns more dollars, increasing FX supply and potentially strengthening the naira. Conversely, falling oil prices or production disruptions can weaken the currency significantly.
-
-### CBN Monetary Policy
-
-The Central Bank's decisions on interest rates, reserve requirements, and direct market interventions significantly impact exchange rates. Recent policies have included:
-- Restrictions on access to official FX for certain imports
-- Limits on cash withdrawals to encourage digital transactions
-- Periodic devaluations to align official rates with market realities
-- Introduction of the RT200 program to boost non-oil exports
-
-### Inflation Differentials
-
-Nigeria's inflation rate, consistently in double digits, erodes the naira's purchasing power. When domestic inflation significantly exceeds that of trading partners, the naira tends to depreciate to maintain purchasing power parity.
-
-### Foreign Portfolio Investment
-
-Capital flows from foreign investors seeking returns in Nigerian assets can strengthen the naira. However, these flows are volatile and can reverse quickly during global risk-off periods or when domestic conditions deteriorate.
-
-### Remittances
-
-Diaspora remittances constitute a significant source of FX inflows, often exceeding $20 billion annually. The CBN has implemented various incentives to channel more remittances through official channels.
-
-## Practical Strategies for Managing FX Risk
-
-### For Businesses
-
-1. **Natural Hedging**: Match foreign currency revenues with foreign currency expenses where possible
-2. **Forward Contracts**: Lock in rates for future transactions (though limited availability in Nigeria)
-3. **Diversification**: Maintain accounts in multiple currencies
-4. **Local Sourcing**: Reduce import dependence by sourcing locally when feasible
-5. **Dynamic Pricing**: Implement pricing mechanisms that adjust for exchange rate movements
-
-### For Individuals
-
-1. **Dollar Savings**: Maintain a portion of savings in stable foreign currencies
-2. **Timing**: Monitor rate trends and time large transactions strategically
-3. **Multiple Channels**: Compare rates across official and parallel markets
-4. **Digital Platforms**: Use licensed digital platforms for better rates and convenience
-5. **Documentation**: Keep proper records for official transactions to avoid issues
-
-## Recent Developments and Future Outlook
-
-The CBN has been gradually moving toward a more market-determined exchange rate system. Recent reforms include:
-- Unification of multiple exchange rate windows
-- Increased transparency in FX allocation
-- Removal of the 43 items banned from accessing official FX
-- Introduction of the willing buyer-willing seller model
-
-However, challenges remain:
-- Limited FX reserves relative to import demand
-- Structural economic issues requiring diversification from oil
-- Need for improved export competitiveness
-- Addressing the parallel market premium
-
-## Conclusion
-
-Understanding Nigeria's FX market requires recognizing its complexity and staying informed about policy changes. Whether you're a business owner, investor, or individual, success in this environment demands:
-- Continuous monitoring of multiple rate sources
-- Understanding of CBN policy directions
-- Flexibility in transaction timing and channels
-- Risk management strategies appropriate to your exposure
-- Compliance with regulations while optimizing costs
-
-The Nigerian FX market will likely remain dynamic, with ongoing reforms aimed at achieving greater stability and transparency. Staying informed and adaptable is key to navigating this challenging but opportunity-rich environment.`,
-    author: "NairaMet Research Team",
-    date: "2024-12-15",
-    readTime: "12 min read",
-    category: "Education",
-    trend: null,
-    featured: true,
-  },
-  {
-    id: "2",
-    title: "The Complete Guide to Black Market Exchange Rates in Nigeria",
-    excerpt:
-      "Everything you need to know about parallel market rates: how they're determined, why they exist, legal considerations, and how to navigate this unofficial but widely-used market.",
-    content: `The parallel market, commonly known as the black market, is an integral part of Nigeria's foreign exchange ecosystem. Despite its unofficial status, it processes billions of dollars in transactions annually and serves as a critical price discovery mechanism. This comprehensive guide explains everything you need to know about black market exchange rates.
-
-## What is the Black Market?
-
-The black market refers to the unofficial foreign exchange market where currencies are traded outside the regulatory framework of the Central Bank of Nigeria (CBN). It operates through a network of street traders, bureau de change operators, and informal channels.
-
-### Why Does the Black Market Exist?
-
-Several factors contribute to the persistence of Nigeria's parallel FX market:
-
-1. **Limited Official FX Supply**: Demand for foreign currency consistently exceeds supply in official channels, creating a gap that the black market fills.
-
-2. **Bureaucratic Hurdles**: Accessing official FX often requires extensive documentation, bank relationships, and waiting periods that many find prohibitive.
-
-3. **Restrictions on Certain Transactions**: The CBN periodically restricts official FX access for certain imports or purposes, pushing these transactions to the parallel market.
-
-4. **Speed and Convenience**: Black market transactions can be completed in minutes without paperwork, making them attractive for urgent needs.
-
-5. **Anonymity**: Some users prefer the privacy of parallel market transactions, though this can facilitate illicit activities.
-
-## How Black Market Rates Are Determined
-
-Unlike official rates influenced by CBN policy, black market rates are purely market-driven, responding to:
-
-### Supply Factors
-- Diaspora remittances channeled through informal means
-- Export proceeds not repatriated through official channels
-- Foreign currency brought in by travelers
-- Liquidation of foreign assets by Nigerians abroad
-
-### Demand Factors
-- Import payments for goods not eligible for official FX
-- School fees and medical expenses abroad
-- Business travel and personal trips
-- Capital flight during economic uncertainty
-- Speculative demand when devaluation is anticipated
-
-### The Rate-Setting Process
-
-Black market rates are determined through a decentralized network:
-
-1. **Major Dealers**: Large operators in Lagos, Abuja, and Port Harcourt set benchmark rates based on their supply-demand balance.
-
-2. **Information Flow**: Rates spread quickly through WhatsApp groups, phone calls, and word of mouth.
-
-3. **Regional Variations**: Rates can vary by 1-3% between cities and even neighborhoods based on local supply-demand dynamics.
-
-4. **Time of Day**: Rates often fluctuate during the trading day, typically firming in the morning and softening in the afternoon.
-
-## The Spread: Official vs. Black Market
-
-The premium of black market rates over official rates varies significantly:
-
-### Typical Spread Ranges
-- **Stable Periods**: 5-10% premium
-- **Moderate Uncertainty**: 10-20% premium
-- **Crisis Periods**: 20-40% premium or more
-
-### Factors Affecting the Spread
-
-**Narrowing Factors:**
-- CBN dollar sales to BDCs
-- Increased oil revenues
-- Large diaspora remittance inflows
-- Positive economic news
-- CBN devaluation of official rate
-
-**Widening Factors:**
-- Reduced CBN FX interventions
-- Falling oil prices
-- Political uncertainty
-- Anticipated devaluation
-- Capital controls tightening
-
-## Legal Considerations
-
-### The Legal Status
-
-Trading in the parallel market exists in a gray area:
-- Not explicitly illegal for individuals in small amounts
-- Illegal for businesses to use for commercial transactions
-- Licensed BDCs can operate but must follow CBN guidelines
-- Large-scale unlicensed dealing is prosecutable
-
-### Risks and Consequences
-
-**For Individuals:**
-- Generally low risk for small personal transactions
-- Potential issues if caught with large amounts of foreign currency
-- No legal recourse if cheated in a transaction
-
-**For Businesses:**
-- Cannot claim parallel market expenses for tax purposes
-- Risk of prosecution for large-scale unofficial FX sourcing
-- Potential banking relationship issues if discovered
-- Audit complications
-
-## How to Navigate the Black Market Safely
-
-### Finding Reliable Dealers
-
-1. **Referrals**: Use dealers recommended by trusted contacts
-2. **Established Locations**: Stick to known trading areas rather than random street dealers
-3. **Test Transactions**: Start with small amounts before larger deals
-4. **Verification**: Always verify currency authenticity immediately
-
-### Safety Precautions
-
-1. **Public Locations**: Conduct transactions in busy, public areas
-2. **Daylight Hours**: Avoid late evening or night transactions
-3. **Bring Company**: Have someone accompany you for large amounts
-4. **Count Carefully**: Verify amounts before leaving
-5. **Avoid Flashing Cash**: Be discreet about carrying large sums
-
-### Red Flags to Watch For
-
-- Rates significantly better than market average (likely a scam)
-- Pressure to transact quickly without verification
-- Requests to move to secluded locations
-- Dealers unwilling to let you verify currency
-- Suspicious-looking or feeling notes
-
-## Alternatives to the Black Market
-
-### Official Channels
-- **Banks**: For documented transactions, though often with delays
-- **Licensed BDCs**: Slightly higher rates than banks but more accessible
-- **Digital Platforms**: Emerging fintech solutions offering competitive rates
-
-### Hybrid Approaches
-- **Domiciliary Accounts**: Maintain foreign currency accounts legally
-- **Crypto**: Some use cryptocurrency as an intermediary (though risky)
-- **Hawala Networks**: Informal value transfer systems used by some communities
-
-## Impact on the Economy
-
-### Negative Effects
-- Reduces CBN's ability to manage monetary policy
-- Facilitates capital flight and tax evasion
-- Creates uncertainty for businesses planning
-- Complicates economic data and forecasting
-
-### Positive Functions
-- Provides FX access when official channels fail
-- Serves as a pressure valve for excess demand
-- Offers price discovery reflecting true market sentiment
-- Enables economic activity that would otherwise be impossible
-
-## The Future of the Black Market
-
-Several trends may affect the parallel market's role:
-
-### Potential Reduction Factors
-- CBN's move toward more market-determined rates
-- Increased official FX supply from reforms
-- Digital payment systems reducing cash transactions
-- Improved official channel efficiency
-
-### Persistence Factors
-- Deep-rooted in Nigerian commerce
-- Structural FX supply-demand imbalances
-- Trust issues with official institutions
-- Convenience and speed advantages
-
-## Conclusion
-
-The black market is a reality of Nigeria's FX landscape that's unlikely to disappear soon. Understanding how it works, its risks and benefits, and how to navigate it safely is essential for anyone dealing with foreign currency in Nigeria.
-
-While the long-term goal should be a unified, efficient official market that makes the parallel market unnecessary, in the meantime, informed participation with appropriate caution is often a practical necessity.
-
-Key takeaways:
-- The black market exists due to structural FX supply-demand imbalances
-- Rates are purely market-driven and can be volatile
-- Legal risks exist but are generally low for small personal transactions
-- Safety and verification are crucial when transacting
-- Monitor both official and parallel rates for the complete picture
-- The market serves important economic functions despite its unofficial status
-
-Stay informed, stay safe, and always prioritize legal channels when possible.`,
-    author: "NairaMet Analysis Team",
-    date: "2024-12-12",
-    readTime: "15 min read",
-    category: "Education",
-    trend: null,
-    featured: true,
-  },
-
-function readScraped() {
+function readScraped(): any[] {
   try {
     const dataPath = path.join(process.cwd(), "data", "scraped.json");
     if (!fs.existsSync(dataPath)) return [];
@@ -339,17 +50,202 @@ function readScraped() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : parsed.articles || [];
   } catch (err) {
+    // Don't crash the server for malformed scraped data
     console.error("Failed to read scraped.json", err);
     return [];
   }
 }
 
-export function getArticles() {
+export function getArticles(): Article[] {
   const scraped = readScraped();
-
   const mapped = (scraped || []).map((s: any) => ({
-    id: `scraped:${encodeURIComponent(s.url)}`,
+    id: `scraped:${encodeURIComponent(s.url || String(Math.random()))}`,
     title: decodeEntities(s.title || "(no title)"),
+    excerpt: decodeEntities(s.excerpt || s.content || ""),
+    content: decodeEntities(s.content || ""),
+    author: decodeEntities(s.source || "Wire"),
+    originalUrl: s.url,
+    date: s.date || new Date().toISOString(),
+    readTime: "1",
+    category: s.source || "Wire",
+    trend: null,
+    featured: false,
+  })) as Article[];
+
+  return [...articles, ...mapped].sort(
+    (a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0)
+  );
+}
+
+export function getArticleById(id: string): Article | null {
+  const all = getArticles();
+
+  let found = all.find((a) => a.id === id);
+  if (found) return found;
+
+  try {
+    const decoded = decodeURIComponent(id);
+    found = all.find((a) => a.id === decoded);
+    if (found) return found;
+  } catch {}
+
+  if (id.startsWith("scraped:") || id.includes("scraped%3A")) {
+    try {
+      const normalized = id.replace(/scraped%3A/i, "scraped:");
+      const part = normalized.slice("scraped:".length);
+      found = all.find((a) => a.id === `scraped:${part}`);
+      if (found) return found;
+
+      const decodedPart = decodeURIComponent(part);
+      found = all.find((a) => a.id === `scraped:${decodedPart}`);
+      if (found) return found;
+
+      const reencoded = `scraped:${encodeURIComponent(decodedPart)}`;
+      found = all.find((a) => a.id === reencoded);
+      if (found) return found;
+    } catch {}
+  }
+
+  try {
+    const maybeUrl = decodeURIComponent(id);
+    found = all.find((a) => (a as any).originalUrl === maybeUrl);
+    if (found) return found;
+  } catch {}
+
+  return null;
+}
+
+function decodeEntities(str: string = ""): string {
+  const map: Record<string, string> = {
+    "&nbsp;": " ",
+    "&amp;": "&",
+    "&quot;": '"',
+    "&apos;": "'",
+    "&#39;": "'",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&ndash;": "–",
+    "&mdash;": "—",
+    "&ldquo;": "“",
+    "&rdquo;": "”",
+    "&lsquo;": "‘",
+    "&rsquo;": "’",
+    "&hellip;": "…",
+  };
+
+  let s = String(str || "");
+  s = s.replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)));
+  s = s.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+  s = s.replace(/&[a-zA-Z]+;|&#\d+;|&#x[0-9a-fA-F]+;/g, (entity) => map[entity] ?? entity);
+  return s.replace(/\s+/g, " ").trim();
+}
+
+export { readMarkdownFile };
+import fs from "fs";
+import path from "path";
+
+export type Article = {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  readTime: string;
+  category: string;
+  originalUrl?: string;
+  // Minimal, clean replacement to fix parse errors and restore imports/exports.
+  import fs from "fs";
+  import path from "path";
+
+  export type Article = {
+    id: string;
+    title: string;
+    excerpt: string;
+    content: string;
+    author: string;
+    date: string;
+    readTime: string;
+    category: string;
+    originalUrl?: string;
+    trend?: "up" | "down" | null;
+    featured?: boolean;
+  };
+
+  function readMarkdownFile(filename: string): string {
+    try {
+      const filePath = path.join(process.cwd(), "data", filename);
+      if (!fs.existsSync(filePath)) return "";
+      return fs.readFileSync(filePath, "utf-8");
+    } catch (err) {
+      console.error(`Failed to read ${filename}`, err);
+      return "";
+    }
+  }
+
+  export const articles: Article[] = [];
+
+  function readScraped() {
+    try {
+      const dataPath = path.join(process.cwd(), "data", "scraped.json");
+      if (!fs.existsSync(dataPath)) return [];
+      const raw = fs.readFileSync(dataPath, "utf-8");
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : parsed.articles || [];
+    } catch (err) {
+      console.error("Failed to read scraped.json", err);
+      return [];
+    }
+  }
+
+  export function getArticles() {
+    const scraped = readScraped();
+    const mapped = (scraped || []).map((s: any) => ({
+      id: `scraped:${encodeURIComponent(s.url)}`,
+      title: decodeEntities(s.title || "(no title)"),
+      excerpt: decodeEntities(s.excerpt || s.content || ""),
+      content: decodeEntities(s.content || ""),
+      author: decodeEntities(s.source || "Wire"),
+      originalUrl: s.url,
+      date: s.date || new Date().toISOString(),
+      readTime: "1 min read",
+      category: s.source || "Wire",
+      trend: null,
+      featured: false,
+    })) as Article[];
+
+    return [...articles, ...mapped].sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
+  }
+
+  export function getArticleById(id: string) {
+    const all = getArticles();
+    return all.find((a) => a.id === id) || null;
+  }
+
+  function decodeEntities(str: string = ""): string {
+    const map: Record<string, string> = {
+      "&nbsp;": " ",
+      "&amp;": "&",
+      "&quot;": '"',
+      "&apos;": "'",
+      "&#39;": "'",
+      "&lt;": "<",
+      "&gt;": ">",
+      "&ndash;": "–",
+      "&mdash;": "—",
+      "&ldquo;": "“",
+      "&rdquo;": "”",
+      "&lsquo;": "‘",
+      "&rsquo;": "’",
+      "&hellip;": "…",
+    };
+    let s = str.replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)));
+    s = s.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    s = s.replace(/&[a-zA-Z]+;|&#\d+;|&#x[0-9a-fA-F]+;/g, (entity) => map[entity] ?? entity);
+    return s.replace(/\s+/g, " ").trim();
+  }
+
+  export { readMarkdownFile };
     excerpt: decodeEntities(s.excerpt || s.content || ""),
     content: decodeEntities(s.content || ""),
     author: decodeEntities(s.source || "Wire"),

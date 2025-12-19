@@ -12,10 +12,9 @@ export default function AdminAdDebug() {
 
   useEffect(() => {
     const check = () => {
-      // @ts-ignore
       if (
         typeof window !== "undefined" &&
-        typeof window.adsbygoogle !== "undefined"
+        typeof (window as any).adsbygoogle !== "undefined"
       ) {
         setScriptLoaded(true);
         return;
@@ -55,11 +54,11 @@ export default function AdminAdDebug() {
       // @ts-ignore
       if (
         typeof window !== "undefined" &&
-        typeof window.adsbygoogle !== "undefined"
+        typeof (window as any).adsbygoogle !== "undefined"
       ) {
         setScriptLoaded(true);
       }
-    }, 500);
+    }, 1000);
   }
 
   function acceptAll() {

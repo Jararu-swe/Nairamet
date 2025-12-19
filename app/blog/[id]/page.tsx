@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [`${baseUrl}/og-image.png`],
     },
     alternates: {
-      canonical: `${baseUrl}/blog/${params.id}`,
+      canonical: `${baseUrl}/blog/${id}`,
     },
     robots: {
       index: true,
@@ -118,6 +118,8 @@ export default async function ArticlePage({ params }: Props) {
       </div>
     );
   }
+
+  const { id } = await params;
 
   function decodeEntities(str: string = ""): string {
     const map: Record<string, string> = {
@@ -198,7 +200,7 @@ export default async function ArticlePage({ params }: Props) {
         "@type": "ListItem",
         "position": 3,
         "name": safeTitle,
-        "item": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/blog/${params.id}`,
+        "item": `${process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com"}/blog/${id}`,
       },
     ],
   };
