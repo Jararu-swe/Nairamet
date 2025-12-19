@@ -136,18 +136,32 @@ export function getArticleById(id: string) {
     const decoded = decodeURIComponent(id);
     found = all.find((a) => a.id === decoded);
     if (found) return found;
+    
+    // Also try double-decoded for cases where it was encoded twice
+    const doubleDecoded = decodeURIComponent(decoded);
+    found = all.find((a) => a.id === doubleDecoded);
+    if (found) return found;
   } catch {}
 
   // If id looks like 'scraped:<encodedUrl>' try decoding the part after the colon
-  if (id.startsWith("scraped:")) {
-    const part = id.slice("scraped:".length);
+  if (id.startsWith("scraped:") || id.includes("scraped%3A")) {
     try {
+      // Handle both encoded and non-encoded "scraped:" prefix
+      const normalized = id.replace(/scraped%3A/i, "scraped:");
+      const part = normalized.slice("scraped:".length);
+      
+      // Try the part as-is
+      found = all.find((a) => a.id === `scraped:${part}`);
+      if (found) return found;
+      
+      // Try decoding the part
       const decodedPart = decodeURIComponent(part);
-      const reconstructed = `scraped:${encodeURIComponent(decodedPart)}`;
-      // try both reconstructed and with decoded part
-      found = all.find(
-        (a) => a.id === reconstructed || a.id === `scraped:${decodedPart}`
-      );
+      found = all.find((a) => a.id === `scraped:${decodedPart}`);
+      if (found) return found;
+      
+      // Try re-encoding the decoded part (in case it needs to match the stored format)
+      const reencoded = `scraped:${encodeURIComponent(decodedPart)}`;
+      found = all.find((a) => a.id === reencoded);
       if (found) return found;
     } catch {}
   }
