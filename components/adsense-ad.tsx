@@ -31,17 +31,15 @@ export function AdSenseAd({
       const pathname =
         typeof window !== "undefined" ? window.location.pathname : "";
 
-      // Blacklist some common low-value routes where ads should not show
+      // Blacklist low-value routes where ads should not show per AdSense policy
       const blacklistedPrefixes = [
         "/auth",
         "/alerts",
         "/forgot-password",
         "/reset-password",
-        "/terms",
-        "/privacy",
-        "/cookies",
-        "/disclaimer",
         "/admin",
+        "/api",
+        "/widget", // Widgets are for embedding, not ad display
       ];
 
       for (const p of blacklistedPrefixes) {
@@ -51,24 +49,77 @@ export function AdSenseAd({
         }
       }
 
-      // Heuristic: find the main content element and count words. Require a
-      // minimum amount of publisher content before showing ads.
-      const el =
-        document.querySelector("article") ||
-        document.querySelector("main") ||
-        document.querySelector("[data-publisher-content]");
-      const text = el ? el.textContent || "" : document.body.textContent || "";
-      const words = text.trim().split(/\s+/).filter(Boolean).length;
-      const MIN_WORDS = 150;
+      // Wait for DOM to be fully loaded
+      const checkContent = () => {
+        // Find main content areas - prioritize semantic HTML
+        const contentSelectors = [
+          "article",
+          "main",
+          "[role='main']",
+          "[data-publisher-content]",
+          ".prose", // Common for blog content
+          ".content",
+        ];
 
-      if (words < MIN_WORDS) {
-        setAllowed(false);
-        return;
+        let contentElement = null;
+        for (const selector of contentSelectors) {
+          contentElement = document.querySelector(selector);
+          if (contentElement) break;
+        }
+
+        // Fallback to body but exclude nav, header, footer
+        let text = "";
+        if (contentElement) {
+          text = contentElement.textContent || "";
+        } else {
+          // Get body text but exclude navigation elements
+          const body = document.body.cloneNode(true) as HTMLElement;
+          const excludeSelectors = ["nav", "header", "footer", "[role='navigation']", ".ad", "[data-ad]"];
+          excludeSelectors.forEach(sel => {
+            body.querySelectorAll(sel).forEach(el => el.remove());
+          });
+          text = body.textContent || "";
+        }
+
+        // Count meaningful words (exclude very short words and numbers-only)
+        const words = text
+          .trim()
+          .split(/\s+/)
+          .filter(word => word.length > 2 && !/^\d+$/.test(word));
+        
+        // Google requires substantial, unique content
+        // Increased from 150 to 300 words for better compliance
+        const MIN_WORDS = 300;
+
+        if (words.length < MIN_WORDS) {
+          console.log(`AdSense: Insufficient content (${words.length} words, need ${MIN_WORDS})`);
+          setAllowed(false);
+          return false;
+        }
+
+        // Additional quality check: ensure content has some structure
+        const hasHeadings = document.querySelectorAll("h1, h2, h3").length >= 2;
+        const hasParagraphs = document.querySelectorAll("p").length >= 3;
+        
+        if (!hasHeadings || !hasParagraphs) {
+          console.log("AdSense: Insufficient content structure");
+          setAllowed(false);
+          return false;
+        }
+
+        // If all checks pass, allow ads
+        setAllowed(true);
+        return true;
+      };
+
+      // Check immediately if DOM is ready
+      if (document.readyState === "complete") {
+        checkContent();
+      } else {
+        // Wait for DOM to be fully loaded
+        window.addEventListener("load", checkContent);
+        return () => window.removeEventListener("load", checkContent);
       }
-
-      // If checks pass, allow render. The ad will wait for the AdSense
-      // script to be present before requesting ads.
-      setAllowed(true);
     } catch (err) {
       console.error("AdSense gating error:", err);
       setAllowed(false);
