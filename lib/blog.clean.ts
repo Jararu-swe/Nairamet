@@ -15,7 +15,6 @@ export type Article = {
   featured?: boolean;
 };
 
-// Minimal static articles list. Keep concise to avoid large inline strings.
 export const articles: Article[] = [
   {
     id: "1",
@@ -33,7 +32,7 @@ export const articles: Article[] = [
   },
 ];
 
-function readMarkdownFile(filename: string): string {
+export function readMarkdownFile(filename: string): string {
   try {
     const filePath = path.join(process.cwd(), "data", filename);
     if (!fs.existsSync(filePath)) return "";
@@ -52,7 +51,6 @@ function readScraped(): any[] {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : parsed.articles || [];
   } catch (err) {
-    // Don't crash the server for malformed scraped data
     console.error("Failed to read scraped.json", err);
     return [];
   }
@@ -81,39 +79,18 @@ export function getArticles(): Article[] {
 
 export function getArticleById(id: string): Article | null {
   const all = getArticles();
-
   let found = all.find((a) => a.id === id);
   if (found) return found;
-
   try {
     const decoded = decodeURIComponent(id);
     found = all.find((a) => a.id === decoded);
     if (found) return found;
   } catch {}
-
-  if (id.startsWith("scraped:") || id.includes("scraped%3A")) {
-    try {
-      const normalized = id.replace(/scraped%3A/i, "scraped:");
-      const part = normalized.slice("scraped:".length);
-      found = all.find((a) => a.id === `scraped:${part}`);
-      if (found) return found;
-
-      const decodedPart = decodeURIComponent(part);
-      found = all.find((a) => a.id === `scraped:${decodedPart}`);
-      if (found) return found;
-
-      const reencoded = `scraped:${encodeURIComponent(decodedPart)}`;
-      found = all.find((a) => a.id === reencoded);
-      if (found) return found;
-    } catch {}
-  }
-
   try {
     const maybeUrl = decodeURIComponent(id);
     found = all.find((a) => (a as any).originalUrl === maybeUrl);
     if (found) return found;
   } catch {}
-
   return null;
 }
 
@@ -128,13 +105,12 @@ function decodeEntities(str: string = ""): string {
     "&gt;": ">",
     "&ndash;": "–",
     "&mdash;": "—",
-    "&ldquo;": "\u201c",
-    "&rdquo;": "\u201d",
-    "&lsquo;": "\u2018",
-    "&rsquo;": "\u2019",
+    "&ldquo;": "“",
+    "&rdquo;": "”",
+    "&lsquo;": "‘",
+    "&rsquo;": "’",
     "&hellip;": "…",
   };
-
   let s = String(str || "");
   s = s.replace(/&#(\d+);/g, (_, num) =>
     String.fromCharCode(parseInt(num, 10))

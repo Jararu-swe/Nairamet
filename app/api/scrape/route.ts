@@ -57,12 +57,10 @@ export async function GET(request: Request) {
         if (!worked) feeds.push(group[0]);
       }
     }
-    // continue as before, using 'feeds'
     // fetch and cache
     const articles: ScrapedArticle[] = await fetchFeeds(feeds);
 
-    // Persist to data/scraped.json so scraped items are visible to the
-    // server-rendered blog pages and survive restarts.
+    // Persist to data/scraped.json for local development and caching
     try {
       const dataDir = path.join(process.cwd(), "data");
       if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });

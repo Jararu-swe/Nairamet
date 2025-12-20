@@ -20,7 +20,7 @@ const parser = new Parser();
 
 // Module-level cache
 let cached: { articles: ScrapedArticle[]; fetchedAt: number } | null = null;
-const CACHE_TTL = 1000 * 60 * 60 * 12; // 12 hours
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
 
 async function fetchNairalandNews(maxThreads = 5) {
   const results: ScrapedArticle[] = [];
@@ -178,18 +178,18 @@ export function filterArticlesByKeywords(
 ) {
   if (!articles || articles.length === 0) return [];
   const kws = keywords.map((k) => k.toLowerCase());
-  
+
   return articles.filter((a) => {
     // Focus on title and excerpt for better relevance
     const titleAndExcerpt = `${a.title || ""} ${a.excerpt || ""}`.toLowerCase();
     const fullContent = `${titleAndExcerpt} ${a.content || ""}`.toLowerCase();
-    
+
     // Must match at least 2 keywords for better precision
     const matchCount = kws.filter((kw) => fullContent.includes(kw)).length;
-    
+
     // Or match 1 keyword in title/excerpt (high relevance)
     const titleMatch = kws.some((kw) => titleAndExcerpt.includes(kw));
-    
+
     return matchCount >= 2 || titleMatch;
   });
 }
