@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Script from "next/script";
 
 const STORAGE_KEY = "nairamet:cookie_consent";
+const POPUNDER_SESSION_KEY = "nairamet:popunder_shown";
 
 function getConsentAllowsAds() {
   try {
@@ -24,8 +25,33 @@ function getConsentAllowsAds() {
   }
 }
 
+function shouldShowPopunder() {
+  try {
+    if (typeof window === "undefined") return false;
+    
+    // Use sessionStorage for per-session tracking
+    // This resets when browser tab/window is closed
+    const shownThisSession = sessionStorage.getItem(POPUNDER_SESSION_KEY);
+    return !shownThisSession;
+  } catch (e) {
+    return true;
+  }
+}
+
+function markPopunderShown() {
+  try {
+    if (typeof window !== "undefined") {
+      // Mark as shown for this session only
+      sessionStorage.setItem(POPUNDER_SESSION_KEY, "true");
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
 export default function MonetagScript() {
   const consentChecked = useRef(false);
+  const popunderLoaded = useRef(false);
 
   useEffect(() => {
     if (consentChecked.current) return;
@@ -56,12 +82,24 @@ export default function MonetagScript() {
     };
   }, []);
 
+  // Mark popunder as shown when it loads
+  useEffect(() => {
+    if (popunderLoaded.current) return;
+    
+    if (process.env.NEXT_PUBLIC_MONETAG_POPUNDER && getConsentAllowsAds() && shouldShowPopunder()) {
+      popunderLoaded.current = true;
+      markPopunderShown();
+    }
+  }, []);
+
   if (!getConsentAllowsAds()) return null;
+
+  const showPopunder = shouldShowPopunder();
 
   return (
     <>
-      {/* Monetag Popunder - Highest earning format */}
-      {process.env.NEXT_PUBLIC_MONETAG_POPUNDER && (
+      {/* Monetag Popunder - Once per session for optimal UX and revenue */}
+      {process.env.NEXT_PUBLIC_MONETAG_POPUNDER && showPopunder && (
         <Script
           id="monetag-popunder"
           strategy="afterInteractive"
@@ -89,3 +127,4 @@ export default function MonetagScript() {
     </>
   );
 }
+
