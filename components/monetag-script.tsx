@@ -60,19 +60,30 @@ export default function MonetagScript() {
 
   return (
     <>
-      {/* Monetag verification script - Add your site verification key */}
-      {process.env.NEXT_PUBLIC_MONETAG_SITE_KEY && (
+      {/* Monetag Popunder - Highest earning format */}
+      {process.env.NEXT_PUBLIC_MONETAG_POPUNDER && (
         <Script
-          id="monetag-verification"
+          id="monetag-popunder"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              (function(d,z,s){
-                s.src='https://'+d+'/401/'+z;
-                try{(document.body||document.documentElement).appendChild(s)}catch(e){}
-              })('${process.env.NEXT_PUBLIC_MONETAG_DOMAIN || 'alwingulla.com'}', ${process.env.NEXT_PUBLIC_MONETAG_SITE_KEY}, document.createElement('script'))
+              (function(s){
+                s.dataset.zone='${process.env.NEXT_PUBLIC_MONETAG_POPUNDER}';
+                s.src='https://${process.env.NEXT_PUBLIC_MONETAG_POPUNDER_DOMAIN || 'al5sm.com'}/tag.min.js';
+              })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
             `,
           }}
+        />
+      )}
+
+      {/* Monetag Push Notifications - Passive income */}
+      {process.env.NEXT_PUBLIC_MONETAG_PUSH && (
+        <Script
+          id="monetag-push"
+          src={`https://${process.env.NEXT_PUBLIC_MONETAG_PUSH_DOMAIN || '3nbf4.com'}/act/files/tag.min.js?z=${process.env.NEXT_PUBLIC_MONETAG_PUSH}`}
+          data-cfasync="false"
+          strategy="afterInteractive"
+          async
         />
       )}
     </>
