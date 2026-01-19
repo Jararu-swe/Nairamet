@@ -1,4 +1,7 @@
-# Placeholder ads.txt for NairaMet
-# Replace pub-0000000000000000 with your real AdSense publisher ID (pub-XXXXXXXXXXXXXXX)
+# Monetag ads.txt for NairaMet
+# Get your actual ads.txt content from Monetag dashboard
+# Go to: Monetag Dashboard → Websites → Your Site → ads.txt
+
+# Add your Monetag ads.txt lines here
 # Format: <domain>, <publisher id>, <relationship>, <cert authority id>
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+# Example: monetag.com, pub-123456789, DIRECT, d3c19cb6e028b

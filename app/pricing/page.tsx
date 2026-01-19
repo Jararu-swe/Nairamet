@@ -19,7 +19,7 @@ import {
 import { FAQSection } from "@/components/faq-section";
 import { pricingFAQs } from "@/lib/faq-data";
 import { productSchema } from "@/lib/seo-config";
-import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 
 export const metadata: Metadata = {
   title: "Pricing Plans - Free & Premium FX Tools",

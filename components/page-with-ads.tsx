@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { InContentAd, BottomBannerAd } from "./adsense-ad"
+import { InContentAd, BottomBannerAd } from "./monetag-ad"
 
 interface PageWithAdsProps {
   children: ReactNode

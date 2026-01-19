@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calculator } from "lucide-react";
-import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 
 const SUPPORTED_CURRENCIES = ["usd", "gbp", "eur", "cny", "zar", "ghs", "kes", "aed", "sar", "inr", "jpy", "cad", "aud"];
 const POPULAR_AMOUNTS = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 5000, 10000];

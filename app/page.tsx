@@ -22,7 +22,7 @@ import {
 import RequireAuthButton from "@/components/require-auth-button";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
-import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 
 export default function LandingPage() {
   const { isAuthenticated, openAuthModal } = useAuth();

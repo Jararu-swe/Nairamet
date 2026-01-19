@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
-import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 
 
 // Small helpers to provide a symbol and flag when the API doesn't include them

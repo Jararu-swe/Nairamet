@@ -9,7 +9,7 @@ import {
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import Link from "next/link";
 import { getArticleById } from "@/lib/blog";
-import { InFeedAd, BottomBannerAd } from "@/components/adsense-ad";
+import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 
 type Props = {
   params: Promise<{ id: string }>;

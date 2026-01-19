@@ -27,7 +27,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
-import { SidebarAdCard, BottomBannerAd } from "@/components/adsense-ad";
+import { SidebarAdCard, BottomBannerAd } from "@/components/monetag-ad";
 
 
 // Mock historical data generator (can accept custom base rates for non-default currencies)

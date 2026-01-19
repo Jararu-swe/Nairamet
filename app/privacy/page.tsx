@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
-import { BottomBannerAd } from "@/components/adsense-ad";
+import { BottomBannerAd } from "@/components/monetag-ad";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - How We Protect Your Data",

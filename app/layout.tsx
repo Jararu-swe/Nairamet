@@ -104,7 +104,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import CookieConsent from "@/components/cookie-consent";
-import AdScript from "@/components/ad-script";
+import MonetagScript from "@/components/monetag-script";
 
 export default function RootLayout({
   children,
@@ -172,6 +172,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Monetag Verification */}
+        <meta name="monetag" content="b6634b3001efde2f7c53a142165751f1" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -199,7 +201,7 @@ export default function RootLayout({
           defer
           async
         />
-        {/* Google AdSense is injected client-side by `AdScript` when user consent allows personalized ads */}
+        {/* Monetag ads are injected client-side by `MonetagScript` when user consent allows personalized ads */}
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />
@@ -211,8 +213,8 @@ export default function RootLayout({
             <main className="min-h-[60vh]">{children}</main>
             {/* Cookie consent component (client-side) */}
             <CookieConsent />
-            {/* Client-injected AdSense script (respects cookie consent) */}
-            <AdScript />
+            {/* Client-injected Monetag script (respects cookie consent) */}
+            <MonetagScript />
 
             <footer className="border-t bg-background/95 mt-8">
               <div className="max-w-7xl mx-auto p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
