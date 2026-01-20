@@ -215,28 +215,6 @@ export default function RootLayout({
             <CookieConsent />
             {/* Client-injected Monetag script (respects cookie consent) */}
             <MonetagScript />
-
-            <footer className="border-t bg-background/95 mt-8">
-              <div className="max-w-7xl mx-auto p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-                <div>
-                  <span className="font-semibold">NairaMet</span>
-                  <span className="ml-2">
-                    — Real-time Naira exchange rates & FX tools
-                  </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <a href="/privacy" className="hover:underline">
-                    Privacy Policy
-                  </a>
-                  <a href="/terms" className="hover:underline">
-                    Terms
-                  </a>
-                  <a href="/ads.txt" className="hover:underline">
-                    ads.txt
-                  </a>
-                </div>
-              </div>
-            </footer>
           </AuthProvider>
         </ThemeProvider>
       </body>
