@@ -1,38 +1,55 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 const STORAGE_KEY = "nairamet:cookie_consent";
-const POPUNDER_SESSION_KEY = "nairamet:popunder_shown";
+const POPUNDER_COOKIE = "nairamet_popunder";
 
 function getConsentAllowsAds() {
   try {
     if (typeof window === "undefined") return false;
-    
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       return parsed && parsed.ads !== false;
     }
-    
-    const attr = document.documentElement.getAttribute("data-ads-personalization");
+
+    const attr = document.documentElement.getAttribute(
+      "data-ads-personalization"
+    );
     if (attr === "false") return false;
-    
+
     return true;
   } catch (e) {
     return false;
   }
 }
 
-function shouldShowPopunder() {
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+}
+
+function setCookie(name: string, value: string, hours: number) {
+  if (typeof document === "undefined") return;
+  const date = new Date();
+  date.setTime(date.getTime() + hours * 60 * 60 * 1000);
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value};${expires};path=/;SameSite=Lax`;
+}
+
+function shouldShowPopunder(): boolean {
   try {
     if (typeof window === "undefined") return false;
     
-    // Use sessionStorage for per-session tracking
-    // This resets when browser tab/window is closed
-    const shownThisSession = sessionStorage.getItem(POPUNDER_SESSION_KEY);
-    return !shownThisSession;
+    // Check if popunder was shown in this session (cookie-based)
+    const shown = getCookie(POPUNDER_COOKIE);
+    return !shown;
   } catch (e) {
     return true;
   }
@@ -40,10 +57,8 @@ function shouldShowPopunder() {
 
 function markPopunderShown() {
   try {
-    if (typeof window !== "undefined") {
-      // Mark as shown for this session only
-      sessionStorage.setItem(POPUNDER_SESSION_KEY, "true");
-    }
+    // Set cookie for 8 hours (covers typical browsing session)
+    setCookie(POPUNDER_COOKIE, "1", 1);
   } catch (e) {
     // ignore
   }
@@ -51,11 +66,11 @@ function markPopunderShown() {
 
 export default function MonetagScript() {
   const consentChecked = useRef(false);
-  const popunderLoaded = useRef(false);
+  const [showPopunder, setShowPopunder] = useState(false);
 
   useEffect(() => {
     if (consentChecked.current) return;
-    
+
     function checkConsent() {
       if (getConsentAllowsAds()) {
         consentChecked.current = true;
@@ -65,11 +80,11 @@ export default function MonetagScript() {
     checkConsent();
 
     window.addEventListener("storage", checkConsent);
-    
+
     const observer = new MutationObserver(() => {
       checkConsent();
     });
-    
+
     try {
       observer.observe(document.documentElement, { attributes: true });
     } catch (e) {
@@ -82,23 +97,19 @@ export default function MonetagScript() {
     };
   }, []);
 
-  // Mark popunder as shown when it loads
+  // Check if we should show popunder
   useEffect(() => {
-    if (popunderLoaded.current) return;
-    
-    if (process.env.NEXT_PUBLIC_MONETAG_POPUNDER && getConsentAllowsAds() && shouldShowPopunder()) {
-      popunderLoaded.current = true;
+    if (shouldShowPopunder()) {
+      setShowPopunder(true);
       markPopunderShown();
     }
   }, []);
 
   if (!getConsentAllowsAds()) return null;
 
-  const showPopunder = shouldShowPopunder();
-
   return (
     <>
-      {/* Monetag Popunder - Once per session for optimal UX and revenue */}
+      {/* Monetag Popunder - Once per 8 hours (session-based) */}
       {process.env.NEXT_PUBLIC_MONETAG_POPUNDER && showPopunder && (
         <Script
           id="monetag-popunder"
@@ -107,7 +118,7 @@ export default function MonetagScript() {
             __html: `
               (function(s){
                 s.dataset.zone='${process.env.NEXT_PUBLIC_MONETAG_POPUNDER}';
-                s.src='https://${process.env.NEXT_PUBLIC_MONETAG_POPUNDER_DOMAIN || 'al5sm.com'}/tag.min.js';
+                s.src='https://${process.env.NEXT_PUBLIC_MONETAG_POPUNDER_DOMAIN || "al5sm.com"}/tag.min.js';
               })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
             `,
           }}
@@ -118,13 +129,28 @@ export default function MonetagScript() {
       {process.env.NEXT_PUBLIC_MONETAG_PUSH && (
         <Script
           id="monetag-push"
-          src={`https://${process.env.NEXT_PUBLIC_MONETAG_PUSH_DOMAIN || '3nbf4.com'}/act/files/tag.min.js?z=${process.env.NEXT_PUBLIC_MONETAG_PUSH}`}
+          src={`https://${process.env.NEXT_PUBLIC_MONETAG_PUSH_DOMAIN || "3nbf4.com"}/act/files/tag.min.js?z=${process.env.NEXT_PUBLIC_MONETAG_PUSH}`}
           data-cfasync="false"
           strategy="afterInteractive"
           async
         />
       )}
+
+      {/* Monetag In-Page Push Banner - Visible notification-style ad */}
+      {process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH && (
+        <Script
+          id="monetag-in-page-push"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(s){
+                s.dataset.zone='${process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH}';
+                s.src='https://${process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_DOMAIN || "nap5k.com"}/tag.min.js';
+              })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
+            `,
+          }}
+        />
+      )}
     </>
   );
 }
-
