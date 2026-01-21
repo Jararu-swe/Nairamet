@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
+import { ShareButton } from "@/components/share-button";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Helper function to get country code for currency
 const getCountryCodeForCurrency = (currency: string): string => {
@@ -29,6 +31,8 @@ const getFlagUrl = (currency: string): string => {
 
 export default function WidgetPage() {
   const searchParams = useSearchParams();
+  const params = useParams();
+  const widgetType = (params.type as string) || "rates";
   const currency = searchParams.get("currency") || "USD";
   const [rates, setRates] = useState<any>({
     official: 0,
@@ -80,7 +84,7 @@ export default function WidgetPage() {
   };
 
   const renderWidget = () => {
-    switch (params.type) {
+    switch (widgetType) {
       case "rates":
         return (
           <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
@@ -145,7 +149,7 @@ export default function WidgetPage() {
                   </div>
                 </div>
                 
-                {/* Footer with Logo */}
+                {/* Footer with Logo and Share Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
@@ -159,6 +163,11 @@ export default function WidgetPage() {
                       Powered by NairaMet
                     </span>
                   </div>
+                  <ShareButton
+                    currency={currency}
+                    rate={rates.blackMarket}
+                    widgetType="rates"
+                  />
                 </div>
               </div>
             )}
@@ -214,12 +223,17 @@ export default function WidgetPage() {
                   </div>
                 </div>
                 
-                {/* Footer */}
-                <div className="flex items-center justify-center pt-3 border-t border-gray-200 dark:border-gray-700">
+                {/* Footer with Share Button */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
                     <img src="/Nairamet.svg" alt="NairaMet" className="w-4 h-4" />
                     <span className="text-xs text-gray-500">Powered by NairaMet</span>
                   </div>
+                  <ShareButton
+                    currency={currency}
+                    rate={rates.blackMarket}
+                    widgetType="converter"
+                  />
                 </div>
               </div>
             )}
@@ -314,13 +328,21 @@ export default function WidgetPage() {
                   </div>
                 </div>
 
-                {/* Footer */}
+                {/* Footer with Share Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
                     <img src="/Nairamet.svg" alt="NairaMet" className="w-4 h-4" />
                     <span className="text-xs text-gray-500 dark:text-gray-400">Powered by NairaMet</span>
                   </div>
-                  <span className="text-xs text-gray-400">Updated 2m ago</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400">Updated 2m ago</span>
+                    <ShareButton
+                      currency={currency}
+                      rate={rates.blackMarket}
+                      widgetType="chart"
+                      trend="up"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -344,8 +366,10 @@ export default function WidgetPage() {
   };
 
   return (
-    <div className="w-full h-full bg-transparent">
-      {renderWidget()}
-    </div>
+    <TooltipProvider>
+      <div className="w-full h-full bg-transparent">
+        {renderWidget()}
+      </div>
+    </TooltipProvider>
   );
 }

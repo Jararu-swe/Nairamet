@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Feature Theme Test - Nairamet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body.light {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        
+        body.dark {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .light h1 {
+            color: #0f172a;
+        }
+        
+        .dark h1 {
+            color: #f8fafc;
+        }
+        
+        .subtitle {
+            margin-bottom: 20px;
+        }
+        
+        .light .subtitle {
+            color: #64748b;
+        }
+        
+        .dark .subtitle {
+            color: #94a3b8;
+        }
+        
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .light .theme-toggle {
+            background: white;
+            border-color: #e2e8f0;
+            color: #0f172a;
+        }
+        
+        .light .theme-toggle:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        
+        .dark .theme-toggle {
+            background: #1e293b;
+            border-color: #334155;
+            color: #f8fafc;
+        }
+        
+        .dark .theme-toggle:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .info-box {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .light .info-box {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .dark .info-box {
+            background: #064e3b;
+            color: #d1fae5;
+        }
+        
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .widget-container {
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .light .widget-container {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .dark .widget-container {
+            background: #1e293b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .widget-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .light .widget-title {
+            color: #0f172a;
+        }
+        
+        .dark .widget-title {
+            color: #f8fafc;
+        }
+        
+        iframe {
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            height: 400px;
+        }
+        
+        .light iframe {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .dark iframe {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .test-checklist {
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .light .test-checklist {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .dark .test-checklist {
+            background: #1e293b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .test-checklist h3 {
+            margin-bottom: 15px;
+        }
+        
+        .test-checklist ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .test-checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .test-checklist li:before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 18px;
+        }
+        
+        .light .test-checklist li {
+            color: #475569;
+        }
+        
+        .dark .test-checklist li {
+            color: #cbd5e1;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+        }
+        
+        .light footer {
+            color: #64748b;
+        }
+        
+        .dark footer {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="container">
+        <header>
+            <h1>🎨 Share Feature Theme Integration Test</h1>
+            <p class="subtitle">Testing ShareButton and ShareModal in light and dark modes</p>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span>
+                <span id="theme-text">Switch to Dark Mode</span>
+            </button>
+        </header>
+
+        <div class="info-box">
+            <strong>✅ Testing Checklist:</strong><br>
+            Click the share button in each widget below and verify:
+            <ul style="margin-top: 10px; padding-left: 20px;">
+                <li>Share button is visible and properly styled</li>
+                <li>Share button has proper hover states</li>
+                <li>Share modal opens with correct theme colors</li>
+                <li>All buttons have minimum 44x44px touch targets</li>
+                <li>Text has proper contrast ratios (WCAG AA)</li>
+                <li>Focus states are visible for keyboard navigation</li>
+            </ul>
+        </div>
+
+        <div class="widget-grid">
+            <!-- Rates Widget -->
+            <div class="widget-container">
+                <div class="widget-title">📊 Rates Widget - USD/NGN</div>
+                <iframe 
+                    src="/widget/rates?currency=USD" 
+                    title="USD to NGN rates widget">
+                </iframe>
+            </div>
+
+            <!-- Converter Widget -->
+            <div class="widget-container">
+                <div class="widget-title">💱 Converter Widget - GBP/NGN</div>
+                <iframe 
+                    src="/widget/converter?currency=GBP"
+                    title="GBP to NGN converter widget">
+                </iframe>
+            </div>
+
+            <!-- Chart Widget -->
+            <div class="widget-container">
+                <div class="widget-title">📈 Chart Widget - EUR/NGN</div>
+                <iframe 
+                    src="/widget/chart?currency=EUR"
+                    title="EUR to NGN chart widget">
+                </iframe>
+            </div>
+        </div>
+
+        <div class="test-checklist">
+            <h3>📋 Manual Testing Checklist</h3>
+            <ul>
+                <li>Share button matches widget design system</li>
+                <li>Share button visible in both light and dark themes</li>
+                <li>Share button has proper hover states</li>
+                <li>Share button tooltip appears on hover</li>
+                <li>Share button has 44x44px minimum touch target on mobile</li>
+                <li>Share modal opens with correct theme colors</li>
+                <li>Modal background has proper contrast</li>
+                <li>Modal text is readable in both themes</li>
+                <li>Social media buttons have proper hover states</li>
+                <li>Social media buttons have 44x44px minimum touch targets</li>
+                <li>Copy link button changes state when clicked</li>
+                <li>All interactive elements have visible focus states</li>
+                <li>Modal can be closed with Escape key</li>
+                <li>Modal can be closed by clicking backdrop</li>
+                <li>Responsive behavior works on mobile devices</li>
+            </ul>
+        </div>
+
+        <div class="test-checklist" style="margin-top: 20px;">
+            <h3>🎯 Accessibility Testing</h3>
+            <ul>
+                <li>Tab through all interactive elements</li>
+                <li>Verify focus indicators are visible</li>
+                <li>Test with screen reader (NVDA/JAWS/VoiceOver)</li>
+                <li>Verify ARIA labels are announced correctly</li>
+                <li>Test keyboard navigation (Tab, Enter, Escape)</li>
+                <li>Verify color contrast ratios meet WCAG AA (4.5:1)</li>
+                <li>Test touch targets on mobile device</li>
+                <li>Verify modal focus trap works correctly</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p><strong>Nairamet Widget Share Feature</strong></p>
+            <p style="margin-top: 10px; font-size: 14px;">
+                Toggle between light and dark modes to test theme integration
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            if (body.classList.contains('light')) {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Switch to Light Mode';
+                
+                // Update HTML class for widgets to detect
+                document.documentElement.classList.add('dark');
+            } else {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Switch to Dark Mode';
+                
+                // Remove dark class
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        
+        // Initialize theme based on system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            toggleTheme();
+        }
+    </script>
+</body>
+</html>
