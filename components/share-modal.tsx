@@ -296,7 +296,9 @@ export function ShareModal({
           "bg-white dark:bg-gray-800",
           "text-gray-900 dark:text-gray-100",
           // Proper border contrast
-          "border-gray-200 dark:border-gray-700"
+          "border-gray-200 dark:border-gray-700",
+          // Fix centering in widget/iframe context
+          "!fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2"
         )}
         aria-labelledby="share-modal-title"
         aria-describedby="share-modal-description"
