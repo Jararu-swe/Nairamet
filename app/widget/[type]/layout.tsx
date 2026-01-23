@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function WidgetLayout({
   children,
@@ -59,6 +60,7 @@ export default function WidgetLayout({
       </head>
       <body>
         {children}
+        <Toaster />
       </body>
     </html>
   );
