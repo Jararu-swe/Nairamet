@@ -11,44 +11,27 @@ export function AdcashFooterBanner({ zoneId }: { zoneId: string }) {
     if (typeof window === "undefined") return;
 
     try {
-      // Initialize aclib if not already present
-      if (!(window as any).aclib) {
-        (window as any).aclib = {
-          runBanner: function (config: any) {
-            console.log(
-              `[Adcash] runBanner called with zone: ${config.zoneId}`,
-            );
-          },
-        };
-      }
-
-      // Load Adcash script
+      // Load AdCash AutoTag script directly
       const script = document.createElement("script");
       script.type = "text/javascript";
+      script.src = `//acscdn.com/script/${zoneId}.js`;
       script.async = true;
       script.setAttribute("data-cfasync", "false");
-      script.src = `//acscdn.com/script/${zoneId}.js`;
 
       script.onload = () => {
-        console.log(`[Adcash] Banner script loaded for zone: ${zoneId}`);
-
-        // Run Banner after script loads
-        if ((window as any).aclib && (window as any).aclib.runBanner) {
-          (window as any).aclib.runBanner({ zoneId });
-          console.log(`[Adcash] Footer banner initialized`);
-          scriptLoadedRef.current = true;
-        }
+        console.log(`[Adcash Footer] Zone ${zoneId} loaded successfully`);
+        scriptLoadedRef.current = true;
       };
 
       script.onerror = () => {
-        console.error(`[Adcash] Failed to load footer banner`);
+        console.error(`[Adcash Footer] Failed to load zone ${zoneId}`);
       };
 
       if (containerRef.current) {
         containerRef.current.appendChild(script);
       }
     } catch (error) {
-      console.error("[Adcash] Error loading footer banner:", error);
+      console.error("[Adcash Footer] Error loading banner:", error);
     }
 
     return () => {

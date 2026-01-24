@@ -28,32 +28,24 @@ export function SkyscraperAd({
 
     try {
       if (network === "adcash") {
-        // Load aclib script first if not already loaded
-        if (!(window as any).aclib) {
-          const aclibScript = document.createElement("script");
-          aclibScript.id = "aclib";
-          aclibScript.type = "text/javascript";
-          aclibScript.src = "//acscdn.com/script/aclib.js";
-          aclibScript.async = true;
+        // Load AdCash AutoTag script directly
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `//acscdn.com/script/${zoneId}.js`;
+        script.async = true;
+        script.setAttribute("data-cfasync", "false");
 
-          aclibScript.onload = () => {
-            console.log("[Adcash] aclib loaded");
-            // Run banner after aclib is loaded
-            if ((window as any).aclib && (window as any).aclib.runBanner) {
-              (window as any).aclib.runBanner({ zoneId });
-              console.log(`[Adcash Skyscraper] Zone ${zoneId} initialized`);
-              scriptLoadedRef.current = true;
-            }
-          };
+        script.onload = () => {
+          console.log(`[Adcash Skyscraper] Zone ${zoneId} loaded successfully`);
+          scriptLoadedRef.current = true;
+        };
 
-          document.head.appendChild(aclibScript);
-        } else {
-          // aclib already loaded, just run the banner
-          if ((window as any).aclib.runBanner) {
-            (window as any).aclib.runBanner({ zoneId });
-            console.log(`[Adcash Skyscraper] Zone ${zoneId} initialized`);
-            scriptLoadedRef.current = true;
-          }
+        script.onerror = () => {
+          console.error(`[Adcash Skyscraper] Failed to load zone ${zoneId}`);
+        };
+
+        if (adContainerRef.current) {
+          adContainerRef.current.appendChild(script);
         }
       }
     } catch (error) {
@@ -61,9 +53,14 @@ export function SkyscraperAd({
     }
 
     return () => {
-      // Cleanup if needed
+      if (adContainerRef.current) {
+        const scripts = adContainerRef.current.getElementsByTagName("script");
+        while (scripts.length > 0) {
+          scripts[0].parentNode?.removeChild(scripts[0]);
+        }
+      }
     };
-  }, [zoneId, network, publisherId]);
+  }, [zoneId, network]);
 
   return (
     <div className={`skyscraper-ad-wrapper ${className}`}>
@@ -83,21 +80,13 @@ export function SkyscraperAd({
             maxWidth: "160px",
           }}
         >
-          {/* Adcash Banner Container */}
-          <div ref={adContainerRef}>
-            {network === "adcash" && (
-              <div>
-                <script
-                  type="text/javascript"
-                  dangerouslySetInnerHTML={{
-                    __html: `aclib.runBanner({zoneId: '${zoneId}'});`,
-                  }}
-                />
-              </div>
-            )}
-          </div>
+          {/* Adcash AutoTag Container */}
+          <div
+            ref={adContainerRef}
+            className="w-full h-full flex items-center justify-center"
+          />
           {/* Placeholder while ad loads */}
-          <div className="text-xs text-gray-400 text-center px-2">
+          <div className="text-xs text-gray-400 text-center px-2 absolute">
             Loading ad...
           </div>
         </div>
