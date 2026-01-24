@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 import { AdcashTopBanner } from "@/components/adcash-ad";
+import { AdcashFooterBanner } from "@/components/adcash-footer-banner";
 import { LeaderboardAd } from "@/components/leaderboard-ad";
 
 export default function LandingPage() {
@@ -754,6 +755,11 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
+          </div>
+
+          {/* AdCash Footer Banner (468x60) */}
+          <div className="border-t border-gray-700 pt-8 mt-8">
+            <AdcashFooterBanner zoneId="10841746" />
           </div>
 
           {/* Bottom Bar */}
