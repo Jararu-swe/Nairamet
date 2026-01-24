@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 const STORAGE_KEY = "nairamet:cookie_consent";
-const POPUNDER_COOKIE = "nairamet_popunder";
 
 function getConsentAllowsAds() {
   try {
@@ -17,7 +16,7 @@ function getConsentAllowsAds() {
     }
 
     const attr = document.documentElement.getAttribute(
-      "data-ads-personalization"
+      "data-ads-personalization",
     );
     if (attr === "false") return false;
 
@@ -43,30 +42,8 @@ function setCookie(name: string, value: string, hours: number) {
   document.cookie = `${name}=${value};${expires};path=/;SameSite=Lax`;
 }
 
-function shouldShowPopunder(): boolean {
-  try {
-    if (typeof window === "undefined") return false;
-    
-    // Check if popunder was shown in this session (cookie-based)
-    const shown = getCookie(POPUNDER_COOKIE);
-    return !shown;
-  } catch (e) {
-    return true;
-  }
-}
-
-function markPopunderShown() {
-  try {
-    // Set cookie for 8 hours (covers typical browsing session)
-    setCookie(POPUNDER_COOKIE, "1", 1);
-  } catch (e) {
-    // ignore
-  }
-}
-
 export default function MonetagScript() {
   const consentChecked = useRef(false);
-  const [showPopunder, setShowPopunder] = useState(false);
 
   useEffect(() => {
     if (consentChecked.current) return;
@@ -97,34 +74,10 @@ export default function MonetagScript() {
     };
   }, []);
 
-  // Check if we should show popunder
-  useEffect(() => {
-    if (shouldShowPopunder()) {
-      setShowPopunder(true);
-      markPopunderShown();
-    }
-  }, []);
-
   if (!getConsentAllowsAds()) return null;
 
   return (
     <>
-      {/* Monetag Popunder - Once per 8 hours (session-based) */}
-      {process.env.NEXT_PUBLIC_MONETAG_POPUNDER && showPopunder && (
-        <Script
-          id="monetag-popunder"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='${process.env.NEXT_PUBLIC_MONETAG_POPUNDER}';
-                s.src='https://${process.env.NEXT_PUBLIC_MONETAG_POPUNDER_DOMAIN || "al5sm.com"}/tag.min.js';
-              })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
-            `,
-          }}
-        />
-      )}
-
       {/* Monetag Push Notifications - Passive income */}
       {process.env.NEXT_PUBLIC_MONETAG_PUSH && (
         <Script

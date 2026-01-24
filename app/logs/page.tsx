@@ -635,263 +635,295 @@ function LogsPageContent() {
         <div className="flex gap-6">
           {/* Left Sidebar - Skyscraper Ad (160x600) */}
           <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <StickySkyscraperAd zoneId="10841606" network="adcash" />
+            <StickySkyscraperAd zoneId="10841738" network="adcash" />
           </aside>
 
           {/* Main Content */}
           <div className="flex-1 space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-emerald-900">
-            Rate Logs & Archive
-          </h1>
-          <p className="text-emerald-700">
-            Search historical rates and export data
-          </p>
-        </div>
-
-        {/* Search and Filter Controls */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5" />
-              Search & Filter
-            </CardTitle>
-            <CardDescription>
-              Find specific rates and filter by date range or currency
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="search-date">Search Date</Label>
-                <Input
-                  id="search-date"
-                  type="date"
-                  value={searchDate}
-                  onChange={(e) => setSearchDate(e.target.value)}
-                  placeholder="YYYY-MM-DD"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
-                <Select
-                  value={selectedCurrency}
-                  onValueChange={setSelectedCurrency}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      <span className="flex items-center gap-2">
-                        <span>🌍</span>
-                        <span>All Currencies</span>
-                      </span>
-                    </SelectItem>
-                    {availableCurrencies.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        <span className="flex items-center gap-2">
-                          {getFlagUrl(c) && (
-                            <img 
-                              src={getFlagUrl(c)}
-                              alt={c}
-                              className="w-5 h-4 object-cover rounded-sm"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          )}
-                          <span>{c}/NGN</span>
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="date-range">Date Range</Label>
-                <Select value={dateRange} onValueChange={setDateRange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7">Last 7 days</SelectItem>
-                    <SelectItem value="30">Last 30 days</SelectItem>
-                    <SelectItem value="90">Last 3 months</SelectItem>
-                    <SelectItem value="365">Last year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Export Data</Label>
-                <div className="flex gap-2">
-                  <Button onClick={exportToCSV} variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" />
-                    CSV
-                  </Button>
-                  <Button onClick={exportToPDF} variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" />
-                    PDF
-                  </Button>
-                </div>
-              </div>
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold text-emerald-900">
+                Rate Logs & Archive
+              </h1>
+              <p className="text-emerald-700">
+                Search historical rates and export data
+              </p>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Statistics Summary */}
-        {statistics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {statistics.map((stat) => (
+            {/* Search and Filter Controls */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Search className="w-5 h-5" />
+                  Search & Filter
+                </CardTitle>
+                <CardDescription>
+                  Find specific rates and filter by date range or currency
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="search-date">Search Date</Label>
+                    <Input
+                      id="search-date"
+                      type="date"
+                      value={searchDate}
+                      onChange={(e) => setSearchDate(e.target.value)}
+                      placeholder="YYYY-MM-DD"
+                    />
+                  </div>
 
-              <Card key={stat.currency} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/10 dark:to-indigo-950/10">
-                  <div className="flex items-center gap-3">
-                    {getFlagUrl(stat.currency) && (
-                      <img 
-                        src={getFlagUrl(stat.currency)}
-                        alt={stat.currency}
-                        className="w-10 h-8 object-cover rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                    )}
-                    <div>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Badge variant="secondary" className="text-base font-bold">
-                          {stat.currency}
-                        </Badge>
-                        <span className="text-muted-foreground text-sm">/NGN</span>
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-1">
-                        <span className="font-semibold text-blue-600 dark:text-blue-400">{stat.count}</span> records
-                      </CardDescription>
+                  <div className="space-y-2">
+                    <Label htmlFor="currency">Currency</Label>
+                    <Select
+                      value={selectedCurrency}
+                      onValueChange={setSelectedCurrency}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">
+                          <span className="flex items-center gap-2">
+                            <span>🌍</span>
+                            <span>All Currencies</span>
+                          </span>
+                        </SelectItem>
+                        {availableCurrencies.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            <span className="flex items-center gap-2">
+                              {getFlagUrl(c) && (
+                                <img
+                                  src={getFlagUrl(c)}
+                                  alt={c}
+                                  className="w-5 h-4 object-cover rounded-sm"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                  }}
+                                />
+                              )}
+                              <span>{c}/NGN</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="date-range">Date Range</Label>
+                    <Select value={dateRange} onValueChange={setDateRange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="7">Last 7 days</SelectItem>
+                        <SelectItem value="30">Last 30 days</SelectItem>
+                        <SelectItem value="90">Last 3 months</SelectItem>
+                        <SelectItem value="365">Last year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Export Data</Label>
+                    <div className="flex gap-2">
+                      <Button onClick={exportToCSV} variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-1" />
+                        CSV
+                      </Button>
+                      <Button onClick={exportToPDF} variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-1" />
+                        PDF
+                      </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-2.5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg Official:</span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">₦{stat.avgOfficial.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg Black Market:</span>
-                    <span className="font-semibold text-red-600 dark:text-red-400">₦{stat.avgBlackMarket.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg Parallel:</span>
-                    <span className="font-semibold text-amber-600 dark:text-amber-400">₦{stat.avgParallel.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm pt-2 border-t">
-                    <span className="text-muted-foreground">Range:</span>
-                    <span className="font-medium text-xs">
-                      ₦{stat.minOfficial.toLocaleString()} - ₦{stat.maxOfficial.toLocaleString()}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Historical Data Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Historical Rate Data</span>
-              <Badge variant="secondary">{filteredData.length} records</Badge>
-            </CardTitle>
-            <CardDescription>
-              Complete archive of exchange rates with official and black market
-              data
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2 font-medium">Date</th>
-                    <th className="text-left p-2 font-medium">Currency</th>
-                    <th className="text-right p-2 font-medium">
-                      Official Rate
-                    </th>
-                    <th className="text-right p-2 font-medium">Black Market</th>
-                    <th className="text-right p-2 font-medium">
-                      Parallel Market
-                    </th>
-                    <th className="text-right p-2 font-medium">Spread</th>
-                    <th className="text-center p-2 font-medium">Trend</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredData.slice(0, 100).map((item, index) => {
-                    const prevItem = filteredData[index + 1];
-                    const trend = prevItem
-                      ? item.officialRate > prevItem.officialRate
-                        ? "up"
-                        : item.officialRate < prevItem.officialRate
-                        ? "down"
-                        : "same"
-                      : "same";
+            {/* Statistics Summary */}
+            {statistics && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {statistics.map((stat) => (
+                  <Card
+                    key={stat.currency}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    <CardHeader className="pb-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/10 dark:to-indigo-950/10">
+                      <div className="flex items-center gap-3">
+                        {getFlagUrl(stat.currency) && (
+                          <img
+                            src={getFlagUrl(stat.currency)}
+                            alt={stat.currency}
+                            className="w-10 h-8 object-cover rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
+                        <div>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Badge
+                              variant="secondary"
+                              className="text-base font-bold"
+                            >
+                              {stat.currency}
+                            </Badge>
+                            <span className="text-muted-foreground text-sm">
+                              /NGN
+                            </span>
+                          </CardTitle>
+                          <CardDescription className="flex items-center gap-1">
+                            <span className="font-semibold text-blue-600 dark:text-blue-400">
+                              {stat.count}
+                            </span>{" "}
+                            records
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2.5">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Avg Official:
+                        </span>
+                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                          ₦{stat.avgOfficial.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Avg Black Market:
+                        </span>
+                        <span className="font-semibold text-red-600 dark:text-red-400">
+                          ₦{stat.avgBlackMarket.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Avg Parallel:
+                        </span>
+                        <span className="font-semibold text-amber-600 dark:text-amber-400">
+                          ₦{stat.avgParallel.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm pt-2 border-t">
+                        <span className="text-muted-foreground">Range:</span>
+                        <span className="font-medium text-xs">
+                          ₦{stat.minOfficial.toLocaleString()} - ₦
+                          {stat.maxOfficial.toLocaleString()}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
 
-                    return (
-                      <tr key={item.id} className="border-b hover:bg-muted/50">
-                        <td className="p-2 text-sm">
-                          {format(parseISO(item.timestamp), "MMM dd, yyyy")}
-                        </td>
-                        <td className="p-2">
-                          <Badge variant="outline">{item.currency}/NGN</Badge>
-                        </td>
-                        <td className="p-2 text-right font-mono">
-                          ₦{item.officialRate}
-                        </td>
-                        <td className="p-2 text-right font-mono">
-                          ₦{item.blackMarketRate}
-                        </td>
-                        <td className="p-2 text-right font-mono">
-                          ₦{item.parallelMarketRate ?? item.blackMarketRate}
-                        </td>
-                        <td className="p-2 text-right font-mono text-orange-600">
-                          ₦{item.spread}
-                        </td>
-                        <td className="p-2 text-center">
-                          {trend === "up" && (
-                            <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />
-                          )}
-                          {trend === "down" && (
-                            <TrendingDown className="w-4 h-4 text-green-500 mx-auto" />
-                          )}
-                          {trend === "same" && (
-                            <div className="w-4 h-4 mx-auto" />
-                          )}
-                        </td>
+            {/* Historical Data Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Historical Rate Data</span>
+                  <Badge variant="secondary">
+                    {filteredData.length} records
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Complete archive of exchange rates with official and black
+                  market data
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2 font-medium">Date</th>
+                        <th className="text-left p-2 font-medium">Currency</th>
+                        <th className="text-right p-2 font-medium">
+                          Official Rate
+                        </th>
+                        <th className="text-right p-2 font-medium">
+                          Black Market
+                        </th>
+                        <th className="text-right p-2 font-medium">
+                          Parallel Market
+                        </th>
+                        <th className="text-right p-2 font-medium">Spread</th>
+                        <th className="text-center p-2 font-medium">Trend</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {filteredData.slice(0, 100).map((item, index) => {
+                        const prevItem = filteredData[index + 1];
+                        const trend = prevItem
+                          ? item.officialRate > prevItem.officialRate
+                            ? "up"
+                            : item.officialRate < prevItem.officialRate
+                              ? "down"
+                              : "same"
+                          : "same";
 
-              {filteredData.length > 100 && (
-                <div className="text-center py-4 text-muted-foreground">
-                  Showing first 100 of {filteredData.length} records. Use
-                  filters to narrow results or export for complete data.
-                </div>
-              )}
+                        return (
+                          <tr
+                            key={item.id}
+                            className="border-b hover:bg-muted/50"
+                          >
+                            <td className="p-2 text-sm">
+                              {format(parseISO(item.timestamp), "MMM dd, yyyy")}
+                            </td>
+                            <td className="p-2">
+                              <Badge variant="outline">
+                                {item.currency}/NGN
+                              </Badge>
+                            </td>
+                            <td className="p-2 text-right font-mono">
+                              ₦{item.officialRate}
+                            </td>
+                            <td className="p-2 text-right font-mono">
+                              ₦{item.blackMarketRate}
+                            </td>
+                            <td className="p-2 text-right font-mono">
+                              ₦{item.parallelMarketRate ?? item.blackMarketRate}
+                            </td>
+                            <td className="p-2 text-right font-mono text-orange-600">
+                              ₦{item.spread}
+                            </td>
+                            <td className="p-2 text-center">
+                              {trend === "up" && (
+                                <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />
+                              )}
+                              {trend === "down" && (
+                                <TrendingDown className="w-4 h-4 text-green-500 mx-auto" />
+                              )}
+                              {trend === "same" && (
+                                <div className="w-4 h-4 mx-auto" />
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
 
-              {filteredData.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No data found for the selected criteria. Try adjusting your
-                  filters.
+                  {filteredData.length > 100 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Showing first 100 of {filteredData.length} records. Use
+                      filters to narrow results or export for complete data.
+                    </div>
+                  )}
+
+                  {filteredData.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No data found for the selected criteria. Try adjusting
+                      your filters.
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Sidebar - Skyscraper Ad (160x600) */}
