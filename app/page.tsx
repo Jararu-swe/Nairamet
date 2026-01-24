@@ -23,6 +23,8 @@ import RequireAuthButton from "@/components/require-auth-button";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
+import { AdcashTopBanner } from "@/components/adcash-ad";
+import { LeaderboardAd } from "@/components/leaderboard-ad";
 
 export default function LandingPage() {
   const { isAuthenticated, openAuthModal } = useAuth();
@@ -296,10 +298,16 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Leaderboard Ad - 728x90 under hero section */}
+      <LeaderboardAd zoneId="10841586" network="adcash" />
+
       {/* Ad Placement 1: Subtle in-feed ad after hero */}
       <div className="max-w-7xl mx-auto px-4">
         <InFeedAd />
       </div>
+
+      {/* Adcash Top Banner - homepage-top-banner */}
+      <AdcashTopBanner zoneId="zw4eseomc0" />
 
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white relative overflow-hidden">

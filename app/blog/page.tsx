@@ -17,6 +17,7 @@ import { MarketSnapshot } from "@/components/market-snapshot";
 // import { LikeButton } from "@/components/like-button";
 import { BlogSidebar } from "@/components/blog-sidebar";
 import { Metadata } from "next";
+import { StickySkyscraperAd } from "@/components/skyscraper-ad";
 
 export async function generateMetadata(): Promise<Metadata> {
   const articles = getArticles();
@@ -302,8 +303,15 @@ export default async function BlogPage() {
             {/* News Wire removed */}
           </div>
 
-          {/* Sidebar */}
-          <BlogSidebar categories={categories} />
+          {/* Sidebar with Ad */}
+          <div className="space-y-6">
+            <BlogSidebar categories={categories} />
+            
+            {/* Skyscraper Ad - Right Sidebar */}
+            <div className="hidden lg:block">
+              <StickySkyscraperAd zoneId="10841606" network="adcash" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

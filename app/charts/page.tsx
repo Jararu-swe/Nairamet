@@ -27,7 +27,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
-import { SidebarAdCard, BottomBannerAd } from "@/components/monetag-ad";
+import { BottomBannerAd } from "@/components/monetag-ad";
+import { StickySkyscraperAd } from "@/components/skyscraper-ad";
 
 
 // Mock historical data generator (can accept custom base rates for non-default currencies)
@@ -713,9 +714,9 @@ function ChartsPageContent() {
       </Card>
         </div>
 
-        {/* Sidebar with ad */}
+        {/* Sidebar with skyscraper ad (160x600) */}
         <div className="lg:col-span-1">
-          <SidebarAdCard />
+          <StickySkyscraperAd zoneId="10841606" network="adcash" />
         </div>
       </div>
 

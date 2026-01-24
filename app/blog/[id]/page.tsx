@@ -10,6 +10,7 @@ import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import Link from "next/link";
 import { getArticleById } from "@/lib/blog";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
+import { LeaderboardAd } from "@/components/leaderboard-ad";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -285,6 +286,11 @@ export default async function ArticlePage({ params }: Props) {
             )}
           </CardContent>
         </Card>
+
+        {/* Leaderboard Ad - After Article Content */}
+        <div className="mt-8">
+          <LeaderboardAd zoneId="10841586" network="adcash" />
+        </div>
 
         {/* Comments Section - Removed */}
         {/* <div className="mt-6">

@@ -30,7 +30,7 @@ import {
   Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { LeaderboardAd } from "@/components/leaderboard-ad";
 
 // Helper function to get country code for currency
 const getCountryCodeForCurrency = (currency: string): string => {
@@ -884,6 +884,9 @@ function ToolsPageContent() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Leaderboard Ad - Footer */}
+        <LeaderboardAd zoneId="10841586" network="adcash" />
       </div>
     </div>
   );

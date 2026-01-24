@@ -19,6 +19,7 @@ import { useRateMonitor } from "@/hooks/use-rate-monitor"
 import { MonitoringDashboard } from "@/components/monitoring-dashboard"
 import { useAuth } from "@/contexts/auth-context"
 import { useToast, ToastContainer } from "@/components/ui/toast"
+import { StickySkyscraperAd } from "@/components/skyscraper-ad"
 
 // Helper function to get country code for currency
 const getCountryCodeForCurrency = (currency: string): string => {
@@ -406,7 +407,10 @@ function AlertsPageContent() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex gap-6">
+          {/* Main Content */}
+          <div className="flex-1 space-y-6">
         {/* Monthly Email Quota Banner */}
         <Card className={emailQuotaUsed ? "border-red-200 bg-red-50 dark:bg-red-950/20" : "border-green-200 bg-green-50 dark:bg-green-950/20"}>
           <CardContent className="pt-6">
@@ -932,6 +936,13 @@ function AlertsPageContent() {
           onForceCheck={forceCheck}
           onToggleMonitoring={() => {}} // Monitoring is automatic based on active alerts
         />
+          </div>
+
+          {/* Right Sidebar - Skyscraper Ad (160x600) */}
+          <aside className="hidden xl:block w-[160px] flex-shrink-0">
+            <StickySkyscraperAd zoneId="10841606" network="adcash" />
+          </aside>
+        </div>
       </div>
     </div>
   )
