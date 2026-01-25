@@ -28,14 +28,14 @@ import {
 } from "recharts";
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
 import { BottomBannerAd } from "@/components/monetag-ad";
-import { StickySkyscraperAd } from "@/components/skyscraper-ad";
-
+import { AdcashSkyscraper } from "@/components/adcash-skyscraper";
+import { Sparkline, SparklineCard } from "@/components/sparkline";
 
 // Mock historical data generator (can accept custom base rates for non-default currencies)
 const generateHistoricalData = (
   days: number,
   currency: string,
-  baseOverride?: { official: number; black: number; parallel: number }
+  baseOverride?: { official: number; black: number; parallel: number },
 ) => {
   const data = [];
   const baseRates = {
@@ -107,11 +107,11 @@ function ChartsPageContent() {
     const checkWidth = () => {
       setShowRotateMessage(window.innerWidth < 768);
     };
-    
+
     checkWidth();
-    window.addEventListener('resize', checkWidth);
-    
-    return () => window.removeEventListener('resize', checkWidth);
+    window.addEventListener("resize", checkWidth);
+
+    return () => window.removeEventListener("resize", checkWidth);
   }, []);
 
   useEffect(() => {
@@ -133,20 +133,20 @@ function ChartsPageContent() {
           const body = await res.json();
           const rates = body?.rates ?? [];
           const foundSeed = rates.find(
-            (r: any) => String(r.currency).toUpperCase() === selectedCurrency
+            (r: any) => String(r.currency).toUpperCase() === selectedCurrency,
           );
           if (foundSeed) {
             baseOverride = {
               official:
                 Number(
-                  foundSeed.cbn ?? foundSeed.cbnRate ?? foundSeed.cbn_rate ?? 0
+                  foundSeed.cbn ?? foundSeed.cbnRate ?? foundSeed.cbn_rate ?? 0,
                 ) || 1500,
               black:
                 Number(
                   foundSeed.blackMarket ??
                     foundSeed.black_market ??
                     foundSeed.rate ??
-                    0
+                    0,
                 ) || 1550,
               parallel:
                 Number(foundSeed.parallelMarket ?? foundSeed.parallel ?? 0) ||
@@ -158,7 +158,7 @@ function ChartsPageContent() {
         const initial = generateHistoricalData(
           days,
           selectedCurrency,
-          baseOverride
+          baseOverride,
         );
         setChartData(initial);
       } catch {
@@ -235,7 +235,12 @@ function ChartsPageContent() {
             });
             const dedup: Record<
               string,
-              { value: string; label: string; symbol: string; countryCode: string }
+              {
+                value: string;
+                label: string;
+                symbol: string;
+                countryCode: string;
+              }
             > = {};
             mapped.forEach((m) => {
               if (m.value && !dedup[m.value]) dedup[m.value] = m;
@@ -244,8 +249,8 @@ function ChartsPageContent() {
               a.value === "USD"
                 ? -1
                 : b.value === "USD"
-                ? 1
-                : a.value.localeCompare(b.value)
+                  ? 1
+                  : a.value.localeCompare(b.value),
             );
             setCurrencyOptions(list);
             if (!list.find((o) => o.value === selectedCurrency)) {
@@ -253,7 +258,7 @@ function ChartsPageContent() {
             }
           }
           const found = rates.find(
-            (r: any) => String(r.currency).toUpperCase() === selectedCurrency
+            (r: any) => String(r.currency).toUpperCase() === selectedCurrency,
           );
           if (!found) return;
 
@@ -269,7 +274,7 @@ function ChartsPageContent() {
             dateFormatted: formatted,
             official: Number(found.cbn ?? found.cbnRate ?? found.cbn_rate ?? 0),
             blackMarket: Number(
-              found.blackMarket ?? found.black_market ?? found.rate ?? 0
+              found.blackMarket ?? found.black_market ?? found.rate ?? 0,
             ),
             parallelMarket: Number(found.parallelMarket ?? found.parallel ?? 0),
           };
@@ -321,9 +326,18 @@ function ChartsPageContent() {
   };
 
   // Memoize trend calculations to ensure they update with chartData
-  const officialTrend = useMemo(() => calculateTrend(chartData, "official"), [chartData]);
-  const blackTrend = useMemo(() => calculateTrend(chartData, "blackMarket"), [chartData]);
-  const parallelTrend = useMemo(() => calculateTrend(chartData, "parallelMarket"), [chartData]);
+  const officialTrend = useMemo(
+    () => calculateTrend(chartData, "official"),
+    [chartData],
+  );
+  const blackTrend = useMemo(
+    () => calculateTrend(chartData, "blackMarket"),
+    [chartData],
+  );
+  const parallelTrend = useMemo(
+    () => calculateTrend(chartData, "parallelMarket"),
+    [chartData],
+  );
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -346,377 +360,454 @@ function ChartsPageContent() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main content */}
         <div className="lg:col-span-3 space-y-6">
-      {/* Rotate phone message for small screens */}
-      {showRotateMessage && (
-        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center gap-2 relative z-10">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-          >
-            <rect x="2" y="5" width="20" height="14" rx="2" />
-            <path d="M12 17h.01" />
-          </svg>
-          <p className="text-sm text-amber-800 dark:text-amber-200">
-            Rotate your phone to landscape for a better chart viewing experience
-          </p>
-        </div>
-      )}
-
-      <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-balance">
-            Historical Rate Charts
-          </h1>
-          <p className="text-muted-foreground">
-            Track exchange rate trends and compare official vs black market
-            rates over time
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block">Currency</label>
-            <Select
-              value={selectedCurrency}
-              onValueChange={setSelectedCurrency}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {currencyOptions.map((currency) => (
-                  <SelectItem key={currency.value} value={currency.value}>
-                    <span className="flex items-center gap-2">
-                      {(currency as any).countryCode && (
-                        <img 
-                          src={`https://flagcdn.com/w20/${(currency as any).countryCode}.png`}
-                          alt={currency.value}
-                          className="w-5 h-4 object-cover rounded-sm"
-                        />
-                      )}
-                      <span>{currency.symbol} {currency.label}</span>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block">Time Range</label>
-            <Select value={selectedRange} onValueChange={setSelectedRange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {dateRanges.map((range) => (
-                  <SelectItem key={range.value} value={range.value}>
-                    <Calendar className="w-4 h-4 mr-2 inline" />
-                    {range.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      {/* Trend Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Official Rate Trend</CardTitle>
-            <CardDescription>CBN official rate movement</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">
-                ₦
-                {chartData.length > 0
-                  ? chartData[chartData.length - 1]?.official?.toLocaleString()
-                  : "---"}
-              </div>
-              <Badge
-                variant={
-                  officialTrend.percentage >= 0 ? "destructive" : "default"
-                }
-                className="flex items-center gap-1"
+          {/* Rotate phone message for small screens */}
+          {showRotateMessage && (
+            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center gap-2 relative z-10">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                {officialTrend.percentage >= 0 ? (
-                  <TrendingUp className="w-3 h-3" />
-                ) : (
-                  <TrendingDown className="w-3 h-3" />
-                )}
-                {Math.abs(officialTrend.percentage).toFixed(2)}%
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {officialTrend.trend >= 0 ? "+" : ""}₦
-              {officialTrend.trend.toFixed(2)} over {selectedRange} days
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Black Market Trend</CardTitle>
-            <CardDescription>Parallel market rate movement</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">
-                ₦
-                {chartData.length > 0
-                  ? chartData[
-                      chartData.length - 1
-                    ]?.blackMarket?.toLocaleString()
-                  : "---"}
-              </div>
-              <Badge
-                variant={blackTrend.percentage >= 0 ? "destructive" : "default"}
-                className="flex items-center gap-1"
-              >
-                {blackTrend.percentage >= 0 ? (
-                  <TrendingUp className="w-3 h-3" />
-                ) : (
-                  <TrendingDown className="w-3 h-3" />
-                )}
-                {Math.abs(blackTrend.percentage).toFixed(2)}%
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {blackTrend.trend >= 0 ? "+" : ""}₦{blackTrend.trend.toFixed(2)}{" "}
-              over {selectedRange} days
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Parallel Market Trend</CardTitle>
-            <CardDescription>Parallel market rate movement</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">
-                ₦
-                {chartData.length > 0
-                  ? chartData[
-                      chartData.length - 1
-                    ]?.parallelMarket?.toLocaleString()
-                  : "---"}
-              </div>
-              <Badge
-                variant={
-                  parallelTrend.percentage >= 0 ? "destructive" : "default"
-                }
-                className="flex items-center gap-1"
-              >
-                {parallelTrend.percentage >= 0 ? (
-                  <TrendingUp className="w-3 h-3" />
-                ) : (
-                  <TrendingDown className="w-3 h-3" />
-                )}
-                {Math.abs(parallelTrend.percentage).toFixed(2)}%
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {parallelTrend.trend >= 0 ? "+" : ""}₦
-              {parallelTrend.trend.toFixed(2)} over {selectedRange} days
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {currencyOptions.find((c) => c.value === selectedCurrency)
-              ?.symbol || ""}{" "}
-            {selectedCurrency}/NGN Historical Rates
-            {loading && (
-              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            )}
-          </CardTitle>
-          <CardDescription>
-            Compare official CBN, black market and parallel market rates over
-            time
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] sm:h-[500px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={chartData}
-                margin={{ 
-                  top: 20, 
-                  right: window.innerWidth < 400 ? 10 : 30, 
-                  left: window.innerWidth < 400 ? 5 : 20, 
-                  bottom: window.innerWidth < 400 ? 30 : 20 
-                }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  className="opacity-20"
-                  stroke="hsl(var(--muted-foreground))"
-                />
-                <XAxis
-                  dataKey="dateFormatted"
-                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                  interval="preserveStartEnd"
-                  axisLine={{ stroke: "hsl(var(--border))" }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                  domain={["dataMin - 20", "dataMax + 20"]}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
-                  width={55}
-                  tickFormatter={(value) => `₦${(value/1000).toFixed(1)}k`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend 
-                  wrapperStyle={{ paddingTop: "20px", fontSize: "11px" }} 
-                  iconType="line"
-                  formatter={(value) => {
-                    if (typeof window !== 'undefined' && window.innerWidth < 400) {
-                      return value.replace('Official CBN Rate', 'CBN')
-                        .replace('Black Market Rate', 'Black Mkt')
-                        .replace('Parallel Market Rate', 'Parallel');
-                    }
-                    return value;
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="official"
-                  stroke="hsl(160 84% 39%)"
-                  strokeWidth={typeof window !== 'undefined' && window.innerWidth < 400 ? 2 : 3}
-                  name="Official CBN Rate"
-                  dot={{
-                    fill: "hsl(160 84% 39%)",
-                    strokeWidth: 2,
-                    r: typeof window !== 'undefined' && window.innerWidth < 400 ? 3 : 4,
-                    stroke: "white",
-                  }}
-                  activeDot={{
-                    r: 6,
-                    fill: "hsl(160 84% 39%)",
-                    stroke: "white",
-                    strokeWidth: 2,
-                  }}
-                  animationDuration={1000}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="blackMarket"
-                  stroke="hsl(0 84% 60%)"
-                  strokeWidth={typeof window !== 'undefined' && window.innerWidth < 400 ? 2 : 3}
-                  name="Black Market Rate"
-                  dot={{
-                    fill: "hsl(0 84% 60%)",
-                    strokeWidth: 2,
-                    r: typeof window !== 'undefined' && window.innerWidth < 400 ? 3 : 4,
-                    stroke: "white",
-                  }}
-                  activeDot={{
-                    r: 6,
-                    fill: "hsl(0 84% 60%)",
-                    stroke: "white",
-                    strokeWidth: 2,
-                  }}
-                  animationDuration={1200}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="parallelMarket"
-                  stroke="hsl(45 93% 47%)"
-                  strokeWidth={typeof window !== 'undefined' && window.innerWidth < 400 ? 2 : 3}
-                  name="Parallel Market Rate"
-                  dot={{
-                    fill: "hsl(45 93% 47%)",
-                    strokeWidth: 2,
-                    r: typeof window !== 'undefined' && window.innerWidth < 400 ? 3 : 4,
-                    stroke: "white",
-                  }}
-                  activeDot={{
-                    r: 6,
-                    fill: "hsl(45 93% 47%)",
-                    stroke: "white",
-                    strokeWidth: 2,
-                  }}
-                  animationDuration={1400}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Rate Spread Analysis */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Rate Spread Analysis</CardTitle>
-          <CardDescription>
-            Difference between official and black market rates
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-primary">
-                ₦
-                {chartData.length > 0
-                  ? (
-                      chartData[chartData.length - 1]?.blackMarket -
-                      chartData[chartData.length - 1]?.official
-                    ).toLocaleString()
-                  : "---"}
-              </div>
-              <p className="text-sm text-muted-foreground">Current Spread</p>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-primary">
-                {chartData.length > 0
-                  ? (
-                      ((chartData[chartData.length - 1]?.blackMarket -
-                        chartData[chartData.length - 1]?.official) /
-                        chartData[chartData.length - 1]?.official) *
-                      100
-                    ).toFixed(1)
-                  : "---"}
-                %
-              </div>
-              <p className="text-sm text-muted-foreground">Spread Percentage</p>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-primary">
-                ₦
-                {chartData.length > 0
-                  ? Math.max(
-                      ...chartData.map((d) => d.blackMarket - d.official)
-                    ).toLocaleString()
-                  : "---"}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Max Spread ({selectedRange} days)
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M12 17h.01" />
+              </svg>
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Rotate your phone to landscape for a better chart viewing
+                experience
               </p>
             </div>
+          )}
+
+          <div className="flex flex-col gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-balance">
+                Historical Rate Charts
+              </h1>
+              <p className="text-muted-foreground">
+                Track exchange rate trends and compare official vs black market
+                rates over time
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">
+                  Currency
+                </label>
+                <Select
+                  value={selectedCurrency}
+                  onValueChange={setSelectedCurrency}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {currencyOptions.map((currency) => (
+                      <SelectItem key={currency.value} value={currency.value}>
+                        <span className="flex items-center gap-2">
+                          {(currency as any).countryCode && (
+                            <img
+                              src={`https://flagcdn.com/w20/${(currency as any).countryCode}.png`}
+                              alt={currency.value}
+                              className="w-5 h-4 object-cover rounded-sm"
+                            />
+                          )}
+                          <span>
+                            {currency.symbol} {currency.label}
+                          </span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">
+                  Time Range
+                </label>
+                <Select value={selectedRange} onValueChange={setSelectedRange}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dateRanges.map((range) => (
+                      <SelectItem key={range.value} value={range.value}>
+                        <Calendar className="w-4 h-4 mr-2 inline" />
+                        {range.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Trend Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Official Rate Trend</CardTitle>
+                <CardDescription>CBN official rate movement</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-bold">
+                    ₦
+                    {chartData.length > 0
+                      ? chartData[
+                          chartData.length - 1
+                        ]?.official?.toLocaleString()
+                      : "---"}
+                  </div>
+                  <Badge
+                    variant={
+                      officialTrend.percentage >= 0 ? "destructive" : "default"
+                    }
+                    className="flex items-center gap-1"
+                  >
+                    {officialTrend.percentage >= 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(officialTrend.percentage).toFixed(2)}%
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 mb-3">
+                  {officialTrend.trend >= 0 ? "+" : ""}₦
+                  {officialTrend.trend.toFixed(2)} over {selectedRange} days
+                </p>
+                {/* Sparkline Chart */}
+                <Sparkline
+                  data={chartData.map((d) => ({ value: d.official || 0 }))}
+                  height={35}
+                  isPositive={officialTrend.percentage < 0}
+                  color="#10b981"
+                  width="100%"
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Black Market Trend</CardTitle>
+                <CardDescription>Parallel market rate movement</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-bold">
+                    ₦
+                    {chartData.length > 0
+                      ? chartData[
+                          chartData.length - 1
+                        ]?.blackMarket?.toLocaleString()
+                      : "---"}
+                  </div>
+                  <Badge
+                    variant={
+                      blackTrend.percentage >= 0 ? "destructive" : "default"
+                    }
+                    className="flex items-center gap-1"
+                  >
+                    {blackTrend.percentage >= 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(blackTrend.percentage).toFixed(2)}%
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 mb-3">
+                  {blackTrend.trend >= 0 ? "+" : ""}₦
+                  {blackTrend.trend.toFixed(2)} over {selectedRange} days
+                </p>
+                {/* Sparkline Chart */}
+                <Sparkline
+                  data={chartData.map((d) => ({ value: d.blackMarket || 0 }))}
+                  height={35}
+                  isPositive={blackTrend.percentage < 0}
+                  color="#ef4444"
+                  width="100%"
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Parallel Market Trend</CardTitle>
+                <CardDescription>Parallel market rate movement</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-bold">
+                    ₦
+                    {chartData.length > 0
+                      ? chartData[
+                          chartData.length - 1
+                        ]?.parallelMarket?.toLocaleString()
+                      : "---"}
+                  </div>
+                  <Badge
+                    variant={
+                      parallelTrend.percentage >= 0 ? "destructive" : "default"
+                    }
+                    className="flex items-center gap-1"
+                  >
+                    {parallelTrend.percentage >= 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(parallelTrend.percentage).toFixed(2)}%
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 mb-3">
+                  {parallelTrend.trend >= 0 ? "+" : ""}₦
+                  {parallelTrend.trend.toFixed(2)} over {selectedRange} days
+                </p>
+                {/* Sparkline Chart */}
+                <Sparkline
+                  data={chartData.map((d) => ({
+                    value: d.parallelMarket || 0,
+                  }))}
+                  height={35}
+                  isPositive={parallelTrend.percentage < 0}
+                  color="#f59e0b"
+                  width="100%"
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {currencyOptions.find((c) => c.value === selectedCurrency)
+                  ?.symbol || ""}{" "}
+                {selectedCurrency}/NGN Historical Rates
+                {loading && (
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                )}
+              </CardTitle>
+              <CardDescription>
+                Compare official CBN, black market and parallel market rates
+                over time
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] sm:h-[500px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={chartData}
+                    margin={{
+                      top: 20,
+                      right: window.innerWidth < 400 ? 10 : 30,
+                      left: window.innerWidth < 400 ? 5 : 20,
+                      bottom: window.innerWidth < 400 ? 30 : 20,
+                    }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="opacity-20"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <XAxis
+                      dataKey="dateFormatted"
+                      tick={{
+                        fontSize: 10,
+                        fill: "hsl(var(--muted-foreground))",
+                      }}
+                      interval="preserveStartEnd"
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      tick={{
+                        fontSize: 10,
+                        fill: "hsl(var(--muted-foreground))",
+                      }}
+                      domain={["dataMin - 20", "dataMax + 20"]}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      width={55}
+                      tickFormatter={(value) =>
+                        `₦${(value / 1000).toFixed(1)}k`
+                      }
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend
+                      wrapperStyle={{ paddingTop: "20px", fontSize: "11px" }}
+                      iconType="line"
+                      formatter={(value) => {
+                        if (
+                          typeof window !== "undefined" &&
+                          window.innerWidth < 400
+                        ) {
+                          return value
+                            .replace("Official CBN Rate", "CBN")
+                            .replace("Black Market Rate", "Black Mkt")
+                            .replace("Parallel Market Rate", "Parallel");
+                        }
+                        return value;
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="official"
+                      stroke="hsl(160 84% 39%)"
+                      strokeWidth={
+                        typeof window !== "undefined" && window.innerWidth < 400
+                          ? 2
+                          : 3
+                      }
+                      name="Official CBN Rate"
+                      dot={{
+                        fill: "hsl(160 84% 39%)",
+                        strokeWidth: 2,
+                        r:
+                          typeof window !== "undefined" &&
+                          window.innerWidth < 400
+                            ? 3
+                            : 4,
+                        stroke: "white",
+                      }}
+                      activeDot={{
+                        r: 6,
+                        fill: "hsl(160 84% 39%)",
+                        stroke: "white",
+                        strokeWidth: 2,
+                      }}
+                      animationDuration={1000}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="blackMarket"
+                      stroke="hsl(0 84% 60%)"
+                      strokeWidth={
+                        typeof window !== "undefined" && window.innerWidth < 400
+                          ? 2
+                          : 3
+                      }
+                      name="Black Market Rate"
+                      dot={{
+                        fill: "hsl(0 84% 60%)",
+                        strokeWidth: 2,
+                        r:
+                          typeof window !== "undefined" &&
+                          window.innerWidth < 400
+                            ? 3
+                            : 4,
+                        stroke: "white",
+                      }}
+                      activeDot={{
+                        r: 6,
+                        fill: "hsl(0 84% 60%)",
+                        stroke: "white",
+                        strokeWidth: 2,
+                      }}
+                      animationDuration={1200}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="parallelMarket"
+                      stroke="hsl(45 93% 47%)"
+                      strokeWidth={
+                        typeof window !== "undefined" && window.innerWidth < 400
+                          ? 2
+                          : 3
+                      }
+                      name="Parallel Market Rate"
+                      dot={{
+                        fill: "hsl(45 93% 47%)",
+                        strokeWidth: 2,
+                        r:
+                          typeof window !== "undefined" &&
+                          window.innerWidth < 400
+                            ? 3
+                            : 4,
+                        stroke: "white",
+                      }}
+                      activeDot={{
+                        r: 6,
+                        fill: "hsl(45 93% 47%)",
+                        stroke: "white",
+                        strokeWidth: 2,
+                      }}
+                      animationDuration={1400}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Rate Spread Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Rate Spread Analysis</CardTitle>
+              <CardDescription>
+                Difference between official and black market rates
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    ₦
+                    {chartData.length > 0
+                      ? (
+                          chartData[chartData.length - 1]?.blackMarket -
+                          chartData[chartData.length - 1]?.official
+                        ).toLocaleString()
+                      : "---"}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Current Spread
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    {chartData.length > 0
+                      ? (
+                          ((chartData[chartData.length - 1]?.blackMarket -
+                            chartData[chartData.length - 1]?.official) /
+                            chartData[chartData.length - 1]?.official) *
+                          100
+                        ).toFixed(1)
+                      : "---"}
+                    %
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Spread Percentage
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    ₦
+                    {chartData.length > 0
+                      ? Math.max(
+                          ...chartData.map((d) => d.blackMarket - d.official),
+                        ).toLocaleString()
+                      : "---"}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Max Spread ({selectedRange} days)
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar with skyscraper ad (160x600) */}
         <div className="lg:col-span-1">
-          <StickySkyscraperAd zoneId="10841606" network="adcash" />
+          <AdcashSkyscraper zoneId="10844798" />
         </div>
       </div>
 

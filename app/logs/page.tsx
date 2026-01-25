@@ -28,20 +28,61 @@ import {
   parseISO,
 } from "date-fns";
 import { StickySkyscraperAd } from "@/components/skyscraper-ad";
+import { LazyStickySkyscraperAdWrapper } from "@/components/lazy-ad-wrappers";
+import { Pagination } from "@/components/pagination";
 
 // Helper function to get country code for currency
 function getCountryCodeForCurrency(currency: string): string {
   const mapping: Record<string, string> = {
-    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
-    CAD: "ca", AUD: "au", NZD: "nz", CHF: "ch", ZAR: "za",
-    NGN: "ng", INR: "in", BRL: "br", RUB: "ru", KRW: "kr",
-    MXN: "mx", IDR: "id", TRY: "tr", SAR: "sa", AED: "ae",
-    QAR: "qa", KWD: "kw", BHD: "bh", THB: "th", SGD: "sg",
-    MYR: "my", PHP: "ph", VND: "vn", EGP: "eg", KES: "ke",
-    GHS: "gh", XOF: "sn", XAF: "cm", UGX: "ug", TZS: "tz",
-    MAD: "ma", TND: "tn", ZMW: "zm", PKR: "pk", BDT: "bd",
-    GMD: "gm", SLL: "sl", LRD: "lr", CDF: "cd", ETB: "et",
-    SOS: "so", SEK: "se", NOK: "no", DKK: "dk",
+    USD: "us",
+    GBP: "gb",
+    EUR: "eu",
+    CNY: "cn",
+    JPY: "jp",
+    CAD: "ca",
+    AUD: "au",
+    NZD: "nz",
+    CHF: "ch",
+    ZAR: "za",
+    NGN: "ng",
+    INR: "in",
+    BRL: "br",
+    RUB: "ru",
+    KRW: "kr",
+    MXN: "mx",
+    IDR: "id",
+    TRY: "tr",
+    SAR: "sa",
+    AED: "ae",
+    QAR: "qa",
+    KWD: "kw",
+    BHD: "bh",
+    THB: "th",
+    SGD: "sg",
+    MYR: "my",
+    PHP: "ph",
+    VND: "vn",
+    EGP: "eg",
+    KES: "ke",
+    GHS: "gh",
+    XOF: "sn",
+    XAF: "cm",
+    UGX: "ug",
+    TZS: "tz",
+    MAD: "ma",
+    TND: "tn",
+    ZMW: "zm",
+    PKR: "pk",
+    BDT: "bd",
+    GMD: "gm",
+    SLL: "sl",
+    LRD: "lr",
+    CDF: "cd",
+    ETB: "et",
+    SOS: "so",
+    SEK: "se",
+    NOK: "no",
+    DKK: "dk",
   };
   return mapping[currency.toUpperCase()] || "";
 }
@@ -66,7 +107,10 @@ interface ExchangeEntry {
 }
 // Generate historical data with realistic trends based on current rates
 const generateHistoricalData = (
-  currentRates?: Record<string, { official: number; blackMarket: number; parallel: number }>
+  currentRates?: Record<
+    string,
+    { official: number; blackMarket: number; parallel: number }
+  >,
 ): ExchangeEntry[] => {
   const data: ExchangeEntry[] = [];
   const today = new Date();
@@ -86,18 +130,20 @@ const generateHistoricalData = (
     const date = subDays(today, i);
     currencies.forEach((currency) => {
       const base = (baseRates as any)[currency];
-      
+
       // Create realistic historical trend (rates generally increase over time)
       // More recent = closer to current rate, older = slightly lower
       const ageFactor = i / 365; // 0 (today) to 1 (365 days ago)
-      const trendFactor = 1 - (ageFactor * 0.05); // Up to 5% lower for old data
-      
+      const trendFactor = 1 - ageFactor * 0.05; // Up to 5% lower for old data
+
       // Add small daily volatility (±0.5%)
       const dailyVolatility = (Math.random() - 0.5) * 0.01;
-      
+
       const officialRate = base.official * trendFactor * (1 + dailyVolatility);
-      const blackMarketRate = base.blackMarket * trendFactor * (1 + dailyVolatility);
-      const parallelMarketRate = base.parallel * trendFactor * (1 + dailyVolatility);
+      const blackMarketRate =
+        base.blackMarket * trendFactor * (1 + dailyVolatility);
+      const parallelMarketRate =
+        base.parallel * trendFactor * (1 + dailyVolatility);
 
       data.push({
         id: `${currency}-${format(date, "yyyy-MM-dd")}`,
@@ -113,7 +159,7 @@ const generateHistoricalData = (
   }
 
   return data.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 };
 
@@ -124,6 +170,8 @@ function LogsPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [live, setLive] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
   const [availableCurrencies, setAvailableCurrencies] = useState<string[]>([
     "USD",
     "GBP",
@@ -194,18 +242,25 @@ function LogsPageContent() {
         if (res.ok) {
           const body = await res.json();
           const rates = body.rates || [];
-          
+
           // Build current rates object
-          const currentRates: Record<string, { official: number; blackMarket: number; parallel: number }> = {};
+          const currentRates: Record<
+            string,
+            { official: number; blackMarket: number; parallel: number }
+          > = {};
           rates.forEach((r: any) => {
             const code = String(r.currency || r.code || "").toUpperCase();
             currentRates[code] = {
               official: Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? 0) || 0,
-              blackMarket: Number(r.blackMarket ?? r.black_market ?? r.rate ?? 0) || 0,
-              parallel: Number(r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0) || 0,
+              blackMarket:
+                Number(r.blackMarket ?? r.black_market ?? r.rate ?? 0) || 0,
+              parallel:
+                Number(
+                  r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0,
+                ) || 0,
             };
           });
-          
+
           // Generate historical data based on current rates
           const historical = generateHistoricalData(currentRates);
           setHistoricalData(historical);
@@ -221,7 +276,7 @@ function LogsPageContent() {
         setIsInitialized(true);
       }
     };
-    
+
     if (!isInitialized) {
       initializeData();
     }
@@ -243,12 +298,12 @@ function LogsPageContent() {
           const currency = String(r.currency).toUpperCase();
           // find today's entry for this currency
           const idx = copy.findIndex(
-            (d) => d.date === todayKey && d.currency === currency
+            (d) => d.date === todayKey && d.currency === currency,
           );
           const cbn = Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? 0);
           const black = Number(r.blackMarket ?? r.black_market ?? r.rate ?? 0);
           const parallel = Number(
-            r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0
+            r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0,
           );
           if (idx >= 0) {
             copy[idx] = {
@@ -288,11 +343,11 @@ function LogsPageContent() {
           const codes = Array.from(
             new Set(
               rates.map((r: any) =>
-                String(r.currency || r.code || "").toUpperCase()
-              )
-            )
+                String(r.currency || r.code || "").toUpperCase(),
+              ),
+            ),
           ).sort((a, b) =>
-            a === "USD" ? -1 : b === "USD" ? 1 : a.localeCompare(b)
+            a === "USD" ? -1 : b === "USD" ? 1 : a.localeCompare(b),
           );
           if (mounted) setAvailableCurrencies(codes);
 
@@ -312,7 +367,7 @@ function LogsPageContent() {
                 Number(r.blackMarket ?? r.black_market ?? r.rate ?? 0) || 0,
               parallel:
                 Number(
-                  r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0
+                  r.parallel ?? r.parallelMarket ?? r.parallel_market ?? 0,
                 ) || 0,
             };
           });
@@ -338,7 +393,7 @@ function LogsPageContent() {
                   Math.round(base.black * blackDrift * 100) / 100;
                 const parallelMarketRate =
                   Math.round(
-                    (base.parallel || base.black) * parallelDrift * 100
+                    (base.parallel || base.black) * parallelDrift * 100,
                   ) / 100;
                 out.push({
                   id: `${code}-${dateStr}`,
@@ -354,7 +409,7 @@ function LogsPageContent() {
               }
             });
             return out.sort(
-              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
             );
           });
         }
@@ -379,16 +434,16 @@ function LogsPageContent() {
     const stats = codes
       .map((currency) => {
         const currencyData = filteredData.filter(
-          (item) => item.currency === currency
+          (item) => item.currency === currency,
         );
         if (currencyData.length === 0) return null;
 
         const officialRates = currencyData.map((item) => item.officialRate);
         const blackMarketRates = currencyData.map(
-          (item) => item.blackMarketRate
+          (item) => item.blackMarketRate,
         );
         const parallelRates = currencyData.map(
-          (item) => item.parallelMarketRate ?? item.blackMarketRate
+          (item) => item.parallelMarketRate ?? item.blackMarketRate,
         );
 
         const avgOfficial =
@@ -408,7 +463,7 @@ function LogsPageContent() {
             Math.round(
               (parallelRates.reduce((a, b) => a + b, 0) /
                 parallelRates.length) *
-                100
+                100,
             ) / 100,
           minOfficial,
           maxOfficial,
@@ -446,7 +501,7 @@ function LogsPageContent() {
           item.blackMarketRate,
           item.parallelMarketRate ?? "",
           item.spread,
-        ].join(",")
+        ].join(","),
       ),
     ].join("\n");
 
@@ -611,7 +666,7 @@ function LogsPageContent() {
                   <td>₦${(item.parallelMarketRate ?? 0).toLocaleString()}</td>
                   <td>₦${item.spread.toLocaleString()}</td>
                 </tr>
-              `
+              `,
                 )
                 .join("")}
             </tbody>
@@ -635,7 +690,7 @@ function LogsPageContent() {
         <div className="flex gap-6">
           {/* Left Sidebar - Skyscraper Ad (160x600) */}
           <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <StickySkyscraperAd zoneId="10841738" network="adcash" />
+            <LazyStickySkyscraperAdWrapper zoneId="10841738" network="adcash" />
           </aside>
 
           {/* Main Content */}
@@ -856,62 +911,94 @@ function LogsPageContent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.slice(0, 100).map((item, index) => {
-                        const prevItem = filteredData[index + 1];
-                        const trend = prevItem
-                          ? item.officialRate > prevItem.officialRate
-                            ? "up"
-                            : item.officialRate < prevItem.officialRate
-                              ? "down"
-                              : "same"
-                          : "same";
-
-                        return (
-                          <tr
-                            key={item.id}
-                            className="border-b hover:bg-muted/50"
-                          >
-                            <td className="p-2 text-sm">
-                              {format(parseISO(item.timestamp), "MMM dd, yyyy")}
-                            </td>
-                            <td className="p-2">
-                              <Badge variant="outline">
-                                {item.currency}/NGN
-                              </Badge>
-                            </td>
-                            <td className="p-2 text-right font-mono">
-                              ₦{item.officialRate}
-                            </td>
-                            <td className="p-2 text-right font-mono">
-                              ₦{item.blackMarketRate}
-                            </td>
-                            <td className="p-2 text-right font-mono">
-                              ₦{item.parallelMarketRate ?? item.blackMarketRate}
-                            </td>
-                            <td className="p-2 text-right font-mono text-orange-600">
-                              ₦{item.spread}
-                            </td>
-                            <td className="p-2 text-center">
-                              {trend === "up" && (
-                                <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />
-                              )}
-                              {trend === "down" && (
-                                <TrendingDown className="w-4 h-4 text-green-500 mx-auto" />
-                              )}
-                              {trend === "same" && (
-                                <div className="w-4 h-4 mx-auto" />
-                              )}
-                            </td>
-                          </tr>
+                      {(() => {
+                        const totalPages = Math.ceil(
+                          filteredData.length / itemsPerPage,
                         );
-                      })}
+                        const startIndex = (currentPage - 1) * itemsPerPage;
+                        const endIndex = startIndex + itemsPerPage;
+                        const pageData = filteredData.slice(
+                          startIndex,
+                          endIndex,
+                        );
+
+                        return pageData.map((item, index) => {
+                          // Get actual index in full filtered data for comparison
+                          const actualIndex = startIndex + index;
+                          const prevItem = filteredData[actualIndex + 1];
+                          const trend = prevItem
+                            ? item.officialRate > prevItem.officialRate
+                              ? "up"
+                              : item.officialRate < prevItem.officialRate
+                                ? "down"
+                                : "same"
+                            : "same";
+
+                          return (
+                            <tr
+                              key={item.id}
+                              className="border-b hover:bg-muted/50"
+                            >
+                              <td className="p-2 text-sm">
+                                {format(
+                                  parseISO(item.timestamp),
+                                  "MMM dd, yyyy",
+                                )}
+                              </td>
+                              <td className="p-2">
+                                <Badge variant="outline">
+                                  {item.currency}/NGN
+                                </Badge>
+                              </td>
+                              <td className="p-2 text-right font-mono">
+                                ₦{item.officialRate}
+                              </td>
+                              <td className="p-2 text-right font-mono">
+                                ₦{item.blackMarketRate}
+                              </td>
+                              <td className="p-2 text-right font-mono">
+                                ₦
+                                {item.parallelMarketRate ??
+                                  item.blackMarketRate}
+                              </td>
+                              <td className="p-2 text-right font-mono text-orange-600">
+                                ₦{item.spread}
+                              </td>
+                              <td className="p-2 text-center">
+                                {trend === "up" && (
+                                  <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />
+                                )}
+                                {trend === "down" && (
+                                  <TrendingDown className="w-4 h-4 text-green-500 mx-auto" />
+                                )}
+                                {trend === "same" && (
+                                  <div className="w-4 h-4 mx-auto" />
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        });
+                      })()}
                     </tbody>
                   </table>
 
-                  {filteredData.length > 100 && (
-                    <div className="text-center py-4 text-muted-foreground">
-                      Showing first 100 of {filteredData.length} records. Use
-                      filters to narrow results or export for complete data.
+                  {filteredData.length > 0 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(filteredData.length / itemsPerPage)}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        // Scroll to table top
+                        window.scrollTo({ top: 700, behavior: "smooth" });
+                      }}
+                      totalItems={filteredData.length}
+                      itemsPerPage={itemsPerPage}
+                    />
+                  )}
+
+                  {filteredData.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No records found. Try adjusting your filters.
                     </div>
                   )}
 
@@ -928,7 +1015,7 @@ function LogsPageContent() {
 
           {/* Right Sidebar - Skyscraper Ad (160x600) */}
           <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <StickySkyscraperAd zoneId="10841606" network="adcash" />
+            <LazyStickySkyscraperAdWrapper zoneId="10841606" network="adcash" />
           </aside>
         </div>
       </div>

@@ -2,17 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
-interface AdcashAdProps {
+interface AdcashSkyscraperProps {
   zoneId: string;
   title?: string;
-  className?: string;
 }
 
-export function AdcashAd({
+export function AdcashSkyscraper({
   zoneId,
   title = "Advertisement",
-  className = "",
-}: AdcashAdProps) {
+}: AdcashSkyscraperProps) {
   const adContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,7 +26,7 @@ export function AdcashAd({
           (window as any).aclib.runBanner({
             zoneId: zoneId,
           });
-          console.log(`[Adcash] Ad loaded for zone: ${zoneId}`);
+          console.log(`[Adcash] Skyscraper ad loaded for zone: ${zoneId}`);
         } catch (error) {
           console.error("[Adcash] Error loading banner:", error);
         }
@@ -43,11 +41,11 @@ export function AdcashAd({
   }, [zoneId]);
 
   return (
-    <div className={`adcash-ad-container ${className}`}>
+    <div className="adcash-skyscraper-container">
       <div className="text-xs text-gray-400 text-center mb-1">{title}</div>
       <div
         ref={adContainerRef}
-        className="flex justify-center items-center min-h-[90px] bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden"
+        className="flex justify-center items-center w-[300px] min-h-[600px] bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden"
         id={`adcash-zone-${zoneId}`}
       />
     </div>

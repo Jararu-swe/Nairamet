@@ -10,9 +10,9 @@ export default function WidgetLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* Content Security Policy to block external ad scripts */}
-        <meta 
-          httpEquiv="Content-Security-Policy" 
-          content="script-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'none'; object-src 'none';" 
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="script-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'none'; object-src 'none';"
         />
         <script
           dangerouslySetInnerHTML={{
@@ -93,8 +93,16 @@ export default function WidgetLayout({
             overflow: hidden !important;
             font-family: system-ui, -apple-system, sans-serif;
             background: transparent !important;
-            height: 100%;
-            width: 100%;
+            height: 100% !important;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          body > div {
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
           }
           /* Hide scrollbars completely */
           ::-webkit-scrollbar {
@@ -125,9 +133,7 @@ export default function WidgetLayout({
           }
         `}</style>
       </head>
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

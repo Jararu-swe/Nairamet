@@ -7,28 +7,64 @@ import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 
 const SUPPORTED_PAIRS = [
-  "usd-ngn", "gbp-ngn", "eur-ngn", "cny-ngn",
+  "usd-ngn",
+  "gbp-ngn",
+  "eur-ngn",
+  "cny-ngn",
   // African currencies
-  "zar-ngn", "ghs-ngn", "kes-ngn", "xof-ngn", "egp-ngn",
+  "zar-ngn",
+  "ghs-ngn",
+  "kes-ngn",
+  "xof-ngn",
+  "egp-ngn",
   // Middle East
-  "aed-ngn", "sar-ngn", "qar-ngn",
+  "aed-ngn",
+  "sar-ngn",
+  "qar-ngn",
   // Asia
-  "inr-ngn", "jpy-ngn",
+  "inr-ngn",
+  "jpy-ngn",
   // Others
-  "cad-ngn", "aud-ngn", "chf-ngn",
+  "cad-ngn",
+  "aud-ngn",
+  "chf-ngn",
 ];
 
 const PAIR_INFO: Record<string, { from: string; to: string; name: string }> = {
   "usd-ngn": { from: "USD", to: "NGN", name: "US Dollar to Nigerian Naira" },
-  "gbp-ngn": { from: "GBP", to: "NGN", name: "British Pound to Nigerian Naira" },
+  "gbp-ngn": {
+    from: "GBP",
+    to: "NGN",
+    name: "British Pound to Nigerian Naira",
+  },
   "eur-ngn": { from: "EUR", to: "NGN", name: "Euro to Nigerian Naira" },
   "cny-ngn": { from: "CNY", to: "NGN", name: "Chinese Yuan to Nigerian Naira" },
   // African currencies
-  "zar-ngn": { from: "ZAR", to: "NGN", name: "South African Rand to Nigerian Naira" },
-  "ghs-ngn": { from: "GHS", to: "NGN", name: "Ghanaian Cedi to Nigerian Naira" },
-  "kes-ngn": { from: "KES", to: "NGN", name: "Kenyan Shilling to Nigerian Naira" },
-  "xof-ngn": { from: "XOF", to: "NGN", name: "West African CFA Franc to Nigerian Naira" },
-  "egp-ngn": { from: "EGP", to: "NGN", name: "Egyptian Pound to Nigerian Naira" },
+  "zar-ngn": {
+    from: "ZAR",
+    to: "NGN",
+    name: "South African Rand to Nigerian Naira",
+  },
+  "ghs-ngn": {
+    from: "GHS",
+    to: "NGN",
+    name: "Ghanaian Cedi to Nigerian Naira",
+  },
+  "kes-ngn": {
+    from: "KES",
+    to: "NGN",
+    name: "Kenyan Shilling to Nigerian Naira",
+  },
+  "xof-ngn": {
+    from: "XOF",
+    to: "NGN",
+    name: "West African CFA Franc to Nigerian Naira",
+  },
+  "egp-ngn": {
+    from: "EGP",
+    to: "NGN",
+    name: "Egyptian Pound to Nigerian Naira",
+  },
   // Middle East
   "aed-ngn": { from: "AED", to: "NGN", name: "UAE Dirham to Nigerian Naira" },
   "sar-ngn": { from: "SAR", to: "NGN", name: "Saudi Riyal to Nigerian Naira" },
@@ -37,8 +73,16 @@ const PAIR_INFO: Record<string, { from: string; to: string; name: string }> = {
   "inr-ngn": { from: "INR", to: "NGN", name: "Indian Rupee to Nigerian Naira" },
   "jpy-ngn": { from: "JPY", to: "NGN", name: "Japanese Yen to Nigerian Naira" },
   // Others
-  "cad-ngn": { from: "CAD", to: "NGN", name: "Canadian Dollar to Nigerian Naira" },
-  "aud-ngn": { from: "AUD", to: "NGN", name: "Australian Dollar to Nigerian Naira" },
+  "cad-ngn": {
+    from: "CAD",
+    to: "NGN",
+    name: "Canadian Dollar to Nigerian Naira",
+  },
+  "aud-ngn": {
+    from: "AUD",
+    to: "NGN",
+    name: "Australian Dollar to Nigerian Naira",
+  },
   "chf-ngn": { from: "CHF", to: "NGN", name: "Swiss Franc to Nigerian Naira" },
 };
 
@@ -111,11 +155,47 @@ export default async function CurrencyPairPage({
     },
   };
 
+  // Add FAQPage schema for common questions about the currency pair
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `What is the current ${pairInfo.from} to ${pairInfo.to} exchange rate?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `The current exchange rate for ${pairInfo.from} to ${pairInfo.to} is approximately ${rateData?.blackMarket || "N/A"} on the black market. Check the page for real-time CBN official and parallel market rates.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `How often is the ${pairInfo.from}/NGN rate updated?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Exchange rates are updated every 5 minutes from multiple sources including CBN official rates, black market rates, and parallel market rates.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: `Where can I convert ${pairInfo.from} to ${pairInfo.to}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "You can use our free currency converter on the tracker page to instantly convert any amount from one currency to another.",
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <div className="min-h-screen bg-background p-4 md:p-6">
         <div className="max-w-4xl mx-auto space-y-6">

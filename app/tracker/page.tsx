@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,9 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  ArrowUpDown,
+  TrendingUp,
+  TrendingDown,
+  Bell,
+  BookOpen,
+  Columns2,
+} from "lucide-react";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
-
+import { CurrencyComparison } from "@/components/currency-comparison";
 
 // Small helpers to provide a symbol and flag when the API doesn't include them
 function getSymbolForCode(code?: string) {
@@ -37,13 +46,41 @@ function getSymbolForCode(code?: string) {
 // Helper function to get country code for currency
 function getCountryCodeForCurrency(currency: string): string {
   const mapping: Record<string, string> = {
-    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
-    CAD: "ca", AUD: "au", CHF: "ch", ZAR: "za", INR: "in",
-    AED: "ae", SAR: "sa", KES: "ke", GHS: "gh", EGP: "eg",
-    NGN: "ng", BRL: "br", MXN: "mx", ARS: "ar", CLP: "cl",
-    COP: "co", PEN: "pe", TRY: "tr", RUB: "ru", PLN: "pl",
-    SEK: "se", NOK: "no", DKK: "dk", CZK: "cz", HUF: "hu",
-    NZD: "nz", THB: "th", MYR: "my", SGD: "sg", IDR: "id",
+    USD: "us",
+    GBP: "gb",
+    EUR: "eu",
+    CNY: "cn",
+    JPY: "jp",
+    CAD: "ca",
+    AUD: "au",
+    CHF: "ch",
+    ZAR: "za",
+    INR: "in",
+    AED: "ae",
+    SAR: "sa",
+    KES: "ke",
+    GHS: "gh",
+    EGP: "eg",
+    NGN: "ng",
+    BRL: "br",
+    MXN: "mx",
+    ARS: "ar",
+    CLP: "cl",
+    COP: "co",
+    PEN: "pe",
+    TRY: "tr",
+    RUB: "ru",
+    PLN: "pl",
+    SEK: "se",
+    NOK: "no",
+    DKK: "dk",
+    CZK: "cz",
+    HUF: "hu",
+    NZD: "nz",
+    THB: "th",
+    MYR: "my",
+    SGD: "sg",
+    IDR: "id",
   };
   return mapping[currency.toUpperCase()] || "un";
 }
@@ -86,18 +123,20 @@ function FXTrackerContent() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // If force refresh, call admin endpoint first to clear cache
       if (forceRefresh) {
         try {
-          await fetch('/api/admin/refresh-rates', { cache: "no-store" });
+          await fetch("/api/admin/refresh-rates", { cache: "no-store" });
         } catch (e) {
-          console.warn('Force refresh failed, fetching normally');
+          console.warn("Force refresh failed, fetching normally");
         }
       }
-      
+
       // Add timestamp to prevent browser caching
-      const res = await fetch(`/api/tracker?t=${Date.now()}`, { cache: "no-store" });
+      const res = await fetch(`/api/tracker?t=${Date.now()}`, {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Failed to fetch live rates");
       const data = await res.json();
 
@@ -108,7 +147,9 @@ function FXTrackerContent() {
         mapped = incoming.map((r: any) => ({
           currency: String(r.currency ?? r.code ?? "").toUpperCase(),
           symbol: String(
-            r.symbol ?? r.sym ?? getSymbolForCode(r.currency ?? r.code ?? "USD")
+            r.symbol ??
+              r.sym ??
+              getSymbolForCode(r.currency ?? r.code ?? "USD"),
           ),
           flag: String(r.flag ?? getFlagForCode(r.currency ?? r.code ?? "USD")),
           cbn: Number(r.cbn ?? r.cbnRate ?? r.cbn_rate ?? 0) || 0,
@@ -120,7 +161,7 @@ function FXTrackerContent() {
             0,
           change24h: Number(r.change24h ?? r.change ?? 0) || 0,
           lastUpdated: String(
-            r.lastUpdated ?? r.updatedAt ?? new Date().toLocaleTimeString()
+            r.lastUpdated ?? r.updatedAt ?? new Date().toLocaleTimeString(),
           ),
         }));
       } else if (incoming && typeof incoming === "object") {
@@ -131,7 +172,7 @@ function FXTrackerContent() {
           return {
             currency: String(entry.currency ?? key).toUpperCase(),
             symbol: String(
-              entry.symbol ?? getSymbolForCode(entry.currency ?? key)
+              entry.symbol ?? getSymbolForCode(entry.currency ?? key),
             ),
             flag: String(entry.flag ?? getFlagForCode(entry.currency ?? key)),
             cbn: Number(entry.cbn ?? entry.cbnRate ?? 0) || 0,
@@ -140,7 +181,7 @@ function FXTrackerContent() {
               Number(entry.parallelMarket ?? entry.parallel ?? 0) || 0,
             change24h: Number(entry.change24h ?? entry.change ?? 0) || 0,
             lastUpdated: String(
-              entry.lastUpdated ?? new Date().toLocaleTimeString()
+              entry.lastUpdated ?? new Date().toLocaleTimeString(),
             ),
           };
         });
@@ -174,7 +215,7 @@ function FXTrackerContent() {
 
     const raw = convertAmount ?? "";
     const nairaAmount = Number.parseFloat(
-      String(raw).replace(/[^0-9.-]+/g, "")
+      String(raw).replace(/[^0-9.-]+/g, ""),
     );
     if (!Number.isFinite(nairaAmount)) return "0.00";
 
@@ -183,8 +224,8 @@ function FXTrackerContent() {
       selectedRate === "cbn"
         ? rate.cbn
         : selectedRate === "parallelMarket"
-        ? rate.parallelMarket
-        : rate.blackMarket;
+          ? rate.parallelMarket
+          : rate.blackMarket;
 
     if (!exchangeRate || !Number.isFinite(exchangeRate) || exchangeRate === 0)
       return "0.00";
@@ -228,8 +269,8 @@ function FXTrackerContent() {
               Real-time Naira exchange rates and currency converter
             </p>
           </div>
-          <Button 
-            onClick={() => fetchRates(false)} 
+          <Button
+            onClick={() => fetchRates(false)}
             disabled={loading}
             variant="outline"
             className="w-fit"
@@ -281,10 +322,12 @@ function FXTrackerContent() {
                       {rates.map((rate) => (
                         <SelectItem key={rate.currency} value={rate.currency}>
                           <div className="flex items-center gap-2">
-                            <img
+                            <Image
                               src={getFlagUrl(rate.currency)}
                               alt={rate.currency}
                               className="w-5 h-4 rounded border object-cover"
+                              width={20}
+                              height={16}
                               onError={(e) => {
                                 e.currentTarget.style.display = "none";
                               }}
@@ -297,15 +340,19 @@ function FXTrackerContent() {
                   </Select>
                   {/* Custom display overlay */}
                   <div className="absolute inset-0 pointer-events-none flex items-center px-3 gap-2 bg-transparent">
-                    <img
+                    <Image
                       src={getFlagUrl(selectedCurrency)}
                       alt={selectedCurrency}
                       className="w-6 h-5 rounded border object-cover"
+                      width={24}
+                      height={20}
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
                     />
-                    <span className="text-lg font-semibold text-gray-900">{selectedCurrency}</span>
+                    <span className="text-lg font-semibold text-gray-900">
+                      {selectedCurrency}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -327,7 +374,9 @@ function FXTrackerContent() {
             {/* Result Display */}
             <div className="bg-white/10 backdrop-blur rounded-xl p-6 border-2 border-white/20">
               <div className="text-center space-y-3">
-                <p className="text-sm text-white/70 font-medium uppercase tracking-wide">Converted Amount</p>
+                <p className="text-sm text-white/70 font-medium uppercase tracking-wide">
+                  Converted Amount
+                </p>
                 <div className="flex flex-col md:flex-row items-center justify-center gap-3">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-white">
@@ -336,38 +385,63 @@ function FXTrackerContent() {
                   </div>
                   <ArrowUpDown className="w-5 h-5 text-white/60 rotate-90 md:rotate-0" />
                   <div className="flex items-center gap-2">
-                    <img
+                    <Image
                       src={getFlagUrl(selectedCurrency)}
                       alt={selectedCurrency}
                       className="w-6 h-4 rounded border object-cover"
+                      width={24}
+                      height={16}
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
                     />
                     <span className="text-3xl font-bold text-white">
-                      {rates.find((r) => r.currency === selectedCurrency)?.symbol}
+                      {
+                        rates.find((r) => r.currency === selectedCurrency)
+                          ?.symbol
+                      }
                       {getConvertedAmount()}
                     </span>
                   </div>
                 </div>
                 <div className="pt-3 border-t border-white/20">
                   <p className="text-xs text-white/70">
-                    Rate: <span className="font-semibold text-white">₦
-                    {(() => {
-                      const found = rates.find((r) => r.currency === selectedCurrency);
-                      if (!found) return "0";
-                      const val = selectedRate === "cbn" ? found.cbn : selectedRate === "parallelMarket" ? found.parallelMarket : found.blackMarket;
-                      return val ? val.toLocaleString() : "0";
-                    })()}</span> per {selectedCurrency}
+                    Rate:{" "}
+                    <span className="font-semibold text-white">
+                      ₦
+                      {(() => {
+                        const found = rates.find(
+                          (r) => r.currency === selectedCurrency,
+                        );
+                        if (!found) return "0";
+                        const val =
+                          selectedRate === "cbn"
+                            ? found.cbn
+                            : selectedRate === "parallelMarket"
+                              ? found.parallelMarket
+                              : found.blackMarket;
+                        return val ? val.toLocaleString() : "0";
+                      })()}
+                    </span>{" "}
+                    per {selectedCurrency}
                   </p>
                   <p className="text-xs text-white/60 mt-1">
-                    Using {selectedRate === "blackMarket" ? "🏴 Black Market" : selectedRate === "cbn" ? "🏦 CBN Official" : "💱 Parallel Market"} rate
+                    Using{" "}
+                    {selectedRate === "blackMarket"
+                      ? "🏴 Black Market"
+                      : selectedRate === "cbn"
+                        ? "🏦 CBN Official"
+                        : "💱 Parallel Market"}{" "}
+                    rate
                   </p>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Currency Comparison Section */}
+        <CurrencyComparison rates={rates} baseCurrency="NGN" />
 
         {/* Exchange Rates Grid */}
         {error && <div className="text-sm text-amber-600">{error}</div>}
@@ -381,10 +455,12 @@ function FXTrackerContent() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-12 h-12 rounded-lg border-2 border-muted flex items-center justify-center overflow-hidden bg-muted/20">
-                      <img
+                      <Image
                         src={getFlagUrl(rate.currency)}
                         alt={`${rate.currency} flag`}
                         className="w-full h-full object-cover"
+                        width={48}
+                        height={48}
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                         }}
@@ -453,6 +529,18 @@ function FXTrackerContent() {
                     </div>
                   </TabsContent>
                 </Tabs>
+                {/* Set Alert CTA Button */}
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
+                  onClick={() => {
+                    // TODO: Open alert creation modal
+                    console.log(`Set alert for ${rate.currency}`);
+                  }}
+                >
+                  <Bell className="w-4 h-4 mr-2" />
+                  Set Price Alert
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -491,10 +579,12 @@ function FXTrackerContent() {
                       >
                         <td className="p-2">
                           <div className="flex items-center gap-2">
-                            <img
+                            <Image
                               src={getFlagUrl(rate.currency)}
                               alt={`${rate.currency} flag`}
                               className="w-6 h-4 rounded border object-cover"
+                              width={24}
+                              height={16}
                               onError={(e) => {
                                 e.currentTarget.style.display = "none";
                               }}
@@ -532,6 +622,74 @@ function FXTrackerContent() {
             verify with official sources before making transactions.
           </p>
         </div>
+
+        {/* Educational Resources */}
+        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-2 border-emerald-200 dark:border-emerald-800">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-emerald-600" />
+              <CardTitle>Learn How to Use Exchange Rates Effectively</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Understanding exchange rates is key to making smart financial
+              decisions. Explore our guides:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Link
+                href="/blog"
+                className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 transition-all group"
+              >
+                <h4 className="font-semibold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-2">
+                  NGN/USD Exchange Rates Guide
+                  <TrendingUp className="w-4 h-4" />
+                </h4>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Complete guide to understanding factors affecting Naira-Dollar
+                  rates
+                </p>
+              </Link>
+              <Link
+                href="/blog"
+                className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all group"
+              >
+                <h4 className="font-semibold text-blue-600 group-hover:text-blue-700 flex items-center gap-2">
+                  Parallel vs Official Rates
+                  <TrendingUp className="w-4 h-4" />
+                </h4>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Understand Nigeria's dual exchange rate system and market
+                  dynamics
+                </p>
+              </Link>
+              <Link
+                href="/alerts"
+                className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 transition-all group"
+              >
+                <h4 className="font-semibold text-amber-600 group-hover:text-amber-700 flex items-center gap-2">
+                  Setting Effective Rate Alerts
+                  <Bell className="w-4 h-4" />
+                </h4>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Learn alert strategies to catch favorable rates for your needs
+                </p>
+              </Link>
+              <Link
+                href="/blog"
+                className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all group"
+              >
+                <h4 className="font-semibold text-purple-600 group-hover:text-purple-700 flex items-center gap-2">
+                  Remittances & Exchange Rates
+                  <TrendingUp className="w-4 h-4" />
+                </h4>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Maximize value when sending money to Nigeria from abroad
+                </p>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Subtle in-feed ad after main content */}
         <InFeedAd />

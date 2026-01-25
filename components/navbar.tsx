@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   TrendingUp,
@@ -27,7 +28,8 @@ import { SignInBanner } from "@/components/sign-in-banner";
 export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, logout, openAuthModal, justSignedUp } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal, justSignedUp } =
+    useAuth();
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -130,15 +132,20 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow border border-emerald-200 dark:border-emerald-800">
-                <img
+                <Image
                   src="/Nairamet.svg"
                   alt="NairaMet Logo"
                   className="w-7 h-7"
+                  width={28}
+                  height={28}
                 />
               </div>
               <div className="hidden sm:block">
                 <h1 className="font-bold text-xl tracking-tight">
-                  Naira<span className="text-emerald-600 dark:text-emerald-400">Met</span>
+                  Naira
+                  <span className="text-emerald-600 dark:text-emerald-400">
+                    Met
+                  </span>
                 </h1>
                 <p className="text-xs text-muted-foreground tracking-wide">
                   Nigeria's FX Platform, Simplified
@@ -149,7 +156,7 @@ export function Navbar() {
             <div className="flex items-center gap-2">
               {/* Sign In Banner - inline for non-authenticated users */}
               {!isAuthenticated && <SignInBanner />}
-              
+
               {isAuthenticated && (
                 <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                   <div className="w-7 h-7 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-sm">
@@ -179,7 +186,11 @@ export function Navbar() {
                   onClick={toggleTheme}
                   className="flex items-center justify-center w-9 h-9 rounded-md hover:bg-background transition-colors"
                   aria-label="Toggle dark mode"
-                  title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  title={
+                    theme === "dark"
+                      ? "Switch to light mode"
+                      : "Switch to dark mode"
+                  }
                 >
                   {theme === "dark" ? (
                     <Sun className="w-4 h-4" />
@@ -248,7 +259,7 @@ export function Navbar() {
                         "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                         isActive
                           ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted",
                       )}
                     >
                       <Icon className="w-5 h-5" />
@@ -264,8 +275,6 @@ export function Navbar() {
                     </Link>
                   );
                 })}
-
-
               </div>
             </div>
           )}

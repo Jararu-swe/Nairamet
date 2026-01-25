@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Loading() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
@@ -5,10 +7,12 @@ export default function Loading() {
         {/* Animated Logo with Container */}
         <div className="relative">
           <div className="w-28 h-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center shadow-2xl border-2 border-emerald-200 dark:border-emerald-800 animate-bounce">
-            <img
+            <Image
               src="/Nairamet.svg"
               alt="NairaMet Logo"
               className="w-20 h-20"
+              width={80}
+              height={80}
             />
           </div>
           {/* Glow effect */}
@@ -28,9 +32,18 @@ export default function Loading() {
 
         {/* Loading dots */}
         <div className="flex gap-2 mt-2">
-          <div className="w-3 h-3 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-bounce shadow-lg" style={{ animationDelay: '0ms' }}></div>
-          <div className="w-3 h-3 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-bounce shadow-lg" style={{ animationDelay: '150ms' }}></div>
-          <div className="w-3 h-3 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-bounce shadow-lg" style={{ animationDelay: '300ms' }}></div>
+          <div
+            className="w-3 h-3 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-bounce shadow-lg"
+            style={{ animationDelay: "0ms" }}
+          ></div>
+          <div
+            className="w-3 h-3 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-bounce shadow-lg"
+            style={{ animationDelay: "150ms" }}
+          ></div>
+          <div
+            className="w-3 h-3 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-bounce shadow-lg"
+            style={{ animationDelay: "300ms" }}
+          ></div>
         </div>
       </div>
     </div>

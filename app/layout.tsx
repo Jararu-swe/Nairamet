@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"
+    process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
   ),
   title: {
     default: "NairaMet - Real-time Naira Exchange Rates & FX Tools",
@@ -202,6 +202,13 @@ export default function RootLayout({
           async
         />
         {/* Monetag ads are injected client-side by `MonetagScript` when user consent allows personalized ads */}
+        {/* AdCash Library - loaded once globally */}
+        <script
+          id="aclib"
+          type="text/javascript"
+          src="//acscdn.com/script/aclib.js"
+          async
+        />
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />

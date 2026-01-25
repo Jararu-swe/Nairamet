@@ -22,10 +22,12 @@ import {
 import RequireAuthButton from "@/components/require-auth-button";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
+import { CurrencyTicker } from "@/components/currency-ticker";
+import { UserCountBadge } from "@/components/user-count-badge";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
-import { AdcashTopBanner } from "@/components/adcash-ad";
+import { AdcashAd } from "@/components/adcash-ad";
 import { AdcashFooterBanner } from "@/components/adcash-footer-banner";
-import { LeaderboardAd } from "@/components/leaderboard-ad";
+import { LazyLeaderboardAdWrapper } from "@/components/lazy-ad-wrappers";
 
 export default function LandingPage() {
   const { isAuthenticated, openAuthModal } = useAuth();
@@ -243,6 +245,54 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* JSON-LD Schema for Homepage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "NairaMet",
+            description:
+              "Real-time Nigerian Naira exchange rates, alerts, charts, and comprehensive FX tools",
+            url: process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: `${
+                  process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"
+                }/search?q={search_term_string}`,
+              },
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "NairaMet",
+            url: process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
+            logo: `${
+              process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com"
+            }/Nairamet.svg`,
+            description:
+              "Nigeria's FX Platform - Real-time exchange rates and currency tools",
+            sameAs: [
+              "https://twitter.com/nairamet",
+              "https://facebook.com/nairamet",
+            ],
+          }),
+        }}
+      />
+
+      {/* Currency Ticker - Live rates at the top */}
+      <CurrencyTicker />
+
       {/* AuthModal is rendered globally by AuthProvider */}
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
@@ -251,6 +301,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
           <div className="text-center space-y-8">
             <div className="space-y-4">
+              <div className="flex justify-center">
+                <UserCountBadge />
+              </div>
               <Badge
                 variant="outline"
                 className="text-emerald-700 border-emerald-200 bg-emerald-50"
@@ -289,6 +342,17 @@ export default function LandingPage() {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              >
+                <Link href="/alerts" prefetch={true}>
+                  <Bell className="w-4 h-4 mr-2" />
+                  Set Price Alerts
+                </Link>
+              </Button>
             </div>
 
             {/* Live Rate Preview - Deferred for better LCP */}
@@ -300,15 +364,19 @@ export default function LandingPage() {
       </section>
 
       {/* Leaderboard Ad - 728x90 under hero section */}
-      <LeaderboardAd zoneId="10841586" network="adcash" />
+      <LazyLeaderboardAdWrapper zoneId="10841586" network="adcash" />
 
       {/* Ad Placement 1: Subtle in-feed ad after hero */}
       <div className="max-w-7xl mx-auto px-4">
         <InFeedAd />
       </div>
 
-      {/* Adcash Top Banner - homepage-top-banner */}
-      <AdcashTopBanner zoneId="zw4eseomc0" />
+      {/* Adcash Top Banner */}
+      <AdcashAd
+        zoneId="10841738"
+        title="Advertisement"
+        className="flex justify-center max-w-7xl mx-auto px-4"
+      />
 
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white relative overflow-hidden">
@@ -490,6 +558,118 @@ export default function LandingPage() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Learn More Section - Internal Linking for SEO */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Learn Currency Trading & FX Fundamentals
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Explore our comprehensive guides on exchange rates, remittances,
+              alerts, and market dynamics
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: NGN/USD Guide */}
+            <Link href="/blog">
+              <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                <CardHeader>
+                  <TrendingUp className="w-8 h-8 text-emerald-600 mb-3 group-hover:text-emerald-700" />
+                  <CardTitle className="text-lg">
+                    NGN/USD Exchange Rates
+                  </CardTitle>
+                  <CardDescription>
+                    Understand the factors driving USD/NGN rates and how they
+                    impact your wallet
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-emerald-600 group-hover:text-emerald-700 font-semibold">
+                    Read Guide <ArrowRight className="w-4 h-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Card 2: Black Market vs Official */}
+            <Link href="/blog">
+              <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                <CardHeader>
+                  <BarChart3 className="w-8 h-8 text-blue-600 mb-3 group-hover:text-blue-700" />
+                  <CardTitle className="text-lg">
+                    Parallel vs Official Rates
+                  </CardTitle>
+                  <CardDescription>
+                    Learn why Nigeria has dual rates and how to navigate the
+                    market
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-blue-600 group-hover:text-blue-700 font-semibold">
+                    Explore <ArrowRight className="w-4 h-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Card 3: Setting Alerts */}
+            <Link href="/alerts">
+              <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                <CardHeader>
+                  <Bell className="w-8 h-8 text-amber-600 mb-3 group-hover:text-amber-700" />
+                  <CardTitle className="text-lg">Setting Rate Alerts</CardTitle>
+                  <CardDescription>
+                    Master alert strategies to catch favorable rates for your
+                    transactions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-amber-600 group-hover:text-amber-700 font-semibold">
+                    Get Started <ArrowRight className="w-4 h-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Card 4: Remittances */}
+            <Link href="/blog">
+              <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                <CardHeader>
+                  <Users className="w-8 h-8 text-purple-600 mb-3 group-hover:text-purple-700" />
+                  <CardTitle className="text-lg">
+                    Optimizing Remittances
+                  </CardTitle>
+                  <CardDescription>
+                    Learn how exchange rates impact remittances and maximize
+                    value sent home
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-purple-600 group-hover:text-purple-700 font-semibold">
+                    Read More <ArrowRight className="w-4 h-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          <div className="mt-12 text-center">
+            <Button
+              asChild
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              <Link href="/blog">
+                <BookOpen className="w-4 h-4 mr-2" />
+                View All Articles
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

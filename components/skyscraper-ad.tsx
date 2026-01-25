@@ -12,6 +12,9 @@ interface SkyscraperAdProps {
 /**
  * 160x600 Skyscraper Ad Component
  * Vertical banner ad format - typically placed on the right sidebar
+ *
+ * Note: Banner renders inside the parent div of the script that calls runBanner
+ * According to AdCash documentation
  */
 export function SkyscraperAd({
   zoneId,
@@ -19,47 +22,37 @@ export function SkyscraperAd({
   publisherId,
   className = "",
 }: SkyscraperAdProps) {
-  const adContainerRef = useRef<HTMLDivElement>(null);
-  const scriptLoadedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scriptLoadedRef.current) return;
     if (typeof window === "undefined") return;
+    if (network !== "adcash") return;
+    if (!containerRef.current) return;
 
-    try {
-      if (network === "adcash") {
-        // Load AdCash AutoTag script directly
+    // Wait a bit for aclib to load, then add the banner script
+    const timeout = setTimeout(() => {
+      if (!containerRef.current) return;
+
+      try {
+        // Create script element inside the container (AdCash exact format)
+        // Banner renders inside the parent div of this script
         const script = document.createElement("script");
         script.type = "text/javascript";
-        script.src = `//acscdn.com/script/${zoneId}.js`;
-        script.async = true;
-        script.setAttribute("data-cfasync", "false");
+        script.innerHTML = `aclib.runBanner({\n    zoneId: '${zoneId}',\n});`;
 
-        script.onload = () => {
-          console.log(`[Adcash Skyscraper] Zone ${zoneId} loaded successfully`);
-          scriptLoadedRef.current = true;
-        };
+        // Clear previous content
+        containerRef.current.innerHTML = "";
 
-        script.onerror = () => {
-          console.error(`[Adcash Skyscraper] Failed to load zone ${zoneId}`);
-        };
+        // Append script to container - AdCash will render inside this div
+        containerRef.current.appendChild(script);
 
-        if (adContainerRef.current) {
-          adContainerRef.current.appendChild(script);
-        }
+        console.log(`[Adcash Skyscraper] Zone ${zoneId} banner initialized`);
+      } catch (error) {
+        console.error("[Skyscraper Ad] Error:", error);
       }
-    } catch (error) {
-      console.error("[Skyscraper Ad] Error:", error);
-    }
+    }, 500); // Wait 500ms for aclib to load
 
-    return () => {
-      if (adContainerRef.current) {
-        const scripts = adContainerRef.current.getElementsByTagName("script");
-        while (scripts.length > 0) {
-          scripts[0].parentNode?.removeChild(scripts[0]);
-        }
-      }
-    };
+    return () => clearTimeout(timeout);
   }, [zoneId, network]);
 
   return (
@@ -71,26 +64,15 @@ export function SkyscraperAd({
         </span>
       </div>
 
-      {/* Ad Container - 160x600 Skyscraper */}
-      <div className="flex justify-center">
-        <div
-          className="w-[160px] h-[600px] bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden"
-          style={{
-            minHeight: "600px",
-            maxWidth: "160px",
-          }}
-        >
-          {/* Adcash AutoTag Container */}
-          <div
-            ref={adContainerRef}
-            className="w-full h-full flex items-center justify-center"
-          />
-          {/* Placeholder while ad loads */}
-          <div className="text-xs text-gray-400 text-center px-2 absolute">
-            Loading ad...
-          </div>
-        </div>
-      </div>
+      {/* Ad Container - Banner will render inside this div */}
+      <div
+        ref={containerRef}
+        className="w-[160px] bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+        style={{
+          minHeight: "600px",
+          width: "160px",
+        }}
+      />
     </div>
   );
 }

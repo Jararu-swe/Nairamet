@@ -13,12 +13,36 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Helper function to get country code for currency
 const getCountryCodeForCurrency = (currency: string): string => {
   const mapping: Record<string, string> = {
-    USD: "us", GBP: "gb", EUR: "eu", CNY: "cn", JPY: "jp",
-    CAD: "ca", AUD: "au", CHF: "ch", ZAR: "za", INR: "in",
-    AED: "ae", SAR: "sa", KES: "ke", GHS: "gh", EGP: "eg",
-    NGN: "ng", BRL: "br", MXN: "mx", ARS: "ar", CLP: "cl",
-    COP: "co", PEN: "pe", TRY: "tr", RUB: "ru", PLN: "pl",
-    SEK: "se", NOK: "no", DKK: "dk", CZK: "cz", HUF: "hu",
+    USD: "us",
+    GBP: "gb",
+    EUR: "eu",
+    CNY: "cn",
+    JPY: "jp",
+    CAD: "ca",
+    AUD: "au",
+    CHF: "ch",
+    ZAR: "za",
+    INR: "in",
+    AED: "ae",
+    SAR: "sa",
+    KES: "ke",
+    GHS: "gh",
+    EGP: "eg",
+    NGN: "ng",
+    BRL: "br",
+    MXN: "mx",
+    ARS: "ar",
+    CLP: "cl",
+    COP: "co",
+    PEN: "pe",
+    TRY: "tr",
+    RUB: "ru",
+    PLN: "pl",
+    SEK: "se",
+    NOK: "no",
+    DKK: "dk",
+    CZK: "cz",
+    HUF: "hu",
   };
   return mapping[currency.toUpperCase()] || "un";
 };
@@ -46,14 +70,14 @@ export default function WidgetPage() {
   useEffect(() => {
     async function fetchRates() {
       try {
-        const res = await fetch("/api/tracker", { 
+        const res = await fetch("/api/tracker", {
           cache: "no-store",
-          next: { revalidate: 0 }
+          next: { revalidate: 0 },
         });
         if (res.ok) {
           const data = await res.json();
           const currencyData = data.rates.find(
-            (r: any) => r.currency === currency
+            (r: any) => r.currency === currency,
           );
           if (currencyData) {
             setRates({
@@ -78,8 +102,10 @@ export default function WidgetPage() {
   }, [currency]);
 
   const getTrendIcon = (value: number, baseline: number) => {
-    if (value > baseline) return <TrendingUp className="w-4 h-4 text-green-500" />;
-    if (value < baseline) return <TrendingDown className="w-4 h-4 text-red-500" />;
+    if (value > baseline)
+      return <TrendingUp className="w-4 h-4 text-green-500" />;
+    if (value < baseline)
+      return <TrendingDown className="w-4 h-4 text-red-500" />;
     return <Minus className="w-4 h-4 text-gray-500" />;
   };
 
@@ -115,12 +141,15 @@ export default function WidgetPage() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                     Live
                   </Badge>
                 </div>
-                
+
                 {/* Rates */}
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -148,7 +177,7 @@ export default function WidgetPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Footer with Logo and Share Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
@@ -173,7 +202,7 @@ export default function WidgetPage() {
             )}
           </div>
         );
-      
+
       case "converter":
         return (
           <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
@@ -190,18 +219,25 @@ export default function WidgetPage() {
                     <div className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
                       <span className="text-emerald-600 text-lg">⇅</span>
                     </div>
-                    <h3 className="font-semibold text-sm">Currency Converter</h3>
+                    <h3 className="font-semibold text-sm">
+                      Currency Converter
+                    </h3>
                   </div>
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                     Live
                   </Badge>
                 </div>
-                
+
                 {/* Converter Form */}
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-gray-600 dark:text-gray-400">Amount (NGN)</label>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">
+                      Amount (NGN)
+                    </label>
                     <Input
                       type="number"
                       value={convertAmount}
@@ -215,19 +251,35 @@ export default function WidgetPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-600 dark:text-gray-400">Converted ({currency})</label>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">
+                      Converted ({currency})
+                    </label>
                     <div className="w-full mt-1 px-3 py-2 border rounded-md text-sm font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/20">
-                      {currency === "USD" ? "$" : currency === "GBP" ? "£" : currency === "EUR" ? "€" : ""}
-                      {(Number.parseFloat(convertAmount) / rates.blackMarket).toFixed(2)}
+                      {currency === "USD"
+                        ? "$"
+                        : currency === "GBP"
+                          ? "£"
+                          : currency === "EUR"
+                            ? "€"
+                            : ""}
+                      {(
+                        Number.parseFloat(convertAmount) / rates.blackMarket
+                      ).toFixed(2)}
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Footer with Share Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
-                    <img src="/Nairamet.svg" alt="NairaMet" className="w-4 h-4" />
-                    <span className="text-xs text-gray-500">Powered by NairaMet</span>
+                    <img
+                      src="/Nairamet.svg"
+                      alt="NairaMet"
+                      className="w-4 h-4"
+                    />
+                    <span className="text-xs text-gray-500">
+                      Powered by NairaMet
+                    </span>
                   </div>
                   <ShareButton
                     currency={currency}
@@ -239,7 +291,7 @@ export default function WidgetPage() {
             )}
           </div>
         );
-      
+
       case "chart":
         return (
           <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
@@ -257,8 +309,12 @@ export default function WidgetPage() {
                       <TrendingUp className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100">{currency}/NGN</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">7-Day Black Market Trend</p>
+                      <h3 className="font-semibold text-sm text-emerald-900 dark:text-emerald-100">
+                        {currency}/NGN
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        7-Day Black Market Trend
+                      </p>
                     </div>
                   </div>
                   <Badge className="flex items-center gap-1 bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300">
@@ -271,16 +327,20 @@ export default function WidgetPage() {
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Current Rate</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        Current Rate
+                      </p>
                       <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
                         ₦{rates.blackMarket.toLocaleString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">High/Low</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        High/Low
+                      </p>
                       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        ₦{(rates.blackMarket * 1.03).toFixed(0)} / 
-                        ₦{(rates.blackMarket * 0.97).toFixed(0)}
+                        ₦{(rates.blackMarket * 1.03).toFixed(0)} / ₦
+                        {(rates.blackMarket * 0.97).toFixed(0)}
                       </p>
                     </div>
                   </div>
@@ -290,9 +350,9 @@ export default function WidgetPage() {
                 <div>
                   <div className="h-32 flex items-end gap-1 mb-2">
                     {[65, 70, 68, 75, 80, 78, 85].map((height, i) => (
-                      <div 
-                        key={i} 
-                        className="group relative flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 rounded-t transition-all cursor-pointer" 
+                      <div
+                        key={i}
+                        className="group relative flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 rounded-t transition-all cursor-pointer"
                         style={{ height: `${height}%` }}
                       >
                         {/* Tooltip on hover */}
@@ -306,36 +366,56 @@ export default function WidgetPage() {
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>7 days ago</span>
-                    <span className="font-medium text-emerald-600 dark:text-emerald-400">Today</span>
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                      Today
+                    </span>
                   </div>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-2 pt-2">
                   <div className="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Avg</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Avg
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       ₦{(rates.blackMarket * 0.98).toFixed(0)}
                     </p>
                   </div>
                   <div className="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Volume</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">High</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Volume
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      High
+                    </p>
                   </div>
                   <div className="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Trend</p>
-                    <p className="text-sm font-semibold text-green-600 dark:text-green-400">↑ Up</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Trend
+                    </p>
+                    <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                      ↑ Up
+                    </p>
                   </div>
                 </div>
 
                 {/* Footer with Share Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
-                    <img src="/Nairamet.svg" alt="NairaMet" className="w-4 h-4" />
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Powered by NairaMet</span>
+                    <img
+                      src="/Nairamet.svg"
+                      alt="NairaMet"
+                      className="w-4 h-4"
+                    />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Powered by NairaMet
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">Updated 2m ago</span>
+                    <span className="text-xs text-gray-400">
+                      Updated 2m ago
+                    </span>
                     <ShareButton
                       currency={currency}
                       rate={rates.blackMarket}
@@ -348,7 +428,7 @@ export default function WidgetPage() {
             )}
           </div>
         );
-      
+
       default:
         return (
           <Card className="w-full h-full border-none">
@@ -367,7 +447,7 @@ export default function WidgetPage() {
 
   return (
     <TooltipProvider>
-      <div className="w-full h-full bg-transparent">
+      <div className="w-screen h-screen bg-transparent overflow-hidden flex flex-col">
         {renderWidget()}
       </div>
     </TooltipProvider>
