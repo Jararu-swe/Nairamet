@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
@@ -969,7 +969,4 @@ export default function LandingPage() {
       <BottomBannerAd />
     </div>
   );
-}
-function setCurrency(arg0: string) {
-  throw new Error("Function not implemented.");
 }
