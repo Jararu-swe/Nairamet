@@ -266,4 +266,20 @@
   .recharts-default-tooltip {
     z-index: 9999 !important;
   }
+
+  /* Fade and slide animation for currency cards */
+  @keyframes fade-slide-in {
+    0% {
+      opacity: 0;
+      transform: translateX(-20px) translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) translateY(0);
+    }
+  }
+
+  .animate-fade-slide-in {
+    animation: fade-slide-in 1s ease-out forwards;
+  }
 }
