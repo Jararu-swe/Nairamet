@@ -377,7 +377,7 @@ export function LiveCurrencyRates() {
             setTimeout(() => {
               setIsTransitioning(false);
               setAnimatingCards(new Set());
-            }, 1200); // Allow time for staggered animations to complete
+            }, 2000); // Allow time for staggered animations to complete
             return next;
           });
         }, 300);
@@ -562,7 +562,7 @@ export function LiveCurrencyRates() {
                   .map((item, cardIndex) => {
                     const isAnimating = animatingCards.has(item.currency);
                     const isVisible = slideIndex === currentSlide;
-                    const animationDelay = cardIndex * 150; // Stagger animation (150ms between cards for smoother effect)
+                    const animationDelay = cardIndex * 300; // Stagger animation (150ms between cards for smoother effect)
                     const slideDirection = slideIndex < currentSlide ? -1 : slideIndex > currentSlide ? 1 : 0;
                     
                     return (
@@ -587,8 +587,8 @@ export function LiveCurrencyRates() {
                                   ? "translateX(20px) translateY(10px)"
                                   : "translateX(0) translateY(10px)",
                           transition: isVisible 
-                            ? `opacity 0.8s ease-out ${animationDelay}ms, transform 0.8s ease-out ${animationDelay}ms`
-                            : "opacity 0.5s ease-in, transform 0.5s ease-in",
+                            ? `opacity 2s ease-out ${animationDelay}ms, transform 2s ease-out ${animationDelay}ms`
+                            : "opacity 2s ease-in, transform 2s ease-in",
                         }}
                       >
                       {/* Currency Header */}
