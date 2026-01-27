@@ -654,7 +654,7 @@ function FXTrackerContent() {
                 href="/blog"
                 className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all group"
               >
-                <h4 className="font-semibold text-blue-600 group-hover:text-blue-700 flex items-center gap-2">
+                <h4 className="font-semibold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-2">
                   Parallel vs Official Rates
                   <TrendingUp className="w-4 h-4" />
                 </h4>
@@ -667,7 +667,7 @@ function FXTrackerContent() {
                 href="/alerts"
                 className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 transition-all group"
               >
-                <h4 className="font-semibold text-amber-600 group-hover:text-amber-700 flex items-center gap-2">
+                <h4 className="font-semibold  text-emerald-600 group-hover:text-emerald-700 flex items-center gap-2">
                   Setting Effective Rate Alerts
                   <Bell className="w-4 h-4" />
                 </h4>
@@ -679,7 +679,7 @@ function FXTrackerContent() {
                 href="/blog"
                 className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all group"
               >
-                <h4 className="font-semibold text-purple-600 group-hover:text-purple-700 flex items-center gap-2">
+                <h4 className="font-semibold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-2">
                   Remittances & Exchange Rates
                   <TrendingUp className="w-4 h-4" />
                 </h4>
