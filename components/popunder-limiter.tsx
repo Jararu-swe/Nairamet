@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 const STORAGE_KEY = "nairamet:popunder_last_shown";
-const INTERVAL_MS = 20 * 60 * 1000; // 20 minutes
+const INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 
 export function PopunderLimiter() {
   useEffect(() => {

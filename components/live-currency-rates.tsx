@@ -354,19 +354,21 @@ export function LiveCurrencyRates() {
     const timeoutId = setTimeout(() => {
       slideIntervalRef.current = setInterval(() => {
         setIsTransitioning(true);
-        // Animate cards out
-        const currentCurrencies = rates
-          .slice(
-            currentSlide * CURRENCIES_PER_SLIDE,
-            currentSlide * CURRENCIES_PER_SLIDE + CURRENCIES_PER_SLIDE
-          )
-          .map((r) => r.currency);
-        setAnimatingCards(new Set(currentCurrencies));
-        
-        setTimeout(() => {
-          setCurrentSlide((prev) => {
-            const next = (prev + 1) % totalSlides;
-            // Animate new cards in
+        // Use the *current* slide from state callback to avoid stutter/resets
+        setCurrentSlide((prev) => {
+          // Animate cards out (current)
+          const currentCurrencies = rates
+            .slice(
+              prev * CURRENCIES_PER_SLIDE,
+              prev * CURRENCIES_PER_SLIDE + CURRENCIES_PER_SLIDE
+            )
+            .map((r) => r.currency);
+          setAnimatingCards(new Set(currentCurrencies));
+
+          const next = (prev + 1) % totalSlides;
+
+          // Animate cards in (next) slightly after
+          setTimeout(() => {
             const nextCurrencies = rates
               .slice(
                 next * CURRENCIES_PER_SLIDE,
@@ -374,13 +376,16 @@ export function LiveCurrencyRates() {
               )
               .map((r) => r.currency);
             setAnimatingCards(new Set(nextCurrencies));
+
+            // Clear animation flags after enter animation finishes
             setTimeout(() => {
               setIsTransitioning(false);
               setAnimatingCards(new Set());
-            }, 2000); // Allow time for staggered animations to complete
-            return next;
-          });
-        }, 300);
+            }, 1400);
+          }, 120);
+
+          return next;
+        });
       }, 5000); // Change slide every 5 seconds
     }, 2000); // Wait 2 seconds before starting auto-slide
 
@@ -391,7 +396,7 @@ export function LiveCurrencyRates() {
         slideIntervalRef.current = null;
       }
     };
-  }, [rates.length, currentSlide]);
+  }, [rates.length]);
 
   const totalSlides = Math.ceil(rates.length / CURRENCIES_PER_SLIDE);
   const canSlide = rates.length > CURRENCIES_PER_SLIDE;
@@ -517,32 +522,10 @@ export function LiveCurrencyRates() {
 
       {/* Sliding Container */}
       <div className="relative overflow-hidden">
-        {/* Navigation Buttons */}
-        {canSlide && (
-          <>
-            <button
-              onClick={handlePrevious}
-              disabled={isTransitioning}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Previous currencies"
-            >
-              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-emerald-600 dark:text-emerald-400" />
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={isTransitioning}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Next currencies"
-            >
-              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-emerald-600 dark:text-emerald-400" />
-            </button>
-          </>
-        )}
-
         {/* Currency Cards Container - Flex wrapper for sliding */}
         <div className="overflow-hidden relative">
           <div
-            className="flex transition-transform duration-300 ease-in-out"
+            className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
             style={{
               transform: canSlide
                 ? `translateX(-${currentSlide * 100}%)`
@@ -562,33 +545,20 @@ export function LiveCurrencyRates() {
                   .map((item, cardIndex) => {
                     const isAnimating = animatingCards.has(item.currency);
                     const isVisible = slideIndex === currentSlide;
-                    const animationDelay = cardIndex * 300; // Stagger animation (150ms between cards for smoother effect)
-                    const slideDirection = slideIndex < currentSlide ? -1 : slideIndex > currentSlide ? 1 : 0;
+                    const animationDelay = cardIndex * 120; // smoother, less "waity"
                     
                     return (
                       <div
                         key={`${item.currency}-${slideIndex}-${cardIndex}`}
-                        className={`p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-700 ease-out hover:shadow-md ${
-                          isVisible
-                            ? isAnimating || isTransitioning
-                              ? "animate-fade-slide-in opacity-100"
-                              : "opacity-100 translate-x-0 translate-y-0"
-                            : "opacity-0"
-                        }`}
+                        className={`p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md ${
+                          isVisible ? "opacity-100" : "opacity-0"
+                        } ${isVisible ? (isAnimating || isTransitioning ? "animate-fade-slide-in" : "") : ""}`}
                         style={{
-                          animationDelay: (isAnimating || isTransitioning) && isVisible ? `${animationDelay}ms` : "0ms",
-                          transform: isVisible && !isAnimating && !isTransitioning 
-                            ? "translateX(0) translateY(0)" 
-                            : isVisible 
-                              ? "translateX(0) translateY(0)"
-                              : slideDirection === -1
-                                ? "translateX(-20px) translateY(10px)"
-                                : slideDirection === 1
-                                  ? "translateX(20px) translateY(10px)"
-                                  : "translateX(0) translateY(10px)",
-                          transition: isVisible 
-                            ? `opacity 2s ease-out ${animationDelay}ms, transform 2s ease-out ${animationDelay}ms`
-                            : "opacity 2s ease-in, transform 2s ease-in",
+                          animationDelay:
+                            (isAnimating || isTransitioning) && isVisible
+                              ? `${animationDelay}ms`
+                              : "0ms",
+                          willChange: "transform, opacity",
                         }}
                       >
                       {/* Currency Header */}

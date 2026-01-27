@@ -22,7 +22,6 @@ import {
 import RequireAuthButton from "@/components/require-auth-button";
 import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
-import { CurrencyTicker } from "@/components/currency-ticker";
 import { UserCountBadge } from "@/components/user-count-badge";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 import { AdcashAd } from "@/components/adcash-ad";
@@ -289,9 +288,6 @@ export default function LandingPage() {
           }),
         }}
       />
-
-      {/* Currency Ticker - Live rates at the top */}
-      <CurrencyTicker />
 
       {/* AuthModal is rendered globally by AuthProvider */}
       {/* Hero Section */}
