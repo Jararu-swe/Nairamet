@@ -1,32 +1,40 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 /**
- * Cron job to scrape articles every 3 hours
+ * Cron job to scrape articles every 3 hours.
+ * Uses ?force=true to bypass cache and ensure fresh content.
  */
 export async function GET(request: Request) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  
   try {
-    const articlesRes = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/scrape`,
-      { cache: 'no-store' }
-    );
-    const articlesData = await articlesRes.json();
+    console.log('[Cron] Starting scheduled article scrape...');
+    const response = await fetch(`${baseUrl}/api/scrape?force=true`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.CRON_SECRET || ''}`
+      },
+      cache: 'no-store'
+    });
     
-    console.log('[Cron] Articles scraped successfully:', articlesData.articles?.length || 0, 'articles');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Scraping failed');
+    }
     
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      articlesCount: articlesData.articles?.length || 0,
-      data: articlesData,
+      articlesCount: data.articles?.length || 0,
+      message: 'Articles scraped successfully'
     });
+    
   } catch (error) {
-    console.error('[Cron] Articles scraping failed:', error);
+    console.error('[Cron] Scrape job failed:', error);
     return NextResponse.json(
-      {
-        success: false,
-        timestamp: new Date().toISOString(),
-        error: String(error),
-      },
+      { success: false, error: String(error) },
       { status: 500 }
     );
   }

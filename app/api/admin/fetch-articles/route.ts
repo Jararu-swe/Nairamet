@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchFeeds, filterArticlesByKeywords } from "@/lib/scraper";
+import { saveArticlesToKV } from "@/lib/kv";
 import fs from "fs";
 import path from "path";
 
@@ -57,6 +58,14 @@ export async function GET(request: Request) {
     const outputPath = path.join(dataDir, "scraped.json");
     fs.writeFileSync(outputPath, JSON.stringify(fxArticles, null, 2));
     
+    // Save to Vercel KV for production
+    try {
+      await saveArticlesToKV(fxArticles);
+      console.log("✅ Saved articles to Vercel KV");
+    } catch (kvError) {
+      console.error("⚠️ Failed to save to KV:", kvError);
+    }
+
     return NextResponse.json({
       success: true,
       totalFetched: articles.length,

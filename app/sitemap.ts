@@ -1,6 +1,5 @@
-import { MetadataRoute } from 'next'
-
-import { getArticles } from '@/lib/blog'
+import { MetadataRoute } from "next";
+import { getArticles } from "@/lib/blog";
 
 // Currency pairs for programmatic SEO
 const CURRENCY_PAIRS = [
@@ -46,11 +45,11 @@ function generateHistoricalPages(baseUrl: string) {
   }));
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.nairamet.com'
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const articles = await getArticles();
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com";
 
-  // Get all blog articles (including scraped ones)
-  const articles = getArticles()
+  // Static routes
   const blogPosts = articles.map((article) => ({
     url: `${baseUrl}/blog/${encodeURIComponent(article.id)}`,
     lastModified: article.date ? new Date(article.date) : new Date(),

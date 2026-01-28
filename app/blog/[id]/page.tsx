@@ -19,7 +19,7 @@ type Props = {
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const article = getArticleById(id);
+  const article = await getArticleById(id);
 
   if (!article) {
     return {
@@ -105,8 +105,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ArticlePage({ params }: Props) {
-  const { id: rawId } = await params;
-  const article = getArticleById(rawId);
+  const { id } = await params;
+  const article = await getArticleById(id);
 
   if (!article) {
     return (
@@ -128,8 +128,6 @@ export default async function ArticlePage({ params }: Props) {
       </div>
     );
   }
-
-  const { id } = await params;
 
   function decodeEntities(str: string = ""): string {
     const map: Record<string, string> = {

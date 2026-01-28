@@ -20,7 +20,7 @@ const parser = new Parser();
 
 // Module-level cache
 let cached: { articles: ScrapedArticle[]; fetchedAt: number } | null = null;
-const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
 
 async function fetchNairalandNews(maxThreads = 5) {
   const results: ScrapedArticle[] = [];
@@ -83,9 +83,9 @@ async function fetchNairalandNews(maxThreads = 5) {
   return results;
 }
 
-export async function fetchFeeds(feedUrls: string[]) {
+export async function fetchFeeds(feedUrls: string[], force = false) {
   const now = Date.now();
-  if (cached && now - cached.fetchedAt < CACHE_TTL) {
+  if (!force && cached && now - cached.fetchedAt < CACHE_TTL) {
     return cached.articles;
   }
 
@@ -198,3 +198,4 @@ export function getCachedArticlesFiltered(keywords: string[]) {
   const articles = getCachedArticles();
   return filterArticlesByKeywords(articles, keywords);
 }
+

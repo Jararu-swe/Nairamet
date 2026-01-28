@@ -16,7 +16,7 @@ export default function ScraperAdminPage() {
     setResult(null)
     
     try {
-      const response = await fetch('/api/scrape', {
+      const response = await fetch('/api/scrape?force=true', {
         cache: 'no-store'
       })
       const data = await response.json()
@@ -196,3 +196,4 @@ export default function ScraperAdminPage() {
     </div>
   )
 }
+

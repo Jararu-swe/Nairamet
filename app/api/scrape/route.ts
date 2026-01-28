@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchFeeds, getCachedArticles, ScrapedArticle } from "@/lib/scraper";
+import { saveArticlesToKV } from "@/lib/kv";
 import fs from "fs";
 import path from "path";
 
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
     // If ?feeds=... is given, override the special scheme, else use FEEDS_WITH_ALTS
     const url = new URL(request.url);
     const feedsParam = url.searchParams.get("feeds");
+    const force = url.searchParams.get("force") === "true";
     let feeds: string[];
     if (feedsParam) {
       feeds = feedsParam.split(",");
@@ -58,7 +60,10 @@ export async function GET(request: Request) {
       }
     }
     // fetch and cache
-    const articles: ScrapedArticle[] = await fetchFeeds(feeds);
+    const articles: ScrapedArticle[] = await fetchFeeds(feeds, force);
+
+    // Save to Vercel KV (for production)
+    await saveArticlesToKV(articles);
 
     // Persist to data/scraped.json for local development and caching
     try {

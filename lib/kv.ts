@@ -1,28 +1,16 @@
 import { ScrapedArticle } from "./scraper";
+import { kv } from "@vercel/kv";
 
 const ARTICLES_KEY = "scraped-articles";
 const CACHE_DURATION = 60 * 60 * 6; // 6 hours in seconds
-
-let kv: any = null;
-
-// Try to import KV at runtime
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const vercelKv = require("@vercel/kv");
-  kv = vercelKv.kv;
-} catch (e) {
-  console.warn(
-    "Vercel KV not available - install with: npm install @vercel/kv"
-  );
-}
 
 /**
  * Save articles to Vercel KV
  */
 export async function saveArticlesToKV(articles: ScrapedArticle[]) {
   try {
-    if (!kv) {
-      console.warn("Vercel KV not configured, using fallback storage");
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      console.warn("Vercel KV env vars not set, skipping KV save");
       return false;
     }
 
@@ -40,16 +28,19 @@ export async function saveArticlesToKV(articles: ScrapedArticle[]) {
  */
 export async function getArticlesFromKV(): Promise<ScrapedArticle[]> {
   try {
-    if (!kv) {
-      console.warn("Vercel KV not configured");
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      // console.warn("Vercel KV env vars not set");
       return [];
     }
 
-    const cached = await kv.get<string>(ARTICLES_KEY);
+    const cached = await kv.get<string | ScrapedArticle[]>(ARTICLES_KEY);
     if (cached) {
-      const articles = JSON.parse(cached);
-      console.log(`✅ Retrieved ${articles.length} articles from Vercel KV`);
-      return articles;
+      // If it's already an object (Redis JSON or auto-parsed), return it
+      if (typeof cached === 'object') {
+        return cached as ScrapedArticle[];
+      }
+      // If it's a string, parse it
+      return JSON.parse(cached);
     }
     return [];
   } catch (error) {

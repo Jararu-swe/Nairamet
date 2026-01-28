@@ -20,7 +20,7 @@ import { Metadata } from "next";
 import { AdcashSkyscraper } from "@/components/adcash-skyscraper";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const articles = getArticles();
+  const articles = await getArticles();
   const latestArticle = articles.find((a) => a.featured) || articles[0];
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com";
 
@@ -85,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlogPage() {
-  const featuredArticles = getArticles();
+  const featuredArticles = await getArticles();
   // Strict FX-related keywords for better filtering
   const nairaKeywords = [
     // Currency codes

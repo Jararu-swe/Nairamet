@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { getArticlesFromKV } from "./kv";
 
 export type Article = {
   id: string;
@@ -58,8 +59,22 @@ function readScraped(): any[] {
   }
 }
 
-export function getArticles(): Article[] {
-  const scraped = readScraped();
+async function fetchScrapedData(): Promise<any[]> {
+  // Try KV first (for Vercel production)
+  try {
+    const kvArticles = await getArticlesFromKV();
+    if (kvArticles && kvArticles.length > 0) {
+      return kvArticles;
+    }
+  } catch (e) {
+    console.warn("Failed to fetch from KV, falling back to fs", e);
+  }
+  // Fallback to local file
+  return readScraped();
+}
+
+export async function getArticles(): Promise<Article[]> {
+  const scraped = await fetchScrapedData();
   const mapped = (scraped || []).map((s: any) => ({
     id: `scraped:${encodeURIComponent(s.url || String(Math.random()))}`,
     title: decodeEntities(s.title || "(no title)"),
@@ -79,8 +94,8 @@ export function getArticles(): Article[] {
   );
 }
 
-export function getArticleById(id: string): Article | null {
-  const all = getArticles();
+export async function getArticleById(id: string): Promise<Article | null> {
+  const all = await getArticles();
 
   let found = all.find((a) => a.id === id);
   if (found) return found;
@@ -150,3 +165,4 @@ function decodeEntities(str: string = ""): string {
 }
 
 export { readMarkdownFile };
+
