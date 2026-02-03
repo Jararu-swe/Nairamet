@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 // Cache for 12 hours
 const CACHE_DURATION = 43200; // 12 hours in seconds
 const STALE_WHILE_REVALIDATE = 86400; // 24 hours in seconds
-
 const CACHE_CONTROL_HEADER = `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
 
 export const revalidate = 43200; // 12 hours
@@ -31,7 +30,7 @@ export async function GET() {
 
     // Fetch from CurrencyFreaks API
     const response = await fetch(
-      `https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${encodeURIComponent(apiKey)}`,
+      `https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${apiKey}`,
       {
         next: { revalidate: CACHE_DURATION },
         headers: {
@@ -49,19 +48,14 @@ export async function GET() {
     const data = await response.json();
 
     // CurrencyFreaks response format:
-    // {
-    //   "date": "2024-01-01",
-    //   "base": "USD",
-    //   "rates": {
-    //     "NGN": "1650.5",
-    //     "GBP": "0.79",
-    //     "EUR": "0.92",
-    //     ...
-    //   }
-    // }
+    // { "date": "2023-03-21", "base": "USD", "rates": { "NGN": "1650.5", "GBP": "0.79", ... } }
 
     const rates = data.rates as Record<string, string>;
     const ngnRate = parseFloat(rates.NGN || "1650");
+
+    if (!ngnRate) {
+      throw new Error("NGN rate not found in response");
+    }
 
     // Build XXXNGN pairs
     const finalQuotes: Record<string, number> = { USDNGN: ngnRate };

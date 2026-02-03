@@ -85,9 +85,9 @@ export async function GET() {
 
     // Fetch from CurrencyLayer API (request broad set) — cached for 12 hours
     const response = await fetch(
-      `http://apilayer.net/api/live?access_key=${encodeURIComponent(apiKey)}&source=USD&format=1&currencies=${encodeURIComponent(
+      `http://apilayer.net/api/live?access_key=${apiKey}&currencies=${encodeURIComponent(
         currenciesParam
-      )}`,
+      )}&source=USD&format=1`,
       {
         next: { revalidate: CACHE_DURATION }, // Cache for 12 hours
         headers: {

@@ -22,7 +22,7 @@ async function fetchFromCurrencyLayer() {
     ].join(",");
 
     const response = await fetch(
-      `https://api.currencylayer.com/live?access_key=${encodeURIComponent(apiKey)}&source=USD&format=1&currencies=${encodeURIComponent(currenciesParam)}`,
+      `http://apilayer.net/api/live?access_key=${apiKey}&currencies=${encodeURIComponent(currenciesParam)}&source=USD&format=1`,
       {
         next: { revalidate: CACHE_DURATION },
         headers: { "User-Agent": "NairaMet/1.0" },
@@ -66,7 +66,7 @@ async function fetchFromCurrencyFreaks() {
 
   try {
     const response = await fetch(
-      `https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${encodeURIComponent(apiKey)}`,
+      `https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${apiKey}`,
       {
         next: { revalidate: CACHE_DURATION },
         headers: { "User-Agent": "NairaMet/1.0" },
