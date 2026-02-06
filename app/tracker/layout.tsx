@@ -3,7 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Live Exchange Rates - USD, GBP, EUR to Naira",
   description:
-    "Real-time USD/NGN, GBP/NGN, EUR/NGN exchange rates. Track CBN official, black market, and parallel market rates with live updates. Free currency converter included.",
+    "Real-time USD/NGN, GBP/NGN, EUR/NGN exchange rates. Track CBN official, black market, and parallel market rates with live updates. Free bidirectional currency converter included.",
   keywords: [
     "USD to NGN",
     "GBP to NGN",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Live Exchange Rates - Real-time Naira FX Tracker",
     description:
-      "Track USD/NGN, GBP/NGN, EUR/NGN rates in real-time. Compare CBN, black market, and parallel rates. Free currency converter.",
+      "Track USD/NGN, GBP/NGN, EUR/NGN rates in real-time. Compare CBN, black market, and parallel rates. Free bidirectional currency converter.",
     type: "website",
     url: "/tracker",
   },
@@ -148,7 +148,7 @@ export default function TrackerLayout({
         name: "How do I convert currency amounts?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Enter the amount in NGN, select your target currency, choose your preferred rate type (CBN, black market, or parallel), and our converter instantly calculates the converted amount with live rates.",
+          text: "Enter the amount, select your currencies (from and to), choose your preferred rate type (CBN, black market, or parallel), and our converter instantly calculates the converted amount with live rates. You can convert both from NGN to foreign currencies and from foreign currencies to NGN.",
         },
       },
     ],

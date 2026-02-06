@@ -282,4 +282,76 @@
   .animate-fade-slide-in {
     animation: fade-slide-in 1s ease-out forwards;
   }
+
+  /* Currency converter animations */
+  @keyframes converter-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-converter-glow {
+    animation: converter-glow 3s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Smooth transitions for converter elements */
+  .converter-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .converter-transition:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Loading skeleton animation */
+  @keyframes skeleton-loading {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s infinite;
+  }
+
+  .dark .skeleton {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+    background-size: 200px 100%;
+  }
 }

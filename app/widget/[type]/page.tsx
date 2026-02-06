@@ -66,6 +66,8 @@ export default function WidgetPage() {
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [convertAmount, setConvertAmount] = useState("1000");
+  const [fromCurrency, setFromCurrency] = useState("NGN");
+  const [toCurrency, setToCurrency] = useState("USD");
 
   useEffect(() => {
     async function fetchRates() {
@@ -98,6 +100,13 @@ export default function WidgetPage() {
     fetchRates();
     // Auto-refresh every 60 seconds
     const interval = setInterval(fetchRates, 60000);
+    
+    // Initialize currency states based on URL parameter
+    if (currency !== "NGN") {
+      setToCurrency(currency);
+      setFromCurrency("NGN");
+    }
+    
     return () => clearInterval(interval);
   }, [currency]);
 
@@ -107,6 +116,40 @@ export default function WidgetPage() {
     if (value < baseline)
       return <TrendingDown className="w-4 h-4 text-red-500" />;
     return <Minus className="w-4 h-4 text-gray-500" />;
+  };
+
+  const getConvertedAmount = () => {
+    const inputAmount = Number.parseFloat(convertAmount);
+    if (!Number.isFinite(inputAmount)) return "0.00";
+
+    const exchangeRate = rates.blackMarket;
+    if (!exchangeRate || !Number.isFinite(exchangeRate) || exchangeRate === 0)
+      return "0.00";
+
+    let converted: number;
+    if (fromCurrency === "NGN") {
+      // Converting from NGN to foreign currency
+      converted = inputAmount / exchangeRate;
+    } else {
+      // Converting from foreign currency to NGN
+      converted = inputAmount * exchangeRate;
+    }
+
+    return converted.toFixed(2);
+  };
+
+  const swapCurrencies = () => {
+    const temp = fromCurrency;
+    setFromCurrency(toCurrency);
+    setToCurrency(temp);
+  };
+
+  const getCurrencySymbol = (curr: string) => {
+    if (curr === "NGN") return "₦";
+    if (curr === "USD") return "$";
+    if (curr === "GBP") return "£";
+    if (curr === "EUR") return "€";
+    return "";
   };
 
   const renderWidget = () => {
@@ -205,27 +248,33 @@ export default function WidgetPage() {
 
       case "converter":
         return (
-          <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg p-4">
+          <div className="w-full h-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 shadow-lg">
             {loading ? (
-              <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 h-full flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-                      <span className="text-emerald-600 text-lg">⇅</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                      <span className="text-white text-lg font-bold">⇅</span>
                     </div>
-                    <h3 className="font-semibold text-sm">
-                      Currency Converter
-                    </h3>
+                    <div>
+                      <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100">
+                        Currency Converter
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Bidirectional conversion
+                      </p>
+                    </div>
                   </div>
                   <Badge
                     variant="secondary"
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                     Live
@@ -233,52 +282,63 @@ export default function WidgetPage() {
                 </div>
 
                 {/* Converter Form */}
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-600 dark:text-gray-400">
-                      Amount (NGN)
+                <div className="flex-1 space-y-4">
+                  {/* From Currency */}
+                  <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2 block">
+                      From ({fromCurrency})
                     </label>
                     <Input
                       type="number"
                       value={convertAmount}
                       onChange={(e) => setConvertAmount(e.target.value)}
-                      className="w-full mt-1 text-sm"
+                      className="w-full text-lg font-bold border-0 bg-transparent focus:ring-2 focus:ring-emerald-500/20 p-0"
+                      placeholder="Enter amount"
                     />
                   </div>
+
+                  {/* Swap Button */}
                   <div className="flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
-                      <span className="text-emerald-600">⇅</span>
+                    <Button
+                      onClick={swapCurrencies}
+                      variant="ghost"
+                      size="sm"
+                      className="w-10 h-10 p-0 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                    >
+                      <span className="text-lg font-bold">⇅</span>
+                    </Button>
+                  </div>
+
+                  {/* To Currency */}
+                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                    <label className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-2 block">
+                      To ({toCurrency})
+                    </label>
+                    <div className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
+                      {getCurrencySymbol(toCurrency)}{getConvertedAmount()}
                     </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-600 dark:text-gray-400">
-                      Converted ({currency})
-                    </label>
-                    <div className="w-full mt-1 px-3 py-2 border rounded-md text-sm font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/20">
-                      {currency === "USD"
-                        ? "$"
-                        : currency === "GBP"
-                          ? "£"
-                          : currency === "EUR"
-                            ? "€"
-                            : ""}
-                      {(
-                        Number.parseFloat(convertAmount) / rates.blackMarket
-                      ).toFixed(2)}
-                    </div>
+
+                  {/* Rate Info */}
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Rate: <span className="font-semibold">₦{rates.blackMarket.toLocaleString()}</span> per {currency}
+                    </p>
                   </div>
                 </div>
 
                 {/* Footer with Share Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
-                    <img
-                      src="/Nairamet.svg"
-                      alt="NairaMet"
-                      className="w-4 h-4"
-                    />
-                    <span className="text-xs text-gray-500">
-                      Powered by NairaMet
+                    <div className="w-5 h-5 rounded bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                      <img
+                        src="/Nairamet.svg"
+                        alt="NairaMet"
+                        className="w-3 h-3"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      NairaMet
                     </span>
                   </div>
                   <ShareButton

@@ -67,7 +67,7 @@ describe('share-utils', () => {
     it('should generate correct content for converter widget', () => {
       const result = generateShareContent('EUR', 1750.5, 'converter')
       
-      expect(result.text).toBe('Convert NGN to EUR at ₦1,750.5 via NairaMet')
+      expect(result.text).toBe('Convert between NGN and EUR at ₦1,750.5 via NairaMet')
       expect(result.title).toBe('Currency Converter - EUR/NGN')
       expect(result.url).toContain('currency=EUR')
     })

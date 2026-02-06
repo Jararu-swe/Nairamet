@@ -3,7 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "FX Tools - Currency Converter & Widgets for Your Website",
   description:
-    "Free currency converter, embeddable widgets, and FX tools for Nigerian Naira. Convert USD, GBP, EUR to NGN instantly. Add live exchange rate widgets to your website.",
+    "Free bidirectional currency converter, embeddable widgets, and FX tools for Nigerian Naira. Convert USD, GBP, EUR to/from NGN instantly. Add live exchange rate widgets to your website.",
   keywords: [
     "currency converter",
     "naira converter",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "FX Tools & Currency Converter | NairaMet",
     description:
-      "Free currency converter and embeddable widgets for Nigerian Naira. Convert currencies and add live rates to your website.",
+      "Free bidirectional currency converter and embeddable widgets for Nigerian Naira. Convert currencies both ways and add live rates to your website.",
     type: "website",
     images: [
       {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FX Tools & Currency Converter | NairaMet",
     description:
-      "Free currency converter and embeddable widgets for Nigerian Naira.",
+      "Free bidirectional currency converter and embeddable widgets for Nigerian Naira.",
     images: ["/og-image.png"],
   },
   alternates: {

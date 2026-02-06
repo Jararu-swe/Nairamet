@@ -118,6 +118,8 @@ function FXTrackerContent() {
   const [selectedRate, setSelectedRate] = useState<
     "cbn" | "blackMarket" | "parallelMarket"
   >("blackMarket");
+  const [fromCurrency, setFromCurrency] = useState<string>("NGN");
+  const [toCurrency, setToCurrency] = useState<string>("USD");
 
   const fetchRates = async (forceRefresh = false) => {
     try {
@@ -207,17 +209,21 @@ function FXTrackerContent() {
     if (rates.length && !rates.find((r) => r.currency === selectedCurrency)) {
       setSelectedCurrency(rates[0].currency);
     }
-  }, [rates, selectedCurrency]);
+    // Update toCurrency when selectedCurrency changes for backward compatibility
+    if (fromCurrency === "NGN") {
+      setToCurrency(selectedCurrency);
+    }
+  }, [rates, selectedCurrency, fromCurrency]);
 
   const getConvertedAmount = () => {
-    const rate = rates.find((r) => r.currency === selectedCurrency);
+    const rate = rates.find((r) => r.currency === (fromCurrency === "NGN" ? toCurrency : fromCurrency));
     if (!rate) return "0.00";
 
     const raw = convertAmount ?? "";
-    const nairaAmount = Number.parseFloat(
+    const inputAmount = Number.parseFloat(
       String(raw).replace(/[^0-9.-]+/g, ""),
     );
-    if (!Number.isFinite(nairaAmount)) return "0.00";
+    if (!Number.isFinite(inputAmount)) return "0.00";
 
     // map selectedRate to actual numeric value
     const exchangeRate =
@@ -230,17 +236,44 @@ function FXTrackerContent() {
     if (!exchangeRate || !Number.isFinite(exchangeRate) || exchangeRate === 0)
       return "0.00";
 
-    const converted = nairaAmount / exchangeRate;
+    let converted: number;
+    if (fromCurrency === "NGN") {
+      // Converting from NGN to foreign currency
+      converted = inputAmount / exchangeRate;
+    } else {
+      // Converting from foreign currency to NGN
+      converted = inputAmount * exchangeRate;
+    }
+
     return converted.toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
   };
 
-  const formatNaira = (amount: string) => {
+  const formatAmount = (amount: string, currency: string) => {
     const num = Number.parseFloat(String(amount).replace(/[^0-9.-]+/g, ""));
-    if (!Number.isFinite(num)) return "₦0";
-    return `₦${num.toLocaleString("en-US")}`;
+    if (!Number.isFinite(num)) return currency === "NGN" ? "₦0" : "0";
+    
+    if (currency === "NGN") {
+      return `₦${num.toLocaleString("en-US")}`;
+    } else {
+      const symbol = rates.find((r) => r.currency === currency)?.symbol || "";
+      return `${symbol}${num.toLocaleString("en-US")}`;
+    }
+  };
+
+  const swapCurrencies = () => {
+    const temp = fromCurrency;
+    setFromCurrency(toCurrency);
+    setToCurrency(temp);
+    
+    // Update selectedCurrency for backward compatibility
+    if (temp === "NGN") {
+      setSelectedCurrency(toCurrency);
+    } else {
+      setSelectedCurrency(temp);
+    }
   };
 
   const getRateTypeLabel = (type: string) => {
@@ -280,162 +313,299 @@ function FXTrackerContent() {
         </div>
 
         {/* Currency Converter */}
-        <Card className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-xl border-0">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
-                <ArrowUpDown className="w-5 h-5" />
+        <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-600 text-white shadow-2xl border-0 animate-converter-glow">
+          {/* Animated background elements */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
+            <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12 animate-pulse delay-1000"></div>
+          </div>
+          
+          <CardHeader className="pb-6 relative z-10">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-lg">
+                <ArrowUpDown className="w-6 h-6" />
               </div>
-              Currency Converter
+              <div>
+                <span className="block">Currency Converter</span>
+                <span className="text-sm font-normal text-white/80 block mt-1">
+                  Real-time bidirectional conversion
+                </span>
+              </div>
             </CardTitle>
-            <p className="text-sm text-white/80 mt-2">
-              Convert Nigerian Naira to foreign currencies instantly
-            </p>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block text-white/90">
-                  Amount (NGN)
-                </label>
-                <Input
-                  type="number"
-                  value={convertAmount}
-                  onChange={(e) => setConvertAmount(e.target.value)}
-                  placeholder="100,000"
-                  className="bg-white text-gray-900 border-0 h-11 text-lg font-semibold"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block text-white/90">
-                  Currency
-                </label>
-                <div className="relative">
-                  <Select
-                    value={selectedCurrency}
-                    onValueChange={setSelectedCurrency}
-                  >
-                    <SelectTrigger className="w-full bg-white text-transparent border-0 h-11">
-                      <SelectValue placeholder="Select currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {rates.map((rate) => (
-                        <SelectItem key={rate.currency} value={rate.currency}>
-                          <div className="flex items-center gap-2">
+          
+          <CardContent className="space-y-8 relative z-10">
+            {/* Main Converter Interface */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-end">
+                {/* Amount Input */}
+                <div className="lg:col-span-2">
+                  <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
+                    Amount
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={convertAmount}
+                      onChange={(e) => setConvertAmount(e.target.value)}
+                      placeholder="Enter amount"
+                      className="bg-white/95 backdrop-blur text-gray-900 border-0 h-14 text-xl font-bold rounded-xl shadow-lg focus:ring-2 focus:ring-white/50 transition-all duration-200"
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">
+                      {fromCurrency}
+                    </div>
+                  </div>
+                </div>
+
+                {/* From Currency */}
+                <div>
+                  <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
+                    From
+                  </label>
+                  <div className="relative">
+                    <Select value={fromCurrency} onValueChange={setFromCurrency}>
+                      <SelectTrigger className="w-full bg-white/95 backdrop-blur text-transparent border-0 h-14 rounded-xl shadow-lg hover:bg-white transition-all duration-200">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white/95 backdrop-blur border-0 shadow-2xl rounded-xl">
+                        <SelectItem value="NGN" className="hover:bg-emerald-50 rounded-lg">
+                          <div className="flex items-center gap-3">
                             <Image
-                              src={getFlagUrl(rate.currency)}
-                              alt={rate.currency}
-                              className="w-5 h-4 rounded border object-cover"
-                              width={20}
+                              src={getFlagUrl("NGN")}
+                              alt="NGN"
+                              className="w-6 h-4 rounded border object-cover shadow-sm"
+                              width={24}
                               height={16}
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
+                              onError={(e) => { e.currentTarget.style.display = "none"; }}
                             />
-                            <span>{rate.currency}</span>
+                            <span className="font-medium">NGN</span>
                           </div>
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {/* Custom display overlay */}
-                  <div className="absolute inset-0 pointer-events-none flex items-center px-3 gap-2 bg-transparent">
-                    <Image
-                      src={getFlagUrl(selectedCurrency)}
-                      alt={selectedCurrency}
-                      className="w-6 h-5 rounded border object-cover"
-                      width={24}
-                      height={20}
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                    <span className="text-lg font-semibold text-gray-900">
-                      {selectedCurrency}
-                    </span>
+                        {rates.map((rate) => (
+                          <SelectItem key={rate.currency} value={rate.currency} className="hover:bg-emerald-50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Image
+                                src={getFlagUrl(rate.currency)}
+                                alt={rate.currency}
+                                className="w-6 h-4 rounded border object-cover shadow-sm"
+                                width={24}
+                                height={16}
+                                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                              />
+                              <span className="font-medium">{rate.currency}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* Custom display overlay */}
+                    <div className="absolute inset-0 pointer-events-none flex items-center px-4 gap-3">
+                      <Image
+                        src={getFlagUrl(fromCurrency)}
+                        alt={fromCurrency}
+                        className="w-7 h-5 rounded border object-cover shadow-sm"
+                        width={28}
+                        height={20}
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                      <span className="text-xl font-bold text-gray-900">{fromCurrency}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Swap Button */}
+                <div className="flex justify-center">
+                  <Button
+                    onClick={swapCurrencies}
+                    variant="secondary"
+                    size="lg"
+                    className="h-14 w-14 p-0 bg-white/20 hover:bg-white/30 border-2 border-white/30 hover:border-white/50 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
+                  >
+                    <ArrowUpDown className="w-5 h-5 group-hover:rotate-180 transition-transform duration-300" />
+                  </Button>
+                </div>
+
+                {/* To Currency */}
+                <div>
+                  <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
+                    To
+                  </label>
+                  <div className="relative">
+                    <Select value={toCurrency} onValueChange={setToCurrency}>
+                      <SelectTrigger className="w-full bg-white/95 backdrop-blur text-transparent border-0 h-14 rounded-xl shadow-lg hover:bg-white transition-all duration-200">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white/95 backdrop-blur border-0 shadow-2xl rounded-xl">
+                        <SelectItem value="NGN" className="hover:bg-emerald-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Image
+                              src={getFlagUrl("NGN")}
+                              alt="NGN"
+                              className="w-6 h-4 rounded border object-cover shadow-sm"
+                              width={24}
+                              height={16}
+                              onError={(e) => { e.currentTarget.style.display = "none"; }}
+                            />
+                            <span className="font-medium">NGN</span>
+                          </div>
+                        </SelectItem>
+                        {rates.map((rate) => (
+                          <SelectItem key={rate.currency} value={rate.currency} className="hover:bg-emerald-50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Image
+                                src={getFlagUrl(rate.currency)}
+                                alt={rate.currency}
+                                className="w-6 h-4 rounded border object-cover shadow-sm"
+                                width={24}
+                                height={16}
+                                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                              />
+                              <span className="font-medium">{rate.currency}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* Custom display overlay */}
+                    <div className="absolute inset-0 pointer-events-none flex items-center px-4 gap-3">
+                      <Image
+                        src={getFlagUrl(toCurrency)}
+                        alt={toCurrency}
+                        className="w-7 h-5 rounded border object-cover shadow-sm"
+                        width={28}
+                        height={20}
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                      <span className="text-xl font-bold text-gray-900">{toCurrency}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block text-white/90">
-                  Rate Type
-                </label>
-                <select
-                  value={selectedRate}
-                  onChange={(e) => setSelectedRate(e.target.value as any)}
-                  className="w-full h-11 px-3 rounded-md bg-white text-gray-900 border-0 font-medium"
-                >
-                  <option value="blackMarket">🏴 Black Market</option>
-                  <option value="cbn">🏦 CBN Official</option>
-                  <option value="parallelMarket">💱 Parallel Market</option>
-                </select>
+
+              {/* Rate Type Selector */}
+              <div className="mt-6 flex justify-center">
+                <div className="bg-white/10 backdrop-blur rounded-xl p-1 border border-white/20">
+                  <div className="flex gap-1">
+                    {[
+                      { value: "blackMarket", label: "🏴 Black Market", desc: "Street rate" },
+                      { value: "cbn", label: "🏦 CBN Official", desc: "Central bank" },
+                      { value: "parallelMarket", label: "💱 Parallel Market", desc: "Bureau de change" }
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setSelectedRate(option.value as any)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          selectedRate === option.value
+                            ? "bg-white text-emerald-700 shadow-lg"
+                            : "text-white/80 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div>{option.label}</div>
+                          <div className="text-xs opacity-75">{option.desc}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
+
             {/* Result Display */}
-            <div className="bg-white/10 backdrop-blur rounded-xl p-6 border-2 border-white/20">
-              <div className="text-center space-y-3">
-                <p className="text-sm text-white/70 font-medium uppercase tracking-wide">
-                  Converted Amount
-                </p>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-white">
-                      {formatNaira(convertAmount)}
-                    </span>
-                  </div>
-                  <ArrowUpDown className="w-5 h-5 text-white/60 rotate-90 md:rotate-0" />
-                  <div className="flex items-center gap-2">
+            <div className="bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-2xl">
+              <div className="text-center space-y-6">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <p className="text-sm text-white/80 font-semibold uppercase tracking-wider">
+                    Live Conversion Result
+                  </p>
+                </div>
+                
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
+                  {/* From Amount */}
+                  <div className="flex items-center gap-4 bg-white/10 backdrop-blur rounded-xl p-4 border border-white/20">
                     <Image
-                      src={getFlagUrl(selectedCurrency)}
-                      alt={selectedCurrency}
-                      className="w-6 h-4 rounded border object-cover"
-                      width={24}
-                      height={16}
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
+                      src={getFlagUrl(fromCurrency)}
+                      alt={fromCurrency}
+                      className="w-8 h-6 rounded border-2 border-white/30 object-cover shadow-lg"
+                      width={32}
+                      height={24}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
                     />
-                    <span className="text-3xl font-bold text-white">
-                      {
-                        rates.find((r) => r.currency === selectedCurrency)
-                          ?.symbol
-                      }
-                      {getConvertedAmount()}
-                    </span>
+                    <div className="text-left">
+                      <div className="text-2xl lg:text-3xl font-bold text-white">
+                        {formatAmount(convertAmount, fromCurrency)}
+                      </div>
+                      <div className="text-sm text-white/70">{fromCurrency}</div>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex items-center justify-center">
+                    <div className="bg-white/20 backdrop-blur rounded-full p-3 border border-white/30">
+                      <ArrowUpDown className="w-6 h-6 text-white rotate-90 lg:rotate-0" />
+                    </div>
+                  </div>
+
+                  {/* To Amount */}
+                  <div className="flex items-center gap-4 bg-white/10 backdrop-blur rounded-xl p-4 border border-white/20">
+                    <Image
+                      src={getFlagUrl(toCurrency)}
+                      alt={toCurrency}
+                      className="w-8 h-6 rounded border-2 border-white/30 object-cover shadow-lg"
+                      width={32}
+                      height={24}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                    <div className="text-left">
+                      <div className="text-2xl lg:text-4xl font-bold text-white">
+                        {formatAmount(getConvertedAmount(), toCurrency)}
+                      </div>
+                      <div className="text-sm text-white/70">{toCurrency}</div>
+                    </div>
                   </div>
                 </div>
-                <div className="pt-3 border-t border-white/20">
-                  <p className="text-xs text-white/70">
-                    Rate:{" "}
-                    <span className="font-semibold text-white">
-                      ₦
-                      {(() => {
-                        const found = rates.find(
-                          (r) => r.currency === selectedCurrency,
-                        );
-                        if (!found) return "0";
-                        const val =
-                          selectedRate === "cbn"
-                            ? found.cbn
-                            : selectedRate === "parallelMarket"
-                              ? found.parallelMarket
-                              : found.blackMarket;
-                        return val ? val.toLocaleString() : "0";
-                      })()}
-                    </span>{" "}
-                    per {selectedCurrency}
-                  </p>
-                  <p className="text-xs text-white/60 mt-1">
-                    Using{" "}
-                    {selectedRate === "blackMarket"
-                      ? "🏴 Black Market"
-                      : selectedRate === "cbn"
-                        ? "🏦 CBN Official"
-                        : "💱 Parallel Market"}{" "}
-                    rate
-                  </p>
+
+                {/* Rate Information */}
+                <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-white/70">Exchange Rate: </span>
+                      <span className="font-bold text-white">
+                        {(() => {
+                          const foreignCurrency = fromCurrency === "NGN" ? toCurrency : fromCurrency;
+                          const found = rates.find((r) => r.currency === foreignCurrency);
+                          if (!found) return "N/A";
+                          const val = selectedRate === "cbn" ? found.cbn : selectedRate === "parallelMarket" ? found.parallelMarket : found.blackMarket;
+                          return val ? `₦${val.toLocaleString()} per ${foreignCurrency}` : "N/A";
+                        })()}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-white/70">Rate Source: </span>
+                      <span className="font-bold text-white">
+                        {selectedRate === "blackMarket" ? "🏴 Black Market" : selectedRate === "cbn" ? "🏦 CBN Official" : "💱 Parallel Market"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Quick Amount Buttons */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <p className="w-full text-center text-sm text-white/70 mb-2">Quick amounts:</p>
+              {["1000", "5000", "10000", "50000", "100000", "500000"].map((amount) => (
+                <Button
+                  key={amount}
+                  onClick={() => setConvertAmount(amount)}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 hover:bg-white/20 border-white/30 hover:border-white/50 text-white hover:text-white transition-all duration-200"
+                >
+                  {Number(amount).toLocaleString()}
+                </Button>
+              ))}
             </div>
           </CardContent>
         </Card>

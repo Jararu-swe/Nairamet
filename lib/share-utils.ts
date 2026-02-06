@@ -80,7 +80,7 @@ export function generateShareContent(
       break;
     
     case 'converter':
-      text = `Convert NGN to ${validCurrency} at ${formattedRate} via NairaMet`;
+      text = `Convert between NGN and ${validCurrency} at ${formattedRate} via NairaMet`;
       title = `Currency Converter - ${validCurrency}/NGN`;
       break;
     
