@@ -257,6 +257,80 @@
     }
   }
 
+  /* Mobile-specific optimizations for currency converter */
+  @media (max-width: 640px) {
+    /* Improve touch targets on mobile */
+    .touch-manipulation {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Optimize select dropdowns for mobile */
+    select, .select-trigger {
+      min-height: 48px;
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    /* Better spacing for mobile converter */
+    .converter-mobile-spacing {
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    /* Optimize button sizes for mobile */
+    .mobile-button {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.75rem;
+    }
+
+    /* Better text wrapping for mobile */
+    .mobile-text-wrap {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* Optimize flag images for mobile */
+    .mobile-flag {
+      width: 20px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+  }
+
+  /* Very small screens optimization */
+  @media (max-width: 375px) {
+    /* Reduce padding on very small screens */
+    .converter-xs-padding {
+      padding: 0.75rem;
+    }
+
+    /* Smaller text on very small screens */
+    .converter-xs-text {
+      font-size: 0.875rem;
+    }
+
+    /* Compact button layout */
+    .converter-xs-buttons {
+      gap: 0.5rem;
+    }
+  }
+
+  /* Landscape mobile optimization */
+  @media (max-width: 896px) and (orientation: landscape) {
+    /* Reduce vertical spacing in landscape */
+    .converter-landscape {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Optimize converter layout for landscape */
+    .converter-landscape-layout {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
   /* Ensure chart tooltips appear above everything */
   .recharts-tooltip-wrapper {
     z-index: 9999 !important;

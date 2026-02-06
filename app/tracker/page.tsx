@@ -302,14 +302,6 @@ function FXTrackerContent() {
               Real-time Naira exchange rates and currency converter
             </p>
           </div>
-          <Button
-            onClick={() => fetchRates(false)}
-            disabled={loading}
-            variant="outline"
-            className="w-fit"
-          >
-            {loading ? "Updating..." : "Refresh Rates"}
-          </Button>
         </div>
 
         {/* Currency Converter */}
@@ -320,36 +312,38 @@ function FXTrackerContent() {
             <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12 animate-pulse delay-1000"></div>
           </div>
           
-          <CardHeader className="pb-6 relative z-10">
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-lg">
-                <ArrowUpDown className="w-6 h-6" />
+          <CardHeader className="pb-4 sm:pb-6 relative z-10 px-4 sm:px-6">
+            <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-3 text-xl sm:text-2xl">
+              <div className="p-2 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-lg">
+                <ArrowUpDown className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
                 <span className="block">Currency Converter</span>
-                <span className="text-sm font-normal text-white/80 block mt-1">
+                <span className="text-xs sm:text-sm font-normal text-white/80 block mt-1">
                   Real-time bidirectional conversion
                 </span>
               </div>
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="space-y-8 relative z-10">
+          <CardContent className="space-y-6 sm:space-y-8 relative z-10 px-4 sm:px-6">
             {/* Main Converter Interface */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-end">
-                {/* Amount Input */}
-                <div className="lg:col-span-2">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-white/20 shadow-xl">
+              {/* Mobile-First Layout */}
+              <div className="space-y-4 sm:space-y-6">
+                {/* Amount Input - Full Width on Mobile */}
+                <div>
                   <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
                     Amount
                   </label>
                   <div className="relative">
                     <Input
                       type="number"
+                      inputMode="decimal"
                       value={convertAmount}
                       onChange={(e) => setConvertAmount(e.target.value)}
                       placeholder="Enter amount"
-                      className="bg-white/95 backdrop-blur text-gray-900 border-0 h-14 text-xl font-bold rounded-xl shadow-lg focus:ring-2 focus:ring-white/50 transition-all duration-200"
+                      className="bg-white/95 backdrop-blur text-gray-900 border-0 h-12 sm:h-14 text-lg sm:text-xl font-bold rounded-xl shadow-lg focus:ring-2 focus:ring-white/50 transition-all duration-200 pr-16"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">
                       {fromCurrency}
@@ -357,221 +351,225 @@ function FXTrackerContent() {
                   </div>
                 </div>
 
-                {/* From Currency */}
-                <div>
-                  <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
-                    From
-                  </label>
-                  <div className="relative">
-                    <Select value={fromCurrency} onValueChange={setFromCurrency}>
-                      <SelectTrigger className="w-full bg-white/95 backdrop-blur text-transparent border-0 h-14 rounded-xl shadow-lg hover:bg-white transition-all duration-200">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur border-0 shadow-2xl rounded-xl">
-                        <SelectItem value="NGN" className="hover:bg-emerald-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Image
-                              src={getFlagUrl("NGN")}
-                              alt="NGN"
-                              className="w-6 h-4 rounded border object-cover shadow-sm"
-                              width={24}
-                              height={16}
-                              onError={(e) => { e.currentTarget.style.display = "none"; }}
-                            />
-                            <span className="font-medium">NGN</span>
-                          </div>
-                        </SelectItem>
-                        {rates.map((rate) => (
-                          <SelectItem key={rate.currency} value={rate.currency} className="hover:bg-emerald-50 rounded-lg">
+                {/* Currency Selection Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                  {/* From Currency */}
+                  <div>
+                    <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
+                      From
+                    </label>
+                    <div className="relative">
+                      <Select value={fromCurrency} onValueChange={setFromCurrency}>
+                        <SelectTrigger className="w-full bg-white/95 backdrop-blur text-transparent border-0 h-12 sm:h-14 rounded-xl shadow-lg hover:bg-white transition-all duration-200 touch-manipulation">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white/95 backdrop-blur border-0 shadow-2xl rounded-xl max-h-60 overflow-y-auto">
+                          <SelectItem value="NGN" className="hover:bg-emerald-50 rounded-lg py-3 touch-manipulation">
                             <div className="flex items-center gap-3">
                               <Image
-                                src={getFlagUrl(rate.currency)}
-                                alt={rate.currency}
+                                src={getFlagUrl("NGN")}
+                                alt="NGN"
                                 className="w-6 h-4 rounded border object-cover shadow-sm"
                                 width={24}
                                 height={16}
                                 onError={(e) => { e.currentTarget.style.display = "none"; }}
                               />
-                              <span className="font-medium">{rate.currency}</span>
+                              <span className="font-medium">NGN</span>
                             </div>
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Custom display overlay */}
-                    <div className="absolute inset-0 pointer-events-none flex items-center px-4 gap-3">
-                      <Image
-                        src={getFlagUrl(fromCurrency)}
-                        alt={fromCurrency}
-                        className="w-7 h-5 rounded border object-cover shadow-sm"
-                        width={28}
-                        height={20}
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
-                      <span className="text-xl font-bold text-gray-900">{fromCurrency}</span>
+                          {rates.map((rate) => (
+                            <SelectItem key={rate.currency} value={rate.currency} className="hover:bg-emerald-50 rounded-lg py-3 touch-manipulation">
+                              <div className="flex items-center gap-3">
+                                <Image
+                                  src={getFlagUrl(rate.currency)}
+                                  alt={rate.currency}
+                                  className="w-6 h-4 rounded border object-cover shadow-sm"
+                                  width={24}
+                                  height={16}
+                                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                />
+                                <span className="font-medium">{rate.currency}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Custom display overlay */}
+                      <div className="absolute inset-0 pointer-events-none flex items-center px-3 sm:px-4 gap-2 sm:gap-3">
+                        <Image
+                          src={getFlagUrl(fromCurrency)}
+                          alt={fromCurrency}
+                          className="w-6 h-4 sm:w-7 sm:h-5 rounded border object-cover shadow-sm"
+                          width={24}
+                          height={16}
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                        <span className="text-lg sm:text-xl font-bold text-gray-900">{fromCurrency}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Swap Button - Centered */}
+                  <div className="flex justify-center order-last sm:order-none">
+                    <Button
+                      onClick={swapCurrencies}
+                      variant="secondary"
+                      size="lg"
+                      className="h-12 w-12 sm:h-14 sm:w-14 p-0 bg-white/20 hover:bg-white/30 active:bg-white/40 border-2 border-white/30 hover:border-white/50 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 group touch-manipulation"
+                    >
+                      <ArrowUpDown className="w-5 h-5 group-hover:rotate-180 transition-transform duration-300" />
+                    </Button>
+                  </div>
+
+                  {/* To Currency */}
+                  <div>
+                    <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
+                      To
+                    </label>
+                    <div className="relative">
+                      <Select value={toCurrency} onValueChange={setToCurrency}>
+                        <SelectTrigger className="w-full bg-white/95 backdrop-blur text-transparent border-0 h-12 sm:h-14 rounded-xl shadow-lg hover:bg-white transition-all duration-200 touch-manipulation">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white/95 backdrop-blur border-0 shadow-2xl rounded-xl max-h-60 overflow-y-auto">
+                          <SelectItem value="NGN" className="hover:bg-emerald-50 rounded-lg py-3 touch-manipulation">
+                            <div className="flex items-center gap-3">
+                              <Image
+                                src={getFlagUrl("NGN")}
+                                alt="NGN"
+                                className="w-6 h-4 rounded border object-cover shadow-sm"
+                                width={24}
+                                height={16}
+                                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                              />
+                              <span className="font-medium">NGN</span>
+                            </div>
+                          </SelectItem>
+                          {rates.map((rate) => (
+                            <SelectItem key={rate.currency} value={rate.currency} className="hover:bg-emerald-50 rounded-lg py-3 touch-manipulation">
+                              <div className="flex items-center gap-3">
+                                <Image
+                                  src={getFlagUrl(rate.currency)}
+                                  alt={rate.currency}
+                                  className="w-6 h-4 rounded border object-cover shadow-sm"
+                                  width={24}
+                                  height={16}
+                                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                />
+                                <span className="font-medium">{rate.currency}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Custom display overlay */}
+                      <div className="absolute inset-0 pointer-events-none flex items-center px-3 sm:px-4 gap-2 sm:gap-3">
+                        <Image
+                          src={getFlagUrl(toCurrency)}
+                          alt={toCurrency}
+                          className="w-6 h-4 sm:w-7 sm:h-5 rounded border object-cover shadow-sm"
+                          width={24}
+                          height={16}
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                        <span className="text-lg sm:text-xl font-bold text-gray-900">{toCurrency}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Swap Button */}
+                {/* Rate Type Selector - Mobile Optimized */}
                 <div className="flex justify-center">
-                  <Button
-                    onClick={swapCurrencies}
-                    variant="secondary"
-                    size="lg"
-                    className="h-14 w-14 p-0 bg-white/20 hover:bg-white/30 border-2 border-white/30 hover:border-white/50 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
-                  >
-                    <ArrowUpDown className="w-5 h-5 group-hover:rotate-180 transition-transform duration-300" />
-                  </Button>
-                </div>
-
-                {/* To Currency */}
-                <div>
-                  <label className="text-sm font-semibold mb-3 block text-white/90 uppercase tracking-wide">
-                    To
-                  </label>
-                  <div className="relative">
-                    <Select value={toCurrency} onValueChange={setToCurrency}>
-                      <SelectTrigger className="w-full bg-white/95 backdrop-blur text-transparent border-0 h-14 rounded-xl shadow-lg hover:bg-white transition-all duration-200">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur border-0 shadow-2xl rounded-xl">
-                        <SelectItem value="NGN" className="hover:bg-emerald-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Image
-                              src={getFlagUrl("NGN")}
-                              alt="NGN"
-                              className="w-6 h-4 rounded border object-cover shadow-sm"
-                              width={24}
-                              height={16}
-                              onError={(e) => { e.currentTarget.style.display = "none"; }}
-                            />
-                            <span className="font-medium">NGN</span>
+                  <div className="bg-white/10 backdrop-blur rounded-xl p-1 border border-white/20 w-full sm:w-auto">
+                    <div className="grid grid-cols-3 sm:flex gap-1">
+                      {[
+                        { value: "blackMarket", label: "🏴 Black Market", shortLabel: "🏴 Black", desc: "Street rate" },
+                        { value: "cbn", label: "🏦 CBN Official", shortLabel: "🏦 CBN", desc: "Central bank" },
+                        { value: "parallelMarket", label: "💱 Parallel Market", shortLabel: "💱 Parallel", desc: "Bureau de change" }
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setSelectedRate(option.value as any)}
+                          className={`px-2 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 touch-manipulation ${
+                            selectedRate === option.value
+                              ? "bg-white text-emerald-700 shadow-lg"
+                              : "text-white/80 hover:text-white hover:bg-white/10 active:bg-white/20"
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="block sm:hidden">{option.shortLabel}</div>
+                            <div className="hidden sm:block">{option.label}</div>
+                            <div className="text-xs opacity-75 hidden sm:block">{option.desc}</div>
                           </div>
-                        </SelectItem>
-                        {rates.map((rate) => (
-                          <SelectItem key={rate.currency} value={rate.currency} className="hover:bg-emerald-50 rounded-lg">
-                            <div className="flex items-center gap-3">
-                              <Image
-                                src={getFlagUrl(rate.currency)}
-                                alt={rate.currency}
-                                className="w-6 h-4 rounded border object-cover shadow-sm"
-                                width={24}
-                                height={16}
-                                onError={(e) => { e.currentTarget.style.display = "none"; }}
-                              />
-                              <span className="font-medium">{rate.currency}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Custom display overlay */}
-                    <div className="absolute inset-0 pointer-events-none flex items-center px-4 gap-3">
-                      <Image
-                        src={getFlagUrl(toCurrency)}
-                        alt={toCurrency}
-                        className="w-7 h-5 rounded border object-cover shadow-sm"
-                        width={28}
-                        height={20}
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
-                      <span className="text-xl font-bold text-gray-900">{toCurrency}</span>
+                        </button>
+                      ))}
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rate Type Selector */}
-              <div className="mt-6 flex justify-center">
-                <div className="bg-white/10 backdrop-blur rounded-xl p-1 border border-white/20">
-                  <div className="flex gap-1">
-                    {[
-                      { value: "blackMarket", label: "🏴 Black Market", desc: "Street rate" },
-                      { value: "cbn", label: "🏦 CBN Official", desc: "Central bank" },
-                      { value: "parallelMarket", label: "💱 Parallel Market", desc: "Bureau de change" }
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setSelectedRate(option.value as any)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          selectedRate === option.value
-                            ? "bg-white text-emerald-700 shadow-lg"
-                            : "text-white/80 hover:text-white hover:bg-white/10"
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div>{option.label}</div>
-                          <div className="text-xs opacity-75">{option.desc}</div>
-                        </div>
-                      </button>
-                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Result Display */}
-            <div className="bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-2xl">
-              <div className="text-center space-y-6">
-                <div className="flex items-center justify-center gap-2 mb-4">
+            {/* Result Display - Mobile Optimized */}
+            <div className="bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-8 border border-white/30 shadow-2xl">
+              <div className="text-center space-y-4 sm:space-y-6">
+                <div className="flex items-center justify-center gap-2 mb-2 sm:mb-4">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <p className="text-sm text-white/80 font-semibold uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm text-white/80 font-semibold uppercase tracking-wider">
                     Live Conversion Result
                   </p>
                 </div>
                 
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
+                <div className="space-y-4 sm:space-y-0 sm:flex sm:flex-row items-center justify-center sm:gap-6">
                   {/* From Amount */}
-                  <div className="flex items-center gap-4 bg-white/10 backdrop-blur rounded-xl p-4 border border-white/20">
+                  <div className="flex items-center justify-center gap-3 sm:gap-4 bg-white/10 backdrop-blur rounded-xl p-3 sm:p-4 border border-white/20">
                     <Image
                       src={getFlagUrl(fromCurrency)}
                       alt={fromCurrency}
-                      className="w-8 h-6 rounded border-2 border-white/30 object-cover shadow-lg"
-                      width={32}
-                      height={24}
+                      className="w-6 h-4 sm:w-8 sm:h-6 rounded border-2 border-white/30 object-cover shadow-lg flex-shrink-0"
+                      width={24}
+                      height={16}
                       onError={(e) => { e.currentTarget.style.display = "none"; }}
                     />
-                    <div className="text-left">
-                      <div className="text-2xl lg:text-3xl font-bold text-white">
+                    <div className="text-center sm:text-left">
+                      <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-white break-all">
                         {formatAmount(convertAmount, fromCurrency)}
                       </div>
-                      <div className="text-sm text-white/70">{fromCurrency}</div>
+                      <div className="text-xs sm:text-sm text-white/70">{fromCurrency}</div>
                     </div>
                   </div>
 
                   {/* Arrow */}
                   <div className="flex items-center justify-center">
-                    <div className="bg-white/20 backdrop-blur rounded-full p-3 border border-white/30">
-                      <ArrowUpDown className="w-6 h-6 text-white rotate-90 lg:rotate-0" />
+                    <div className="bg-white/20 backdrop-blur rounded-full p-2 sm:p-3 border border-white/30">
+                      <ArrowUpDown className="w-4 h-4 sm:w-6 sm:h-6 text-white rotate-90 sm:rotate-0" />
                     </div>
                   </div>
 
                   {/* To Amount */}
-                  <div className="flex items-center gap-4 bg-white/10 backdrop-blur rounded-xl p-4 border border-white/20">
+                  <div className="flex items-center justify-center gap-3 sm:gap-4 bg-white/10 backdrop-blur rounded-xl p-3 sm:p-4 border border-white/20">
                     <Image
                       src={getFlagUrl(toCurrency)}
                       alt={toCurrency}
-                      className="w-8 h-6 rounded border-2 border-white/30 object-cover shadow-lg"
-                      width={32}
-                      height={24}
+                      className="w-6 h-4 sm:w-8 sm:h-6 rounded border-2 border-white/30 object-cover shadow-lg flex-shrink-0"
+                      width={24}
+                      height={16}
                       onError={(e) => { e.currentTarget.style.display = "none"; }}
                     />
-                    <div className="text-left">
-                      <div className="text-2xl lg:text-4xl font-bold text-white">
+                    <div className="text-center sm:text-left">
+                      <div className="text-xl sm:text-2xl lg:text-4xl font-bold text-white break-all">
                         {formatAmount(getConvertedAmount(), toCurrency)}
                       </div>
-                      <div className="text-sm text-white/70">{toCurrency}</div>
+                      <div className="text-xs sm:text-sm text-white/70">{toCurrency}</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Rate Information */}
-                <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/20">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
+                {/* Rate Information - Mobile Stacked */}
+                <div className="bg-white/5 backdrop-blur rounded-xl p-3 sm:p-4 border border-white/20">
+                  <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 text-xs sm:text-sm">
+                    <div className="text-center sm:text-left">
                       <span className="text-white/70">Exchange Rate: </span>
-                      <span className="font-bold text-white">
+                      <span className="font-bold text-white block sm:inline">
                         {(() => {
                           const foreignCurrency = fromCurrency === "NGN" ? toCurrency : fromCurrency;
                           const found = rates.find((r) => r.currency === foreignCurrency);
@@ -581,9 +579,9 @@ function FXTrackerContent() {
                         })()}
                       </span>
                     </div>
-                    <div>
+                    <div className="text-center sm:text-left">
                       <span className="text-white/70">Rate Source: </span>
-                      <span className="font-bold text-white">
+                      <span className="font-bold text-white block sm:inline">
                         {selectedRate === "blackMarket" ? "🏴 Black Market" : selectedRate === "cbn" ? "🏦 CBN Official" : "💱 Parallel Market"}
                       </span>
                     </div>
@@ -592,20 +590,22 @@ function FXTrackerContent() {
               </div>
             </div>
 
-            {/* Quick Amount Buttons */}
-            <div className="flex flex-wrap justify-center gap-3">
-              <p className="w-full text-center text-sm text-white/70 mb-2">Quick amounts:</p>
-              {["1000", "5000", "10000", "50000", "100000", "500000"].map((amount) => (
-                <Button
-                  key={amount}
-                  onClick={() => setConvertAmount(amount)}
-                  variant="outline"
-                  size="sm"
-                  className="bg-white/10 hover:bg-white/20 border-white/30 hover:border-white/50 text-white hover:text-white transition-all duration-200"
-                >
-                  {Number(amount).toLocaleString()}
-                </Button>
-              ))}
+            {/* Quick Amount Buttons - Mobile Optimized */}
+            <div className="space-y-3">
+              <p className="text-center text-xs sm:text-sm text-white/70">Quick amounts:</p>
+              <div className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-3">
+                {["1000", "5000", "10000", "50000", "100000", "500000"].map((amount) => (
+                  <Button
+                    key={amount}
+                    onClick={() => setConvertAmount(amount)}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 hover:bg-white/20 active:bg-white/30 border-white/30 hover:border-white/50 text-white hover:text-white transition-all duration-200 text-xs sm:text-sm py-2 px-2 sm:px-3 touch-manipulation"
+                  >
+                    {Number(amount).toLocaleString()}
+                  </Button>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>

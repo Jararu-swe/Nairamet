@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, User, ArrowRight, Heart } from "lucide-react";
+import { Calendar, Clock, User, ArrowRight, Heart, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { getArticles } from "@/lib/blog";
+import { getArticles, Article } from "@/lib/blog";
 // import NewsletterForm from "@/components/newsletter-form";
 // removed Wire/scraper integration per policy: wire component removed
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
@@ -85,7 +85,30 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlogPage() {
-  const featuredArticles = await getArticles();
+  let featuredArticles: Article[] = [];
+  let error: string | null = null;
+
+  try {
+    featuredArticles = await getArticles();
+  } catch (e) {
+    console.error("Failed to load articles:", e);
+    error = "Failed to load articles. Please try again later.";
+    // Provide fallback content
+    featuredArticles = [
+      {
+        id: "fallback-1",
+        title: "Welcome to NairaMet - Naira Watch",
+        excerpt: "Weekly summaries, policy analysis and market insights on the naira.",
+        content: "Stay tuned for the latest updates on Nigerian foreign exchange markets.",
+        author: "NairaMet Editorial Team",
+        date: new Date().toISOString(),
+        readTime: "2",
+        category: "Weekly Summary",
+        trend: null,
+        featured: true,
+      }
+    ];
+  }
   // Strict FX-related keywords for better filtering
   const nairaKeywords = [
     // Currency codes
@@ -144,12 +167,24 @@ export default async function BlogPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-emerald-900">Naira Watch</h1>
-          <p className="text-lg text-emerald-700 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-emerald-900 dark:text-emerald-100">Naira Watch</h1>
+          <p className="text-lg text-emerald-700 dark:text-emerald-300 max-w-2xl mx-auto">
             Stay informed with weekly summaries, policy analysis, and
             educational insights about Nigerian foreign exchange markets.
           </p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                <span className="text-lg">⚠️</span>
+                <p>{error}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Live Currency Rates */}
         <LiveCurrencyRates />
@@ -184,16 +219,16 @@ export default async function BlogPage() {
                         {article.category}
                       </Badge>
                     </div>
-                    <CardTitle className="text-2xl text-emerald-900">
+                    <CardTitle className="text-2xl text-emerald-900 dark:text-emerald-100">
                       {article.title}
                     </CardTitle>
-                    <CardDescription className="text-emerald-700 text-base">
+                    <CardDescription className="text-emerald-700 dark:text-emerald-300 text-base">
                       {article.excerpt}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-emerald-600">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-emerald-600 dark:text-emerald-400">
                         <div className="flex items-center gap-1">
                           <User className="w-4 h-4" />
                           <span className="text-xs sm:text-sm">
@@ -235,68 +270,87 @@ export default async function BlogPage() {
             >
               <CardHeader>
                 <CardTitle>Recent Articles</CardTitle>
-                <CardDescription>Latest insights and analysis</CardDescription>
+                <CardDescription>Latest FX insights and analysis</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
-                {featuredArticles
-                  .filter((article) => !article.featured)
-                  .map((article) => (
-                    <div
-                      key={article.id}
-                      className="group border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-4 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all hover:scale-[1.02] bg-white dark:bg-gray-800/50"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge
-                              variant="outline"
-                              className="text-xs border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300"
+                {featuredArticles.filter((article) => !article.featured).length > 0 ? (
+                  featuredArticles
+                    .filter((article) => !article.featured)
+                    .map((article) => (
+                      <div
+                        key={article.id}
+                        className="group border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-4 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all hover:scale-[1.02] bg-white dark:bg-gray-800/50"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge
+                                variant="outline"
+                                className="text-xs border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300"
+                              >
+                                {article.category}
+                              </Badge>
+                            </div>
+                            <Link
+                              href={`/blog/${encodeURIComponent(article.id)}`}
                             >
-                              {article.category}
-                            </Badge>
+                              <h3 className="font-bold text-base sm:text-lg text-emerald-900 dark:text-emerald-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                {article.title}
+                              </h3>
+                            </Link>
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                              {article.excerpt}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <User className="w-3 h-3" />
+                                <span>{article.author}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  {new Date(article.date).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{article.readTime} min</span>
+                              </div>
+                            </div>
                           </div>
                           <Link
                             href={`/blog/${encodeURIComponent(article.id)}`}
+                            className="w-full sm:w-auto sm:shrink-0"
                           >
-                            <h3 className="font-bold text-base sm:text-lg text-emerald-900 dark:text-emerald-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                              {article.title}
-                            </h3>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full sm:w-auto bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 group-hover:shadow-sm transition-all"
+                            >
+                              Read <ArrowRight className="w-3 h-3 ml-1" />
+                            </Button>
                           </Link>
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                            {article.excerpt}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              <span>{article.author}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>
-                                {new Date(article.date).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              <span>{article.readTime} min</span>
-                            </div>
-                          </div>
                         </div>
-                        <Link
-                          href={`/blog/${encodeURIComponent(article.id)}`}
-                          className="w-full sm:w-auto sm:shrink-0"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full sm:w-auto bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 group-hover:shadow-sm transition-all"
-                          >
-                            Read <ArrowRight className="w-3 h-3 ml-1" />
-                          </Button>
-                        </Link>
                       </div>
+                    ))
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-emerald-600 dark:text-emerald-400 mb-2">
+                      <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     </div>
-                  ))}
+                    <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-100 mb-2">
+                      More Articles Coming Soon
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      We're working on bringing you the latest FX market insights and analysis.
+                    </p>
+                    <Link href="/tracker">
+                      <Button variant="outline" className="bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300">
+                        View Live Rates <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

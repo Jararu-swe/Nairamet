@@ -8,9 +8,10 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import Link from "next/link";
-import { getArticleById } from "@/lib/blog";
+import { getArticleById, Article } from "@/lib/blog";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 import { LazyLeaderboardAdWrapper } from "@/components/lazy-ad-wrappers";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -106,9 +107,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { id } = await params;
-  const article = await getArticleById(id);
+  let article: Article | null = null;
+  let error: string | null = null;
 
-  if (!article) {
+  try {
+    article = await getArticleById(id);
+  } catch (e) {
+    console.error("Failed to load article:", e);
+    error = "Failed to load article. Please try again later.";
+  }
+
+  if (!article && !error) {
+    error = "Article not found";
+  }
+
+  if (!article || error) {
     return (
       <div className="container py-8">
         <div className="mb-6">
@@ -120,9 +133,24 @@ export default async function ArticlePage({ params }: Props) {
             Back to all articles
           </Link>
         </div>
-        <Card>
+        <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
           <CardContent className="pt-6">
-            <p>Article not found</p>
+            <div className="text-center">
+              <div className="text-red-600 dark:text-red-400 mb-4">
+                <span className="text-4xl">📄</span>
+              </div>
+              <h2 className="text-xl font-semibold text-red-800 dark:text-red-200 mb-2">
+                {error || "Article not found"}
+              </h2>
+              <p className="text-red-600 dark:text-red-400 mb-4">
+                The article you're looking for might have been moved or doesn't exist.
+              </p>
+              <Link href="/blog">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                  Browse All Articles
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

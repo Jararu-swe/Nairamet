@@ -29,19 +29,25 @@ export async function saveArticlesToKV(articles: ScrapedArticle[]) {
 export async function getArticlesFromKV(): Promise<ScrapedArticle[]> {
   try {
     if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-      // console.warn("Vercel KV env vars not set");
+      console.log("Vercel KV env vars not set, skipping KV fetch");
       return [];
     }
 
     const cached = await kv.get<string | ScrapedArticle[]>(ARTICLES_KEY);
     if (cached) {
       // If it's already an object (Redis JSON or auto-parsed), return it
-      if (typeof cached === 'object') {
+      if (typeof cached === 'object' && Array.isArray(cached)) {
+        console.log(`✅ Retrieved ${cached.length} articles from KV (object format)`);
         return cached as ScrapedArticle[];
       }
       // If it's a string, parse it
-      return JSON.parse(cached);
+      if (typeof cached === 'string') {
+        const parsed = JSON.parse(cached);
+        console.log(`✅ Retrieved ${parsed.length} articles from KV (string format)`);
+        return parsed;
+      }
     }
+    console.log("No cached articles found in KV");
     return [];
   } catch (error) {
     console.error("Failed to get articles from KV:", error);

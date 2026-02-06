@@ -248,52 +248,54 @@ export default function WidgetPage() {
 
       case "converter":
         return (
-          <div className="w-full h-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 shadow-lg">
+          <div className="w-full h-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-3 sm:p-4 shadow-lg">
             {loading ? (
               <div className="animate-pulse space-y-4">
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-10 sm:h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-10 sm:h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
             ) : (
-              <div className="space-y-4 h-full flex flex-col">
+              <div className="space-y-3 sm:space-y-4 h-full flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
-                      <span className="text-white text-lg font-bold">⇅</span>
+                <div className="flex items-center justify-between pb-2 sm:pb-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                      <span className="text-white text-sm sm:text-lg font-bold">⇅</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100">
+                      <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                         Currency Converter
                       </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
                         Bidirectional conversion
                       </p>
                     </div>
                   </div>
                   <Badge
                     variant="secondary"
-                    className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
+                    className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 text-xs"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                     Live
                   </Badge>
                 </div>
 
                 {/* Converter Form */}
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 space-y-3 sm:space-y-4">
                   {/* From Currency */}
-                  <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2 block">
+                  <div className="bg-white dark:bg-gray-800 rounded-xl p-2 sm:p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1 sm:mb-2 block">
                       From ({fromCurrency})
                     </label>
                     <Input
                       type="number"
+                      inputMode="decimal"
                       value={convertAmount}
                       onChange={(e) => setConvertAmount(e.target.value)}
-                      className="w-full text-lg font-bold border-0 bg-transparent focus:ring-2 focus:ring-emerald-500/20 p-0"
+                      className="w-full text-sm sm:text-lg font-bold border-0 bg-transparent focus:ring-2 focus:ring-emerald-500/20 p-0 h-auto touch-manipulation"
                       placeholder="Enter amount"
+                      style={{ fontSize: '16px' }} // Prevents zoom on iOS
                     />
                   </div>
 
@@ -303,18 +305,18 @@ export default function WidgetPage() {
                       onClick={swapCurrencies}
                       variant="ghost"
                       size="sm"
-                      className="w-10 h-10 p-0 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                      className="w-8 h-8 sm:w-10 sm:h-10 p-0 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation"
                     >
-                      <span className="text-lg font-bold">⇅</span>
+                      <span className="text-sm sm:text-lg font-bold">⇅</span>
                     </Button>
                   </div>
 
                   {/* To Currency */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 shadow-sm">
-                    <label className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-2 block">
+                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-2 sm:p-3 border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                    <label className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-1 sm:mb-2 block">
                       To ({toCurrency})
                     </label>
-                    <div className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
+                    <div className="text-sm sm:text-xl font-bold text-emerald-900 dark:text-emerald-100 mobile-text-wrap">
                       {getCurrencySymbol(toCurrency)}{getConvertedAmount()}
                     </div>
                   </div>
@@ -328,13 +330,13 @@ export default function WidgetPage() {
                 </div>
 
                 {/* Footer with Share Button */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
                       <img
                         src="/Nairamet.svg"
                         alt="NairaMet"
-                        className="w-3 h-3"
+                        className="w-2 h-2 sm:w-3 sm:h-3"
                       />
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
