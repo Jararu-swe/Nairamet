@@ -68,7 +68,7 @@ export async function GET(request: Request) {
 
     // Task 2: Scrape articles (trigger cache refresh)
     try {
-      // Import and run the scraper
+      // Import and run the enhanced scraper
       const { fetchFeeds } = await import("@/lib/scraper");
       
       const feedUrls = [
@@ -81,10 +81,13 @@ export async function GET(request: Request) {
 
       const articles = await fetchFeeds(feedUrls, true); // force refresh
       
+      // Log scraping statistics
+      const relevantCount = articles.filter(a => a.relevanceScore && a.relevanceScore > 2).length;
+      
       results.tasks.push({
         name: "Scrape Articles",
         success: true,
-        message: `Scraped ${articles.length} articles`,
+        message: `Scraped ${articles.length} articles (${relevantCount} highly relevant)`,
       });
     } catch (error: any) {
       results.tasks.push({
