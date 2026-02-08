@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, User, ArrowRight, Heart, BookOpen } from "lucide-react";
+import { Calendar, Clock, User, ArrowRight, Heart, BookOpen, Bell } from "lucide-react";
 import Link from "next/link";
 import { getArticles, Article } from "@/lib/blog";
 // import NewsletterForm from "@/components/newsletter-form";
@@ -172,6 +172,20 @@ export default async function BlogPage() {
             Stay informed with weekly summaries, policy analysis, and
             educational insights about Nigerian foreign exchange markets.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/guides">
+              <Button className="bg-emerald-600 hover:bg-emerald-700">
+                <BookOpen className="w-4 h-4 mr-2" />
+                View Trading Guides
+              </Button>
+            </Link>
+            <Link href="/alerts">
+              <Button variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                <Bell className="w-4 h-4 mr-2" />
+                Set Rate Alerts
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Error Display */}

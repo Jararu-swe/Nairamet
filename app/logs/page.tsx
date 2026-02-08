@@ -685,21 +685,21 @@ function LogsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4 md:p-6">
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex gap-6">
+        <div className="flex gap-4 lg:gap-6">
           {/* Left Sidebar - Skyscraper Ad (160x600) */}
           <aside className="hidden xl:block w-[160px] flex-shrink-0">
             <LazyStickySkyscraperAdWrapper zoneId="10841738" network="adcash" />
           </aside>
 
           {/* Main Content */}
-          <div className="flex-1 space-y-6">
+          <div className="flex-1 space-y-4 sm:space-y-6 min-w-0">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-emerald-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-emerald-900">
                 Rate Logs & Archive
               </h1>
-              <p className="text-emerald-700">
+              <p className="text-sm sm:text-base text-emerald-700">
                 Search historical rates and export data
               </p>
             </div>
@@ -716,7 +716,8 @@ function LogsPageContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Mobile-first responsive grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="search-date">Search Date</Label>
                     <Input
@@ -725,6 +726,7 @@ function LogsPageContent() {
                       value={searchDate}
                       onChange={(e) => setSearchDate(e.target.value)}
                       placeholder="YYYY-MM-DD"
+                      className="w-full"
                     />
                   </div>
 
@@ -734,7 +736,7 @@ function LogsPageContent() {
                       value={selectedCurrency}
                       onValueChange={setSelectedCurrency}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
@@ -768,7 +770,7 @@ function LogsPageContent() {
                   <div className="space-y-2">
                     <Label htmlFor="date-range">Date Range</Label>
                     <Select value={dateRange} onValueChange={setDateRange}>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select range" />
                       </SelectTrigger>
                       <SelectContent>
@@ -780,16 +782,18 @@ function LogsPageContent() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                     <Label>Export Data</Label>
-                    <div className="flex gap-2">
-                      <Button onClick={exportToCSV} variant="outline" size="sm">
+                    <div className="flex gap-2 w-full">
+                      <Button onClick={exportToCSV} variant="outline" size="sm" className="flex-1">
                         <Download className="w-4 h-4 mr-1" />
-                        CSV
+                        <span className="hidden sm:inline">CSV</span>
+                        <span className="sm:hidden">CSV</span>
                       </Button>
-                      <Button onClick={exportToPDF} variant="outline" size="sm">
+                      <Button onClick={exportToPDF} variant="outline" size="sm" className="flex-1">
                         <Download className="w-4 h-4 mr-1" />
-                        PDF
+                        <span className="hidden sm:inline">PDF</span>
+                        <span className="sm:hidden">PDF</span>
                       </Button>
                     </div>
                   </div>
@@ -799,7 +803,7 @@ function LogsPageContent() {
 
             {/* Statistics Summary */}
             {statistics && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {statistics.map((stat) => (
                   <Card
                     key={stat.currency}
@@ -811,25 +815,25 @@ function LogsPageContent() {
                           <img
                             src={getFlagUrl(stat.currency)}
                             alt={stat.currency}
-                            className="w-10 h-8 object-cover rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm"
+                            className="w-8 h-6 sm:w-10 sm:h-8 object-cover rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm flex-shrink-0"
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
                             }}
                           />
                         )}
-                        <div>
-                          <CardTitle className="text-lg flex items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-wrap">
                             <Badge
                               variant="secondary"
-                              className="text-base font-bold"
+                              className="text-sm sm:text-base font-bold"
                             >
                               {stat.currency}
                             </Badge>
-                            <span className="text-muted-foreground text-sm">
+                            <span className="text-muted-foreground text-xs sm:text-sm">
                               /NGN
                             </span>
                           </CardTitle>
-                          <CardDescription className="flex items-center gap-1">
+                          <CardDescription className="flex items-center gap-1 text-xs sm:text-sm">
                             <span className="font-semibold text-blue-600 dark:text-blue-400">
                               {stat.count}
                             </span>{" "}
@@ -838,8 +842,8 @@ function LogsPageContent() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-2.5">
-                      <div className="flex justify-between text-sm">
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-muted-foreground">
                           Avg Official:
                         </span>
@@ -847,7 +851,7 @@ function LogsPageContent() {
                           ₦{stat.avgOfficial.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-muted-foreground">
                           Avg Black Market:
                         </span>
@@ -855,7 +859,7 @@ function LogsPageContent() {
                           ₦{stat.avgBlackMarket.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-muted-foreground">
                           Avg Parallel:
                         </span>
@@ -863,7 +867,7 @@ function LogsPageContent() {
                           ₦{stat.avgParallel.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm pt-2 border-t">
+                      <div className="flex justify-between text-xs sm:text-sm pt-2 border-t">
                         <span className="text-muted-foreground">Range:</span>
                         <span className="font-medium text-xs">
                           ₦{stat.minOfficial.toLocaleString()} - ₦
@@ -880,34 +884,35 @@ function LogsPageContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Historical Rate Data</span>
-                  <Badge variant="secondary">
+                  <span className="text-lg sm:text-xl">Historical Rate Data</span>
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
                     {filteredData.length} records
                   </Badge>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   Complete archive of exchange rates with official and black
                   market data
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left p-2 font-medium">Date</th>
-                        <th className="text-left p-2 font-medium">Currency</th>
-                        <th className="text-right p-2 font-medium">
+                        <th className="text-left p-3 font-medium">Date</th>
+                        <th className="text-left p-3 font-medium">Currency</th>
+                        <th className="text-right p-3 font-medium">
                           Official Rate
                         </th>
-                        <th className="text-right p-2 font-medium">
+                        <th className="text-right p-3 font-medium">
                           Black Market
                         </th>
-                        <th className="text-right p-2 font-medium">
+                        <th className="text-right p-3 font-medium">
                           Parallel Market
                         </th>
-                        <th className="text-right p-2 font-medium">Spread</th>
-                        <th className="text-center p-2 font-medium">Trend</th>
+                        <th className="text-right p-3 font-medium">Spread</th>
+                        <th className="text-center p-3 font-medium">Trend</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -939,32 +944,32 @@ function LogsPageContent() {
                               key={item.id}
                               className="border-b hover:bg-muted/50"
                             >
-                              <td className="p-2 text-sm">
+                              <td className="p-3 text-sm">
                                 {format(
                                   parseISO(item.timestamp),
                                   "MMM dd, yyyy",
                                 )}
                               </td>
-                              <td className="p-2">
+                              <td className="p-3">
                                 <Badge variant="outline">
                                   {item.currency}/NGN
                                 </Badge>
                               </td>
-                              <td className="p-2 text-right font-mono">
-                                ₦{item.officialRate}
+                              <td className="p-3 text-right font-mono">
+                                ₦{item.officialRate.toLocaleString()}
                               </td>
-                              <td className="p-2 text-right font-mono">
-                                ₦{item.blackMarketRate}
+                              <td className="p-3 text-right font-mono">
+                                ₦{item.blackMarketRate.toLocaleString()}
                               </td>
-                              <td className="p-2 text-right font-mono">
+                              <td className="p-3 text-right font-mono">
                                 ₦
-                                {item.parallelMarketRate ??
-                                  item.blackMarketRate}
+                                {(item.parallelMarketRate ??
+                                  item.blackMarketRate).toLocaleString()}
                               </td>
-                              <td className="p-2 text-right font-mono text-orange-600">
-                                ₦{item.spread}
+                              <td className="p-3 text-right font-mono text-orange-600">
+                                ₦{item.spread.toLocaleString()}
                               </td>
-                              <td className="p-2 text-center">
+                              <td className="p-3 text-center">
                                 {trend === "up" && (
                                   <TrendingUp className="w-4 h-4 text-red-500 mx-auto" />
                                 )}
@@ -981,8 +986,86 @@ function LogsPageContent() {
                       })()}
                     </tbody>
                   </table>
+                </div>
 
-                  {filteredData.length > 0 && (
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {(() => {
+                    const totalPages = Math.ceil(
+                      filteredData.length / itemsPerPage,
+                    );
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    const pageData = filteredData.slice(
+                      startIndex,
+                      endIndex,
+                    );
+
+                    return pageData.map((item, index) => {
+                      // Get actual index in full filtered data for comparison
+                      const actualIndex = startIndex + index;
+                      const prevItem = filteredData[actualIndex + 1];
+                      const trend = prevItem
+                        ? item.officialRate > prevItem.officialRate
+                          ? "up"
+                          : item.officialRate < prevItem.officialRate
+                            ? "down"
+                            : "same"
+                        : "same";
+
+                      return (
+                        <Card key={item.id} className="p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-sm font-bold">
+                                {item.currency}/NGN
+                              </Badge>
+                              {trend === "up" && (
+                                <TrendingUp className="w-4 h-4 text-red-500" />
+                              )}
+                              {trend === "down" && (
+                                <TrendingDown className="w-4 h-4 text-green-500" />
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {format(parseISO(item.timestamp), "MMM dd, yyyy")}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Official Rate</span>
+                              <span className="font-mono font-semibold text-emerald-600">
+                                ₦{item.officialRate.toLocaleString()}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Black Market</span>
+                              <span className="font-mono font-semibold text-red-600">
+                                ₦{item.blackMarketRate.toLocaleString()}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Parallel Market</span>
+                              <span className="font-mono font-semibold text-amber-600">
+                                ₦{(item.parallelMarketRate ?? item.blackMarketRate).toLocaleString()}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Spread</span>
+                              <span className="font-mono font-semibold text-orange-600">
+                                ₦{item.spread.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    });
+                  })()}
+                </div>
+
+                {filteredData.length > 0 && (
+                  <div className="mt-6">
                     <Pagination
                       currentPage={currentPage}
                       totalPages={Math.ceil(filteredData.length / itemsPerPage)}
@@ -994,21 +1077,16 @@ function LogsPageContent() {
                       totalItems={filteredData.length}
                       itemsPerPage={itemsPerPage}
                     />
-                  )}
+                  </div>
+                )}
 
-                  {filteredData.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No records found. Try adjusting your filters.
-                    </div>
-                  )}
-
-                  {filteredData.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No data found for the selected criteria. Try adjusting
-                      your filters.
-                    </div>
-                  )}
-                </div>
+                {filteredData.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <div className="text-4xl mb-4">📊</div>
+                    <h3 className="text-lg font-semibold mb-2">No records found</h3>
+                    <p className="text-sm">Try adjusting your filters to see more data.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

@@ -573,7 +573,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: NGN/USD Guide */}
-            <Link href="/blog">
+            <Link href="/guides">
               <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
                 <CardHeader>
                   <TrendingUp className="w-8 h-8 text-emerald-600 mb-3 group-hover:text-emerald-700" />
@@ -594,10 +594,10 @@ export default function LandingPage() {
             </Link>
 
             {/* Card 2: Black Market vs Official */}
-            <Link href="/blog">
+            <Link href="/guides">
               <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
                 <CardHeader>
-                  <BarChart3 className="w-8 h-8 text-blue-600 mb-3 group-hover:text-blue-700" />
+                  <BarChart3 className="w-8 h-8 text-emerald-600 mb-3 group-hover:text-emerald-700" />
                   <CardTitle className="text-lg">
                     Parallel vs Official Rates
                   </CardTitle>
@@ -607,7 +607,7 @@ export default function LandingPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center text-blue-600 group-hover:text-blue-700 font-semibold">
+                  <div className="flex items-center text-emerald-600 group-hover:text-emerald-700 font-semibold">
                     Explore <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 </CardContent>
@@ -615,10 +615,10 @@ export default function LandingPage() {
             </Link>
 
             {/* Card 3: Setting Alerts */}
-            <Link href="/alerts">
+            <Link href="/guides">
               <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
                 <CardHeader>
-                  <Bell className="w-8 h-8 text-amber-600 mb-3 group-hover:text-amber-700" />
+                  <Bell className="w-8 h-8 text-emerald-600 mb-3 group-hover:text-emerald-700" />
                   <CardTitle className="text-lg">Setting Rate Alerts</CardTitle>
                   <CardDescription>
                     Master alert strategies to catch favorable rates for your
@@ -626,7 +626,7 @@ export default function LandingPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center text-amber-600 group-hover:text-amber-700 font-semibold">
+                  <div className="flex items-center text-emerald-600 group-hover:text-emerald-700 font-semibold">
                     Get Started <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 </CardContent>
@@ -634,10 +634,10 @@ export default function LandingPage() {
             </Link>
 
             {/* Card 4: Remittances */}
-            <Link href="/blog">
+            <Link href="/guides">
               <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
                 <CardHeader>
-                  <Users className="w-8 h-8 text-purple-600 mb-3 group-hover:text-purple-700" />
+                  <Users className="w-8 h-8 text-emerald-600 mb-3 group-hover:text-emerald-700" />
                   <CardTitle className="text-lg">
                     Optimizing Remittances
                   </CardTitle>
@@ -647,7 +647,7 @@ export default function LandingPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center text-purple-600 group-hover:text-purple-700 font-semibold">
+                  <div className="flex items-center text-emerald-600 group-hover:text-emerald-700 font-semibold">
                     Read More <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 </CardContent>
@@ -661,9 +661,9 @@ export default function LandingPage() {
               size="lg"
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              <Link href="/blog">
+              <Link href="/guides">
                 <BookOpen className="w-4 h-4 mr-2" />
-                View All Articles
+                View All Guides
               </Link>
             </Button>
           </div>
