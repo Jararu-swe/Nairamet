@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { WidgetAdProtection } from "@/components/widget-ad-protection";
 
 export default function WidgetLayout({
   children,
@@ -55,8 +56,24 @@ export default function WidgetLayout({
                     'facebook.com/tr',
                     'connect.facebook.net',
                     'googletagmanager.com',
-                    'analytics.google.com'
+                    'analytics.google.com',
+                    'acscdn.com',
+                    'aclib.js',
+                    'cdn.onesignal.com'
                   ];
+
+                  // Block all ad-related global variables
+                  Object.defineProperty(window, 'aclib', {
+                    get: () => undefined,
+                    set: () => {},
+                    configurable: false
+                  });
+                  
+                  Object.defineProperty(window, 'OneSignal', {
+                    get: () => undefined,
+                    set: () => {},
+                    configurable: false
+                  });
 
                   // Override document.write to prevent ad injection
                   document.write = function() {};
@@ -80,6 +97,29 @@ export default function WidgetLayout({
                       };
                     }
                     return element;
+                  };
+
+                  // Block fetch requests to ad domains
+                  const originalFetch = window.fetch;
+                  window.fetch = function(input, init) {
+                    const url = typeof input === 'string' ? input : input.url;
+                    const isBlocked = blockedDomains.some(domain => url.includes(domain));
+                    if (isBlocked) {
+                      console.log('[Widget] Blocked ad fetch:', url);
+                      return Promise.reject(new Error('Blocked by widget protection'));
+                    }
+                    return originalFetch.call(window, input, init);
+                  };
+
+                  // Block XMLHttpRequest to ad domains
+                  const originalXHROpen = XMLHttpRequest.prototype.open;
+                  XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                    const isBlocked = blockedDomains.some(domain => url.includes(domain));
+                    if (isBlocked) {
+                      console.log('[Widget] Blocked ad XHR:', url);
+                      return;
+                    }
+                    return originalXHROpen.call(this, method, url, ...args);
                   };
                 }
               })();
@@ -122,18 +162,41 @@ export default function WidgetLayout({
           [class*="banner"], [id*="banner"],
           [class*="monetag"], [id*="monetag"],
           [class*="adsense"], [id*="adsense"],
+          [class*="adcash"], [id*="adcash"],
+          [class*="skyscraper"], [id*="skyscraper"],
+          [class*="leaderboard"], [id*="leaderboard"],
           ins.adsbygoogle,
-          .adsbygoogle {
+          .adsbygoogle,
+          .monetag-container,
+          .adcash-container,
+          .adcash-ad-container,
+          .adcash-skyscraper-container,
+          #aclib,
+          [id^="aclib"],
+          [class^="aclib"],
+          iframe[src*="monetag"],
+          iframe[src*="adcash"],
+          iframe[src*="googlesyndication"],
+          iframe[src*="doubleclick"],
+          script[src*="monetag"],
+          script[src*="adcash"],
+          script[src*="acscdn"] {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
             pointer-events: none !important;
             position: absolute !important;
             left: -9999px !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
           }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        <WidgetAdProtection />
+        {children}
+      </body>
     </html>
   );
 }
