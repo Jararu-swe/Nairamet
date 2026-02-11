@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -24,11 +24,10 @@ import { useAuth } from "@/contexts/auth-context";
 import { LiveCurrencyRates } from "@/components/live-currency-rates";
 import { UserCountBadge } from "@/components/user-count-badge";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
-import { AdcashAd } from "@/components/adcash-ad";
 import { AdcashFooterBanner } from "@/components/adcash-footer-banner";
 import { LazyLeaderboardAdWrapper } from "@/components/lazy-ad-wrappers";
 
-export default function LandingPage() {
+function LandingPageContent() {
   const { isAuthenticated, openAuthModal } = useAuth();
   const searchParams = useSearchParams();
 
@@ -366,13 +365,6 @@ export default function LandingPage() {
       <div className="max-w-7xl mx-auto px-4">
         <InFeedAd />
       </div>
-
-      {/* Adcash Top Banner */}
-      <AdcashAd
-        zoneId="10841738"
-        title="Advertisement"
-        className="flex justify-center max-w-7xl mx-auto px-4"
-      />
 
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white relative overflow-hidden">
@@ -964,5 +956,13 @@ export default function LandingPage() {
       {/* Bottom banner ad - appears after delay */}
       <BottomBannerAd />
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div></div>}>
+      <LandingPageContent />
+    </Suspense>
   );
 }

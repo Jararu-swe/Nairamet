@@ -6,12 +6,17 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint .",
     "start": "next start",
     "postinstall": "prisma generate",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui"
+  },
+  "eslintConfig": {
+    "extends": [
+      "next/core-web-vitals"
+    ]
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -89,6 +94,8 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitest/coverage-v8": "4.0.17",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.39.2",
     "happy-dom": "^20.3.4",
     "jsdom": "^27.4.0",
     "postcss": "^8.5",

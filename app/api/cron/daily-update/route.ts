@@ -6,8 +6,8 @@ import { NextResponse } from "next/server";
  */
 export async function GET(request: Request) {
   const results = {
-    articles: { success: false, error: null as any },
-    currency: { success: false, error: null as any },
+    articles: { success: false, error: null as any, data: null as any, articlesCount: 0 },
+    currency: { success: false, error: null as any, data: null as any },
   };
 
   // 1. Fetch articles
