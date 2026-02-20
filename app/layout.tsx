@@ -17,14 +17,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com",
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.nairamet.com",
   ),
+  alternates: {
+    canonical: "https://www.nairamet.com/",
+  },
   title: {
     default: "NairaMet - Real-time Naira Exchange Rates & FX Tools",
     template: "%s | NairaMet",
   },
   description:
-    "Track USD/NGN, GBP/NGN, EUR/NGN, CNY/NGN exchange rates with alerts, charts, and comprehensive FX tools for Nigerian currency markets. Get real-time CBN, black market, and parallel market rates.",
+    "Track USD/NGN, GBP/NGN & EUR/NGN exchange rates in real-time. Get CBN, black market & parallel rates, smart alerts, and charts for Nigerian FX.",
   keywords: [
     "naira exchange rate",
     "USD to NGN",
