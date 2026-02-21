@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { fetchRatesWithFallback } from "@/lib/currency-providers";
 
 /**
  * Consolidated daily cron job for Vercel Hobby plan (1 cron/day limit)
  * Runs once per day at 6 AM UTC
  * 
  * Tasks:
- * 1. Refresh currency rates (forces cache revalidation)
+ * 1. Refresh currency rates (tries CurrencyLayer → ExchangeRate-API → Open Exchange Rates)
  * 2. Scrape latest articles
  * 3. Clean up old data
  */
@@ -27,35 +28,21 @@ export async function GET(request: Request) {
       tasks: [] as Array<{ name: string; success: boolean; message: string }>,
     };
 
-    // Task 1: Refresh currency rates
+    // Task 1: Refresh currency rates (multi-provider with fallback)
     try {
-      const apiKey = process.env.CURRENCYLAYER_API_KEY || "";
-      
-      if (apiKey) {
-        const response = await fetch(
-          `https://api.currencylayer.com/live?access_key=${encodeURIComponent(apiKey)}&source=USD&format=1`,
-          { cache: "no-store" }
-        );
+      const rateResult = await fetchRatesWithFallback({ noCache: true });
 
-        if (response.ok) {
-          const data = await response.json();
-          results.tasks.push({
-            name: "Refresh Currency Rates",
-            success: data.success,
-            message: `Updated rates. Sample: USDNGN = ${data.quotes?.USDNGN || "N/A"}`,
-          });
-        } else {
-          results.tasks.push({
-            name: "Refresh Currency Rates",
-            success: false,
-            message: `API error: ${response.status}`,
-          });
-        }
+      if (rateResult) {
+        results.tasks.push({
+          name: "Refresh Currency Rates",
+          success: true,
+          message: `Updated rates from ${rateResult.source}. Sample: USDNGN = ${rateResult.quotes.USDNGN ?? "N/A"}`,
+        });
       } else {
         results.tasks.push({
           name: "Refresh Currency Rates",
           success: false,
-          message: "API key not configured",
+          message: "All API providers failed (CurrencyLayer, ExchangeRate-API, Open Exchange Rates)",
         });
       }
     } catch (error: any) {

@@ -1,37 +1,26 @@
 import { NextResponse } from "next/server";
+import { fetchRatesWithFallback } from "@/lib/currency-providers";
 
 /**
- * Force refresh currency rates by bypassing cache
- * WARNING: This makes a real API call to CurrencyLayer
+ * Force refresh currency rates by bypassing cache.
+ * Tries all configured providers (CurrencyLayer → ExchangeRate-API → Open Exchange Rates).
+ * WARNING: This makes a real API call and uses quota.
  * Usage: curl https://www.nairamet.com/api/admin/refresh-rates
  */
 export async function GET() {
   try {
-    const apiKey = process.env.CURRENCYLAYER_API_KEY || "";
-    
-    if (!apiKey) {
+    // Make a fresh API call (bypasses all caches)
+    const result = await fetchRatesWithFallback({ noCache: true });
+
+    if (!result) {
       return NextResponse.json(
-        { success: false, error: "API key not configured" },
+        {
+          success: false,
+          error:
+            "All API providers failed. Check that at least one API key is configured.",
+        },
         { status: 500 }
       );
-    }
-
-    // Make a fresh API call (bypasses all caches)
-    const response = await fetch(
-      `https://api.currencylayer.com/live?access_key=${encodeURIComponent(apiKey)}&source=USD&format=1`,
-      {
-        cache: "no-store", // Force fresh data
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`CurrencyLayer API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(`CurrencyLayer error: ${data.error?.info || "Unknown"}`);
     }
 
     // Clear tracker cache
@@ -43,8 +32,9 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       message: "Rates refreshed successfully",
+      source: result.source,
       timestamp: new Date().toISOString(),
-      sampleRate: data.quotes?.USDNGN || "N/A",
+      sampleRate: result.quotes.USDNGN ?? "N/A",
       warning: "This used 1 API call from your monthly quota",
     });
   } catch (error: any) {
