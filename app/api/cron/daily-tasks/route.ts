@@ -53,28 +53,24 @@ export async function GET(request: Request) {
       });
     }
 
-    // Task 2: Scrape articles (trigger cache refresh)
+    // Task 2: Scrape articles
     try {
-      // Import and run the enhanced scraper
-      const { fetchFeeds } = await import("@/lib/scraper");
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/scrape?force=true`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.CRON_SECRET || ''}`
+        },
+        cache: 'no-store'
+      });
       
-      const feedUrls = [
-        "https://www.vanguardngr.com/feed/",
-        "https://punchng.com/feed/",
-        "https://www.premiumtimesng.com/feed",
-        "https://guardian.ng/feed/",
-        "https://businessday.ng/feed/",
-      ];
-
-      const articles = await fetchFeeds(feedUrls, true); // force refresh
-      
-      // Log scraping statistics
-      const relevantCount = articles.filter(a => a.relevanceScore && a.relevanceScore > 2).length;
+      const data = await response.json();
       
       results.tasks.push({
         name: "Scrape Articles",
-        success: true,
-        message: `Scraped ${articles.length} articles (${relevantCount} highly relevant)`,
+        success: data.success,
+        message: data.success 
+          ? `Scraped ${data.articles?.length || 0} articles`
+          : `Scrape failed: ${data.error || 'Unknown error'}`
       });
     } catch (error: any) {
       results.tasks.push({

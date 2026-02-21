@@ -29,8 +29,8 @@ const FALLBACK_RATES = [
 ];
 
 export async function GET() {
-  // Simple in-memory cache (module-level) - 24 hours to match API cache
-  const TTL = Number(process.env.TRACKER_CACHE_TTL || 86400); // seconds (24 hours)
+  // Simple in-memory cache (module-level) - 1 hour to match API cache
+  const TTL = Number(process.env.TRACKER_CACHE_TTL || 3600); // seconds (1 hour)
   // @ts-ignore
   if (!(globalThis as any).__NAIRAMET_TRACKER_CACHE)
     (globalThis as any).__NAIRAMET_TRACKER_CACHE = {};
@@ -89,7 +89,7 @@ export async function GET() {
   try {
     // Fetch rates from multiple providers with automatic fallback
     const rateResult = await fetchRatesWithFallback({
-      cacheDuration: 86400, // 24 hour cache
+      cacheDuration: 3600, // 1 hour cache
     });
 
     if (!rateResult) {
