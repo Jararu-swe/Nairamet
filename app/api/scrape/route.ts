@@ -65,6 +65,14 @@ export async function GET(request: Request) {
     // Save to Vercel KV (for production)
     await saveArticlesToKV(articles);
 
+    // Notify IndexNow for instant indexing of new content
+    try {
+      const { notifyNewArticles } = await import("@/lib/indexnow");
+      await notifyNewArticles(articles.slice(0, 10)); // Just 10 to be safe
+    } catch (e) {
+      console.error("Failed to notify IndexNow", e);
+    }
+
     // Persist to data/scraped.json for local development and caching
     try {
       const dataDir = path.join(process.cwd(), "data");

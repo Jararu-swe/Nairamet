@@ -55,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: article.date ? new Date(article.date) : new Date(),
     changeFrequency: article.id.startsWith('scraped:') ? 'daily' as const : 'monthly' as const,
     priority: article.featured ? 0.8 : 0.6,
+    images: article.featured ? [`${baseUrl}/og-image.png`] : [], // Default image if none exist
   }))
 
   return [

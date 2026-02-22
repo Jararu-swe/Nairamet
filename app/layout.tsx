@@ -47,6 +47,7 @@ export const metadata: Metadata = {
     "naira charts",
     "Nigerian currency",
   ],
+  applicationName: "NairaMet",
   authors: [{ name: "NairaMet" }],
   creator: "NairaMet",
   publisher: "NairaMet",
@@ -54,6 +55,11 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
+  },
+  appleWebApp: {
+    title: "NairaMet",
+    statusBarStyle: "default",
+    capable: true,
   },
   openGraph: {
     type: "website",
@@ -74,6 +80,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@nairamet",
     title: "NairaMet - Real-time Naira Exchange Rates",
     description:
       "Track USD/NGN, GBP/NGN, EUR/NGN rates with alerts and charts. Nigeria's FX Platform, Simplified.",

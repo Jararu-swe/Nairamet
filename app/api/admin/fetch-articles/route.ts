@@ -62,8 +62,12 @@ export async function GET(request: Request) {
     try {
       await saveArticlesToKV(fxArticles);
       console.log("✅ Saved articles to Vercel KV");
+      
+      // Notify IndexNow for instant indexing
+      const { notifyNewArticles } = await import("@/lib/indexnow");
+      await notifyNewArticles(fxArticles.slice(0, 10));
     } catch (kvError) {
-      console.error("⚠️ Failed to save to KV:", kvError);
+      console.error("⚠️ Failed to save to KV or notify IndexNow:", kvError);
     }
 
     return NextResponse.json({
