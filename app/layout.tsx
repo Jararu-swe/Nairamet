@@ -115,6 +115,7 @@ export const metadata: Metadata = {
 import { ThemeProvider } from "@/components/theme-provider";
 import CookieConsent from "@/components/cookie-consent";
 import MonetagScript from "@/components/monetag-script";
+import AdcashScript from "@/components/adcash-script";
 
 export default function RootLayout({
   children,
@@ -216,7 +217,7 @@ export default function RootLayout({
         <script
           id="aclib"
           type="text/javascript"
-          src="//acscdn.com/script/aclib.js"
+          src="https://acscdn.com/script/aclib.js"
           async
         />
         {/* Preconnect to external domains */}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LandingPageContent from "@/components/landing-page-content";
+import { fetchRatesWithFallback } from "@/lib/currency-providers";
 
 /**
  * Server-rendered page shell.
@@ -7,7 +8,49 @@ import LandingPageContent from "@/components/landing-page-content";
  * live here so search-engine crawlers that don't run JavaScript can index them.
  * The interactive/animated content is delegated to the client component below.
  */
-export default function LandingPage() {
+export default async function LandingPage() {
+  // Fetch initial rates for SSR and SEO
+  const BM_SPREAD = Number(process.env.BLACK_MARKET_SPREAD || 0.035);
+  const PARALLEL_SPREAD = Number(
+    process.env.PARALLEL_MARKET_SPREAD || process.env.REMITTANCE_SPREAD || 0.025
+  );
+
+  let initialRates: any[] = [];
+  try {
+    const rateResult = await fetchRatesWithFallback({ cacheDuration: 3600 });
+    if (rateResult) {
+      const quotes = rateResult.quotes;
+      const lastUpdated = new Date(rateResult.timestamp * 1000).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      initialRates = ["USD", "GBP", "EUR", "CNY"]
+        .map((code) => {
+          const pair = `${code}NGN`;
+          const official = quotes[pair];
+          if (!official) return null;
+
+          return {
+            currency: code,
+            rate: Math.round(official),
+            parallel: Math.round(official * (1 + PARALLEL_SPREAD)),
+            change: 0, // Fallback change is 0 for initial SSR
+            lastUpdated,
+          };
+        })
+        .filter(Boolean);
+    }
+  } catch (error) {
+    console.warn("Failed to fetch initial rates for SSR:", error);
+  }
+
+  // Helper for SEO text
+  const getRateText = (code: string) => {
+    const r = initialRates.find((ir) => ir.currency === code);
+    return r ? `₦${r.parallel.toLocaleString()}` : "live";
+  };
+
   return (
     <>
       {/*
@@ -33,7 +76,7 @@ export default function LandingPage() {
 
         <h2>Live USD/NGN, GBP/NGN, EUR/NGN Exchange Rates</h2>
         <p>
-          Track the Dollar to Naira rate, British Pound to Naira, Euro to Naira,
+          Track the Dollar to Naira rate ({getRateText("USD")}), British Pound to Naira ({getRateText("GBP")}), Euro to Naira ({getRateText("EUR")}),
           Chinese Yuan to Naira, and dozens of other currency pairs in real time.
           NairaMet aggregates rates from the Central Bank of Nigeria (CBN), the
           Bureau de Change (BDC) market, and the parallel (black market) to give
@@ -120,7 +163,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── Interactive client component (animations, live data, auth) ── */}
-      <LandingPageContent />
+      <LandingPageContent initialRates={initialRates} />
     </>
   );
 }

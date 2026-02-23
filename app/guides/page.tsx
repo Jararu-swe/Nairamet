@@ -695,7 +695,10 @@ export default function GuidesPage() {
 
           {/* Right Sidebar - Skyscraper Ad */}
           <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <LazyStickySkyscraperAdWrapper zoneId="10841606" network="adcash" />
+            <LazyStickySkyscraperAdWrapper 
+              zoneId={process.env.NEXT_PUBLIC_ADCASH_SKYSCRAPER || "10841606"} 
+              network="adcash" 
+            />
           </aside>
         </div>
       </div>

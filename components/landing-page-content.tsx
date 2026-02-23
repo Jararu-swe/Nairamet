@@ -27,7 +27,11 @@ import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 import { AdcashFooterBanner } from "@/components/adcash-footer-banner";
 import { LazyLeaderboardAdWrapper } from "@/components/lazy-ad-wrappers";
 
-function LandingPageInner() {
+interface LandingPageContentProps {
+  initialRates?: any[];
+}
+
+function LandingPageInner({ initialRates }: LandingPageContentProps) {
   const { isAuthenticated, openAuthModal } = useAuth();
   const searchParams = useSearchParams();
 
@@ -265,14 +269,17 @@ function LandingPageInner() {
 
             {/* Live Rate Preview */}
             <div className="mt-8">
-              <LiveCurrencyRates />
+              <LiveCurrencyRates initialRates={initialRates} />
             </div>
           </div>
         </div>
       </section>
 
       {/* Leaderboard Ad */}
-      <LazyLeaderboardAdWrapper zoneId="10841586" network="adcash" />
+      <LazyLeaderboardAdWrapper 
+        zoneId={process.env.NEXT_PUBLIC_ADCASH_LEADERBOARD || "10841586"} 
+        network="adcash" 
+      />
 
       {/* In-feed ad after hero */}
       <div className="max-w-7xl mx-auto px-4">
@@ -779,7 +786,9 @@ function LandingPageInner() {
 
           {/* AdCash Footer Banner */}
           <div className="border-t border-gray-700 pt-8 mt-8">
-            <AdcashFooterBanner zoneId="10841746" />
+            <AdcashFooterBanner 
+              zoneId={process.env.NEXT_PUBLIC_ADCASH_FOOTER || "10841746"} 
+            />
           </div>
 
           {/* Bottom Bar */}
@@ -807,7 +816,7 @@ function LandingPageInner() {
   );
 }
 
-export default function LandingPageContent() {
+export default function LandingPageContent({ initialRates }: LandingPageContentProps) {
   return (
     <Suspense
       fallback={
@@ -816,7 +825,7 @@ export default function LandingPageContent() {
         </div>
       }
     >
-      <LandingPageInner />
+      <LandingPageInner initialRates={initialRates} />
     </Suspense>
   );
 }

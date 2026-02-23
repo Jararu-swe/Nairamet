@@ -63,11 +63,15 @@ interface CurrencyData {
   };
 }
 
-export function LiveCurrencyRates() {
-  const [rates, setRates] = useState<CurrencyRate[]>([]);
-  const [loading, setLoading] = useState(true);
+interface LiveCurrencyRatesProps {
+  initialRates?: CurrencyRate[];
+}
+
+export function LiveCurrencyRates({ initialRates }: LiveCurrencyRatesProps) {
+  const [rates, setRates] = useState<CurrencyRate[]>(initialRates || []);
+  const [loading, setLoading] = useState(!initialRates);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [lastUpdated, setLastUpdated] = useState<string>(initialRates?.[0]?.lastUpdated || "");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);

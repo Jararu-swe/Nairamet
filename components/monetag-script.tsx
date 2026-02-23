@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
-import { PopunderLimiter } from "./popunder-limiter";
 
 const STORAGE_KEY = "nairamet:cookie_consent";
 
@@ -79,9 +78,6 @@ export default function MonetagScript() {
 
   return (
     <>
-      {/* Popunder Limiter - Shows only once every 20 minutes */}
-      <PopunderLimiter />
-
       {/* Monetag Push Notifications - Passive income */}
       {process.env.NEXT_PUBLIC_MONETAG_PUSH && (
         <Script

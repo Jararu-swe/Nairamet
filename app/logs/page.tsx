@@ -690,7 +690,10 @@ function LogsPageContent() {
         <div className="flex gap-4 lg:gap-6">
           {/* Left Sidebar - Skyscraper Ad (160x600) */}
           <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <LazyStickySkyscraperAdWrapper zoneId="10841738" network="adcash" />
+            <LazyStickySkyscraperAdWrapper 
+              zoneId={process.env.NEXT_PUBLIC_ADCASH_SKYSCRAPER || "10841738"} 
+              network="adcash" 
+            />
           </aside>
 
           {/* Main Content */}

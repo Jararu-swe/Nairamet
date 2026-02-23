@@ -15,7 +15,7 @@ interface AdcashAdProps {
  * Handles checking for aclib and injecting the banner script safely.
  */
 export function AdcashAd({
-  zoneId,
+  zoneId: propsZoneId,
   width,
   height,
   className = "",
@@ -23,6 +23,12 @@ export function AdcashAd({
 }: AdcashAdProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Use the provided zoneId or fallback to environment variables
+  const zoneId = propsZoneId || 
+    (width === 728 ? process.env.NEXT_PUBLIC_ADCASH_LEADERBOARD : 
+     width === 468 ? process.env.NEXT_PUBLIC_ADCASH_FOOTER :
+     width === 160 ? process.env.NEXT_PUBLIC_ADCASH_SKYSCRAPER : undefined);
 
   useEffect(() => {
     let attempts = 0;
@@ -47,9 +53,10 @@ export function AdcashAd({
           const alreadyInjected = containerRef.current.querySelector('script[data-adcash="1"]');
           if (!alreadyInjected) {
             containerRef.current.appendChild(script);
+            console.log(`[Adcash] Injected banner for zone: ${zoneId}`);
+          } else {
+            console.log(`[Adcash] Banner already injected for zone: ${zoneId}`);
           }
-          
-          console.log(`[Adcash] Injected banner for zone ${zoneId}`);
           setIsLoaded(true);
         } catch (error) {
           console.error(`[Adcash] Error injecting banner for zone ${zoneId}:`, error);
