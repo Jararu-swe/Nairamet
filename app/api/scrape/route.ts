@@ -4,60 +4,42 @@ import { saveArticlesToKV } from "@/lib/kv";
 import fs from "fs";
 import path from "path";
 
-const DEFAULT_FEEDS = [
-  // Popular Nigerian news and finance feeds
-  "https://punchng.com/feed/",
-  "https://www.vanguardngr.com/feed/",
+// Consolidated FX-focused RSS feeds
+const FX_FEEDS = [
   "https://nairametrics.com/feed/",
-  "https://www.cbn.gov.ng/rss.asp",
   "https://businessday.ng/feed/",
-  // Existing feeds, if you still want Google News or BBC Africa
-  "http://feeds.bbci.co.uk/news/world/africa/rss.xml",
-  "https://news.google.com/rss/search?q=Nigeria&hl=en-US&gl=US&ceid=US:en",
-];
-
-// New approach: allow alternate feed URLs for each source
-const FEEDS_WITH_ALTS = [
-  // Each feed is an array: primary, then alternates
-  ["https://punchng.com/feed/", "https://www.punchng.com/feed/"],
-  ["https://www.vanguardngr.com/feed/"],
-  ["https://nairametrics.com/feed/"],
-  ["https://www.cbn.gov.ng/rss.asp", "https://cbn.gov.ng/rss.asp"],
-  ["https://businessday.ng/feed/", "https://www.businessday.ng/feed/"],
-  // Existing feeds
-  ["http://feeds.bbci.co.uk/news/world/africa/rss.xml"],
-  ["https://news.google.com/rss/search?q=Nigeria&hl=en-US&gl=US&ceid=US:en"],
+  "https://www.vanguardngr.com/category/business/feed/",
+  "https://punchng.com/category/business/feed/",
+  "https://www.premiumtimesng.com/business/feed",
+  "https://www.reuters.com/markets/currencies/rss",
+  "https://www.forexlive.com/feed/news",
+  "https://www.cbn.gov.ng/rss/news.xml",
+  "https://cointelegraph.com/rss/tag/nigeria",
+  "https://bitcoinmagazine.com/.rss/full/",
 ];
 
 export async function GET(request: Request) {
   try {
-    // If ?feeds=... is given, override the special scheme, else use FEEDS_WITH_ALTS
+    // Verify authorization (CRON_SECRET)
+    const authHeader = request.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+    
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const url = new URL(request.url);
     const feedsParam = url.searchParams.get("feeds");
     const force = url.searchParams.get("force") === "true";
     let feeds: string[];
+    
     if (feedsParam) {
       feeds = feedsParam.split(",");
     } else {
-      // Flatten and deduplicate first found working feed per group
-      feeds = [];
-      for (const group of FEEDS_WITH_ALTS) {
-        let worked = false;
-        for (const alt of group) {
-          try {
-            const res = await fetch(alt, { method: "HEAD" });
-            if (res.ok) {
-              feeds.push(alt);
-              worked = true;
-              break;
-            }
-          } catch (e) {
-            // try next alternate
-          }
-        }
-        // If none work, use the primary anyway for error transparency/logs
-        if (!worked) feeds.push(group[0]);
-      }
+      feeds = FX_FEEDS;
     }
     // fetch and cache
     const articles: ScrapedArticle[] = await fetchFeeds(feeds, force);

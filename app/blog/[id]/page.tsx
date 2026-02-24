@@ -8,10 +8,12 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import Link from "next/link";
-import { getArticleById, Article } from "@/lib/blog";
+import { getArticleById, getRelatedArticles, injectInternalLinks, Article } from "@/lib/blog";
 import { InFeedAd, BottomBannerAd } from "@/components/monetag-ad";
 import { LazyLeaderboardAdWrapper } from "@/components/lazy-ad-wrappers";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -42,8 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nairamet.com";
 
   return {
-    title: `${cleanTitle} | NairaMet`,
-    description: cleanExcerpt,
+    title: `${cleanTitle} | NairaWatch FX Blog`,
+    description: cleanExcerpt || `Latest update on ${article.category}: ${cleanTitle}. Read more on NairaMet.`,
     keywords: [
       "naira news",
       "fx news",
@@ -51,6 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "exchange rate news",
       "cbn news",
       article.category,
+      "nairawatch",
       ...cleanTitle
         .toLowerCase()
         .split(" ")
@@ -108,10 +111,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ArticlePage({ params }: Props) {
   const { id } = await params;
   let article: Article | null = null;
+  let relatedArticles: Article[] = [];
   let error: string | null = null;
 
   try {
     article = await getArticleById(id);
+    if (article) {
+      relatedArticles = await getRelatedArticles(article, 3);
+    }
   } catch (e) {
     console.error("Failed to load article:", e);
     error = "Failed to load article. Please try again later.";
@@ -308,14 +315,24 @@ export default async function ArticlePage({ params }: Props) {
                     <p
                       key={i}
                       className="leading-relaxed mb-3 text-center break-words"
-                    >
-                      {p}
-                    </p>
+                      dangerouslySetInnerHTML={{ __html: injectInternalLinks(p) }}
+                    />
                   ))
                 ) : (
                   <p className="italic text-gray-600">No content available.</p>
                 )}
               </div>
+
+              {/* NairaWatch Context Block for SEO */}
+              {article.id.startsWith("scraped:") && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-lg mb-6 border border-emerald-100 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-200 italic">
+                  <p>
+                    This report was curated by <strong>NairaWatch</strong> as part of our daily Nigerian FX market monitoring. 
+                    For real-time updates and historical trends, visit our <Link href="/tracker" className="underline font-bold">Live FX Tracker</Link> or 
+                    check the <Link href="/" className="underline font-bold">Official vs Parallel Market rates</Link>.
+                  </p>
+                </div>
+              )}
 
               {/* Original Source citation (optional, as small meta info) */}
               {article.originalUrl && (
@@ -339,10 +356,51 @@ export default async function ArticlePage({ params }: Props) {
             <LazyLeaderboardAdWrapper zoneId="10841586" network="adcash" />
           </div>
 
-          {/* Comments Section - Removed */}
-          {/* <div className="mt-6">
-          <CommentsSection articleId={rawId} />
-        </div> */}
+          {/* Related Articles Section */}
+          {relatedArticles.length > 0 && (
+            <div className="mt-12 bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-100 dark:border-gray-800">
+              <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-100 mb-6 flex items-center">
+                <div className="w-1 h-6 bg-emerald-500 mr-3 rounded-full"></div>
+                Related News & Analysis
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedArticles.map((ra) => (
+                  <Link
+                    key={ra.id}
+                    href={`/blog/${encodeURIComponent(ra.id)}`}
+                    className="group"
+                  >
+                    <div className="bg-white dark:bg-gray-800 h-full p-4 rounded-lg shadow-sm border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800 transition-all hover:shadow-md">
+                      <Badge className="mb-2 bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300">
+                        {ra.category}
+                      </Badge>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 line-clamp-2 mb-2">
+                        {decodeEntities(ra.title)}
+                      </h4>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(ra.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Social Share & Bottom Nav */}
+          <div className="mt-8 flex justify-between items-center py-6 border-t border-gray-100 dark:border-gray-800">
+            <Link href="/blog">
+              <Button variant="ghost" className="text-emerald-600">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                All Articles
+              </Button>
+            </Link>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="text-gray-400">#NairaWatch</Badge>
+              <Badge variant="outline" className="text-gray-400">#FXNews</Badge>
+            </div>
+          </div>
         </div>
       </div>
     </>

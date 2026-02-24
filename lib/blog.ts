@@ -249,5 +249,66 @@ function decodeEntities(str: string = ""): string {
   return s.replace(/\s+/g, " ").trim();
 }
 
+export async function getRelatedArticles(currentArticle: Article, limit: number = 3): Promise<Article[]> {
+  try {
+    const all = await getArticles();
+    const currentId = currentArticle.id;
+    
+    // Simple relevance: same category or sharing keywords in title
+    const keywords = currentArticle.title.toLowerCase().split(' ').filter(w => w.length > 3);
+    
+    return all
+      .filter(a => a.id !== currentId)
+      .map(a => {
+        let score = 0;
+        if (a.category === currentArticle.category) score += 5;
+        
+        const titleLower = a.title.toLowerCase();
+        keywords.forEach(k => {
+          if (titleLower.includes(k)) score += 2;
+        });
+        
+        return { article: a, score };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(item => item.article);
+  } catch (error) {
+    console.error("Error getting related articles:", error);
+    return [];
+  }
+}
+
+export function injectInternalLinks(text: string): string {
+  if (!text) return "";
+  
+  const rules = [
+    { pattern: /\b(dollar to naira)\b/gi, link: "/rates/usd-ngn" },
+    { pattern: /\b(pound to naira)\b/gi, link: "/rates/gbp-ngn" },
+    { pattern: /\b(euro to naira)\b/gi, link: "/rates/eur-ngn" },
+    { pattern: /\b(exchange rate)\b/gi, link: "/tracker" },
+    { pattern: /\b(parallel market)\b/gi, link: "/tracker" },
+    { pattern: /\b(black market)\b/gi, link: "/tracker" },
+    { pattern: /\b(CBN)\b/g, link: "/tracker" },
+    { pattern: /\b(Bureau De Change|BDC)\b/gi, link: "/tracker" },
+  ];
+
+  let linkedText = text;
+  rules.forEach(rule => {
+    // Only link the first occurrence to avoid over-optimization/spamminess
+    let count = 0;
+    linkedText = linkedText.replace(rule.pattern, (match) => {
+      if (count === 0) {
+        count++;
+        return `<a href="${rule.link}" class="text-emerald-600 hover:underline font-medium">${match}</a>`;
+      }
+      return match;
+    });
+  });
+
+  return linkedText;
+}
+
 export { readMarkdownFile };
 
