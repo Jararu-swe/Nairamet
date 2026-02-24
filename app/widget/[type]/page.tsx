@@ -58,16 +58,22 @@ export default function WidgetPage() {
   const params = useParams();
   const widgetType = (params.type as string) || "rates";
   const currency = searchParams.get("currency") || "USD";
+  const colorParam = searchParams.get("color");
+  const themeParam = searchParams.get("theme"); // light, dark
+
   const [rates, setRates] = useState<any>({
     official: 0,
     blackMarket: 0,
     remittance: 0,
   });
+  const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [convertAmount, setConvertAmount] = useState("1000");
   const [fromCurrency, setFromCurrency] = useState("NGN");
   const [toCurrency, setToCurrency] = useState("USD");
+
+  const primaryColor = colorParam ? (colorParam.startsWith("#") ? colorParam : `#${colorParam}`) : "#10b981"; // Default emerald-500
 
   useEffect(() => {
     async function fetchRates() {
@@ -97,7 +103,23 @@ export default function WidgetPage() {
       }
     }
 
+    async function fetchNews() {
+      try {
+        const res = await fetch("/api/scrape", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setNews(data.articles?.slice(0, 5) || []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch news for widget:", e);
+      }
+    }
+
     fetchRates();
+    if (widgetType === "news-ticker") {
+      fetchNews();
+    }
+    
     // Auto-refresh every 60 seconds
     const interval = setInterval(fetchRates, 60000);
     
@@ -108,7 +130,7 @@ export default function WidgetPage() {
     }
     
     return () => clearInterval(interval);
-  }, [currency]);
+  }, [currency, widgetType]);
 
   const getTrendIcon = (value: number, baseline: number) => {
     if (value > baseline)
@@ -491,6 +513,44 @@ export default function WidgetPage() {
           </div>
         );
 
+      case "news-ticker":
+        return (
+          <div className="w-full h-full bg-white dark:bg-gray-900 flex items-center overflow-hidden border-y border-gray-200 dark:border-gray-800">
+            <div className="bg-emerald-600 dark:bg-emerald-800 text-white px-4 py-2 text-xs font-bold uppercase tracking-wider z-10 flex items-center gap-2 whitespace-nowrap" style={{ backgroundColor: primaryColor }}>
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              Latest FX News
+            </div>
+            <div className="flex-1 overflow-hidden relative group">
+              <div className="flex whitespace-nowrap animate-infinite-scroll hover:[animation-play-state:paused] items-center py-2 h-full">
+                {news.length > 0 ? (
+                  news.map((n, i) => (
+                    <div key={i} className="inline-flex items-center px-6 border-r border-gray-100 dark:border-gray-800 last:border-0">
+                      <span className="text-gray-400 dark:text-gray-600 text-[10px] mr-2 font-mono">{new Date(n.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <a href={`/blog/${encodeURIComponent(`scraped:${n.url}`)}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                        {n.title}
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-6 text-sm text-gray-500">Fetching latest market updates...</div>
+                )}
+                {/* Duplicate for seamless scrolling */}
+                {news.map((n, i) => (
+                    <div key={`dup-${i}`} className="inline-flex items-center px-6 border-r border-gray-100 dark:border-gray-800 last:border-0">
+                      <span className="text-gray-400 dark:text-gray-600 text-[10px] mr-2 font-mono">{new Date(n.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <a href={`/blog/${encodeURIComponent(`scraped:${n.url}`)}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                        {n.title}
+                      </a>
+                    </div>
+                ))}
+              </div>
+            </div>
+            <div className="px-4 border-l border-gray-100 dark:border-gray-800 flex items-center">
+                <img src="/Nairamet.svg" alt="Logo" className="w-5 h-5 opacity-50" />
+            </div>
+          </div>
+        );
+
       default:
         return (
           <Card className="w-full h-full border-none">
@@ -498,7 +558,7 @@ export default function WidgetPage() {
               <div className="text-center">
                 <h3 className="text-lg font-medium">Invalid Widget Type</h3>
                 <p className="text-sm text-muted-foreground">
-                  Supported types: rates, converter
+                  Supported types: rates, converter, chart, news-ticker
                 </p>
               </div>
             </CardContent>
@@ -509,9 +569,17 @@ export default function WidgetPage() {
 
   return (
     <TooltipProvider>
-      <div className="w-screen h-screen bg-transparent overflow-hidden flex flex-col">
+      <div className={cn(
+        "w-screen h-screen bg-transparent overflow-hidden flex flex-col transition-colors duration-300",
+        themeParam === "dark" ? "dark bg-gray-900" : (themeParam === "light" ? "bg-white" : "")
+      )}>
         {renderWidget()}
       </div>
     </TooltipProvider>
   );
+}
+
+// Helper for conditional classes
+function cn(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
 }
