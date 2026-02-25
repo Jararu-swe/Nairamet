@@ -268,7 +268,7 @@ export default async function ArticlePage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
       />
       <div className="container py-8 flex justify-center">
-        <div className="w-full max-w-3xl px-2 sm:px-4 md:px-8">
+        <div className="w-full max-w-3xl px-4 sm:px-6 md:px-8">
           <div className="mb-6">
             <Link
               href="/blog"

@@ -230,11 +230,11 @@ export function MarketSnapshot() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {quickStats.map((stat, index) => (
             <div
               key={index}
-              className="text-center p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg"
+              className="text-center p-2 sm:p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg"
             >
               <div className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">
                 {stat.label}

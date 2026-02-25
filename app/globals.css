@@ -442,4 +442,15 @@
   .animate-infinite-scroll {
     animation: infinite-scroll 40s linear infinite;
   }
+
+  /* Horizontal scrolling for tables on mobile */
+  .overflow-x-touch {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .overflow-x-touch::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -210,8 +210,8 @@ function LandingPageInner({ initialRates }: LandingPageContentProps) {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-        <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
-          <div className="text-center space-y-8">
+        <div className="max-w-7xl mx-auto px-4 py-12 md:py-24">
+          <div className="text-center space-y-6 md:space-y-8">
             <div className="space-y-4">
               <div className="flex justify-center">
                 <UserCountBadge />
@@ -222,7 +222,7 @@ function LandingPageInner({ initialRates }: LandingPageContentProps) {
               >
                 🇳🇬 Nigeria's FX, Simplified
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground text-balance">
+              <h1 className="text-3xl md:text-6xl font-bold text-foreground text-balance leading-tight">
                 Track <span className="sr-only">Dollar</span>
                 <span
                   className={`inline-block text-emerald-600 transition-all duration-300 ease-in-out ${
@@ -236,7 +236,7 @@ function LandingPageInner({ initialRates }: LandingPageContentProps) {
                 to Naira
                 <span className="text-emerald-600"> Like a Pro</span>
               </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
                 Get real-time USD/NGN, GBP/NGN, EUR/NGN rates and more from CBN,
                 black market, and parallel sources. Set alerts, analyze trends,
                 and make informed currency decisions.
@@ -303,22 +303,22 @@ function LandingPageInner({ initialRates }: LandingPageContentProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="text-center p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105"
+                className="text-center p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/20 mb-4">
-                  <stat.icon className="w-7 h-7" />
+                <div className="inline-flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/20 mb-3 md:mb-4">
+                  <stat.icon className="w-5 h-5 md:w-7 md:h-7" />
                 </div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">
+                <div className="text-2xl md:text-5xl font-bold mb-1 md:mb-2">
                   {stat.value}
                 </div>
-                <div className="text-white font-semibold text-sm md:text-base mb-1">
+                <div className="text-white font-semibold text-xs md:text-base mb-1">
                   {stat.label}
                 </div>
-                <div className="text-emerald-100 text-xs md:text-sm">
+                <div className="text-emerald-100 text-[10px] md:text-sm">
                   {stat.subtitle}
                 </div>
               </div>

@@ -725,8 +725,8 @@ function FXTrackerContent() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-touch pb-2">
+              <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-2">Currency</th>

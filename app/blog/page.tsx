@@ -12,7 +12,6 @@ import Link from "next/link";
 import { getArticles, Article } from "@/lib/blog";
 // import NewsletterForm from "@/components/newsletter-form";
 // removed Wire/scraper integration per policy: wire component removed
-import { LiveCurrencyRates } from "@/components/live-currency-rates";
 import { MarketSnapshot } from "@/components/market-snapshot";
 // import { LikeButton } from "@/components/like-button";
 import { BlogSidebar } from "@/components/blog-sidebar";
@@ -167,7 +166,7 @@ export default async function BlogPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-emerald-900 dark:text-emerald-100">Naira Watch</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-emerald-900 dark:text-emerald-100">Naira Watch</h1>
           <p className="text-lg text-emerald-700 dark:text-emerald-300 max-w-2xl mx-auto">
             Stay informed with weekly summaries, policy analysis, and
             educational insights about Nigerian foreign exchange markets.
@@ -199,9 +198,6 @@ export default async function BlogPage() {
             </CardContent>
           </Card>
         )}
-
-        {/* Live Currency Rates */}
-        <LiveCurrencyRates />
 
         {/* Market Snapshot - Dynamic data */}
         <MarketSnapshot />

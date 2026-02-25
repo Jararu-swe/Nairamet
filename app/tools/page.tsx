@@ -308,7 +308,7 @@ function ToolsPageContent() {
         </div>
 
         <Tabs defaultValue="widgets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 h-auto">
             <TabsTrigger value="widgets" className="text-xs sm:text-sm">
               Embeddable Widgets
             </TabsTrigger>
@@ -639,7 +639,7 @@ function ToolsPageContent() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm text-blue-700 dark:text-blue-300">
@@ -818,7 +818,7 @@ function ToolsPageContent() {
                   ))}
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
                     <CardContent className="pt-6">
                       <div className="text-center">

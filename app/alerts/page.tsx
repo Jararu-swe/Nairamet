@@ -722,8 +722,8 @@ function AlertsPageContent() {
                         </p>
                       </div>
                     )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                      <div className="sm:col-span-2 lg:col-span-1">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="text-sm font-medium mb-2 block">
                           Currency
                         </label>
@@ -823,7 +823,7 @@ function AlertsPageContent() {
                           className="text-sm"
                         />
                       </div>
-                      <div className="sm:col-span-2 lg:col-span-1">
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="text-sm font-medium mb-2 block">
                           Email
                         </label>
@@ -996,7 +996,7 @@ function AlertsPageContent() {
                             }`}
                           >
                             {/* Main Alert Info */}
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-2 sm:p-3">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <Button
                                   variant="ghost"
