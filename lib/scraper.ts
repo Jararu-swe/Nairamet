@@ -329,12 +329,23 @@ async function fetchNairalandNews(maxThreads = 8): Promise<ScrapedArticle[]> {
   return results.filter(article => article.relevanceScore && article.relevanceScore > 2);
 }
 
-// Enhanced RSS feed processing
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000; // 7 days (1 week)
+
+// Enhanced RSS feed processing with 1-week expiration check
 async function processFeedItem(item: any, source: string, feedUrl: string, seen: Set<string>): Promise<ScrapedArticle | null> {
   const link = item.link || item.guid || item.id || "";
   if (!link || seen.has(link)) return null;
   
   seen.add(link);
+
+  const rawDate = item.isoDate || item.pubDate || undefined;
+  if (rawDate) {
+    const parsedDate = Date.parse(rawDate);
+    if (!isNaN(parsedDate) && (Date.now() - parsedDate > ONE_WEEK_MS)) {
+      // Skip articles published more than 7 days ago (1 week expiration)
+      return null;
+    }
+  }
   
   let rawContent = item.content || item.contentSnippet || item.summary || "";
   let fullContent = rawContent;
@@ -350,7 +361,7 @@ async function processFeedItem(item: any, source: string, feedUrl: string, seen:
     excerpt: item.contentSnippet || item.summary || fullContent?.substring(0, 200) || undefined,
     content: fullContent || undefined,
     url: link,
-    date: item.isoDate || item.pubDate || undefined,
+    date: rawDate || new Date().toISOString(),
     source,
     sourceUrl: feedUrl,
     category: item.categories?.[0] || "News",

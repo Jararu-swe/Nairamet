@@ -51,21 +51,33 @@ const FX_KEYWORDS = [
   "exchange control", "fx policy", "fx liquidity",
 ];
 
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000; // 7 days (1 week)
+
 async function main() {
-  console.log("🔄 Fetching FX-related articles...");
+  console.log("🔄 Fetching FX-related articles (1-week expiration window)...");
   console.log(`📡 Fetching from ${FX_FEEDS.length} RSS feeds`);
   
   try {
-    const articles = await fetchFeeds(FX_FEEDS);
+    const articles = await fetchFeeds(FX_FEEDS, true);
     console.log(`✅ Fetched ${articles.length} total articles`);
     
-    // Filter for FX-related content
-    const fxArticles = articles.filter((article) => {
+    const now = Date.now();
+
+    // Filter for FX-related content AND published within the last 7 days (1 week)
+    const activeFxArticles = articles.filter((article) => {
+      // Expiration check
+      if (article.date) {
+        const articleDate = Date.parse(article.date);
+        if (!isNaN(articleDate) && now - articleDate > ONE_WEEK_MS) {
+          return false; // Expired (older than 7 days)
+        }
+      }
+
       const searchText = `${article.title} ${article.excerpt} ${article.content}`.toLowerCase();
       return FX_KEYWORDS.some((keyword) => searchText.includes(keyword.toLowerCase()));
     });
     
-    console.log(`✅ Filtered to ${fxArticles.length} FX-related articles`);
+    console.log(`✅ Filtered to ${activeFxArticles.length} active FX-related articles (≤ 7 days old)`);
     
     // Save to data/scraped.json
     const dataDir = path.join(process.cwd(), "data");
@@ -74,15 +86,15 @@ async function main() {
     }
     
     const outputPath = path.join(dataDir, "scraped.json");
-    fs.writeFileSync(outputPath, JSON.stringify(fxArticles, null, 2));
+    fs.writeFileSync(outputPath, JSON.stringify(activeFxArticles, null, 2));
     
-    console.log(`💾 Saved ${fxArticles.length} articles to ${outputPath}`);
+    console.log(`💾 Saved ${activeFxArticles.length} active articles to ${outputPath}`);
     console.log("✨ Done!");
     
     // Show sample titles
-    console.log("\n📰 Sample articles:");
-    fxArticles.slice(0, 5).forEach((article, i) => {
-      console.log(`${i + 1}. ${article.title} (${article.source})`);
+    console.log("\n📰 Sample articles (published within last 7 days):");
+    activeFxArticles.slice(0, 5).forEach((article, i) => {
+      console.log(`${i + 1}. [${article.date?.substring(0, 10)}] ${article.title} (${article.source})`);
     });
     
   } catch (error) {

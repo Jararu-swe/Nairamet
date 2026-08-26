@@ -42,12 +42,22 @@ export async function GET(request: Request) {
 
     console.log("🔄 Fetching FX-related articles...");
     
-    const articles = await fetchFeeds(FX_FEEDS);
+    const articles = await fetchFeeds(FX_FEEDS, true);
     console.log(`✅ Fetched ${articles.length} total articles`);
     
     // Filter for FX-related content
     const fxArticles = filterArticlesByKeywords(articles, FX_KEYWORDS);
-    console.log(`✅ Filtered to ${fxArticles.length} FX-related articles`);
+    
+    // Filter for articles published within the last 7 days (1-week expiration)
+    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const activeArticles = fxArticles.filter(a => {
+      if (!a.date) return true;
+      const parsed = Date.parse(a.date);
+      return !isNaN(parsed) && (now - parsed <= ONE_WEEK_MS);
+    });
+
+    console.log(`✅ Filtered to ${activeArticles.length} active FX-related articles (≤ 7 days old)`);
     
     // Save to data/scraped.json
     const dataDir = path.join(process.cwd(), "data");
@@ -56,7 +66,7 @@ export async function GET(request: Request) {
     }
     
     const outputPath = path.join(dataDir, "scraped.json");
-    fs.writeFileSync(outputPath, JSON.stringify(fxArticles, null, 2));
+    fs.writeFileSync(outputPath, JSON.stringify(activeArticles, null, 2));
     
     // Save to Vercel KV for production
     try {

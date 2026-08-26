@@ -9,7 +9,7 @@
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint .",
     "start": "next start",
     "postinstall": "prisma generate",
-    "fetch-articles": "tsx scripts/fetch-articles.ts",
+    "fetch-articles": "npx tsx scripts/fetch-articles.ts",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui"

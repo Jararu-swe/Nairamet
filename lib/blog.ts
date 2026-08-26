@@ -110,11 +110,25 @@ async function fetchScrapedData(): Promise<any[]> {
   }
 }
 
+export const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+/**
+ * Checks if an article was published within the last 7 days (1 week).
+ * Returns true if active, false if expired (> 7 days old).
+ */
+export function isArticleActive(dateString?: string): boolean {
+  if (!dateString) return true;
+  const parsed = Date.parse(dateString);
+  if (isNaN(parsed)) return true;
+  const age = Date.now() - parsed;
+  return age <= ONE_WEEK_MS;
+}
+
 export async function getArticles(): Promise<Article[]> {
   try {
     const scraped = await fetchScrapedData();
     
-    // Filter for FX/Naira related content only
+    // Filter for FX/Naira related content AND published within the last 7 days (1 week expiration)
     const fxKeywords = [
       'naira', 'ngn', 'dollar', 'usd', 'pound', 'gbp', 'euro', 'eur',
       'exchange rate', 'forex', 'fx', 'currency', 'cbn', 'central bank',
@@ -124,6 +138,11 @@ export async function getArticles(): Promise<Article[]> {
     ];
     
     const filteredScraped = (scraped || []).filter((s: any) => {
+      // 1-week expiration check
+      if (s.date && !isArticleActive(s.date)) {
+        return false;
+      }
+
       const title = (s.title || '').toLowerCase();
       const content = (s.content || '').toLowerCase();
       const excerpt = (s.excerpt || '').toLowerCase();
@@ -156,7 +175,7 @@ export async function getArticles(): Promise<Article[]> {
       }
     }).filter(Boolean) as Article[];
 
-    console.log(`✅ Filtered ${mapped.length} FX-related articles from ${scraped.length} total articles`);
+    console.log(`✅ Filtered ${mapped.length} active FX-related articles (≤ 7 days old) from ${scraped.length} total`);
 
     return [...articles, ...mapped].sort(
       (a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0)

@@ -42,7 +42,16 @@ export async function GET(request: Request) {
       feeds = FX_FEEDS;
     }
     // fetch and cache
-    const articles: ScrapedArticle[] = await fetchFeeds(feeds, force);
+    const allArticles: ScrapedArticle[] = await fetchFeeds(feeds, force);
+    
+    // Filter to only articles published within the last 7 days (1 week)
+    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const articles = allArticles.filter(a => {
+      if (!a.date) return true;
+      const parsed = Date.parse(a.date);
+      return !isNaN(parsed) && (now - parsed <= ONE_WEEK_MS);
+    });
 
     // Save to Vercel KV (for production)
     await saveArticlesToKV(articles);
