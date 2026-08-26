@@ -1,9 +1,4 @@
 # ads.txt for NairaMet (nairamet.com)
-# Required by Google AdSense for publisher verification.
-#
-# Replace YOUR_PUBLISHER_ID with your actual AdSense publisher ID
-# (e.g. pub-1234567890123456) once your account is approved.
-#
-# Format: <domain>, <publisher id>, <relationship>, <cert authority id>
+# Google AdSense Publisher Verification
 
-google.com, YOUR_PUBLISHER_ID, DIRECT, f08c47fec0942fa0
+google.com, pub-5471015227690818, DIRECT, f08c47fec0942fa0
