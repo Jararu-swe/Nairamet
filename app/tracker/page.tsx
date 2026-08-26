@@ -610,6 +610,9 @@ function FXTrackerContent() {
           </CardContent>
         </Card>
 
+        {/* View-Based CPM Ad between Converter and Rates Comparison */}
+        <InFeedAd />
+
         {/* Currency Comparison Section */}
         <CurrencyComparison rates={rates} baseCurrency="NGN" />
 
@@ -834,15 +837,15 @@ function FXTrackerContent() {
                 </p>
               </Link>
               <Link
-                href="/alerts"
+                href="/charts"
                 className="p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 transition-all group"
               >
-                <h4 className="font-semibold  text-emerald-600 group-hover:text-emerald-700 flex items-center gap-2">
-                  Setting Effective Rate Alerts
-                  <Bell className="w-4 h-4" />
+                <h4 className="font-semibold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-2">
+                  Historical Rate Trends
+                  <TrendingUp className="w-4 h-4" />
                 </h4>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Learn alert strategies to catch favorable rates for your needs
+                  Explore interactive charts and historical data patterns
                 </p>
               </Link>
               <Link

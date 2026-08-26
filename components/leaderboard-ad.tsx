@@ -1,37 +1,25 @@
 "use client";
 
-import { AdcashAd } from "./adcash-ad";
+import { AdSenseAd } from "./adsense-ad";
 
 interface LeaderboardAdProps {
-  zoneId: string;
-  network?: "adcash" | "bidvertiser" | "adsense";
-  publisherId?: string;
+  slot?: string;
   className?: string;
 }
 
 /**
- * 728x90 Leaderboard Banner Ad Component
- * Standard desktop banner ad format
+ * 728x90 Leaderboard Ad Component (Google AdSense)
+ * Returns null when not configured (zero placeholder footprint).
  */
-export function LeaderboardAd({
-  zoneId,
-  network = "adcash",
-  publisherId,
-  className = "",
-}: LeaderboardAdProps) {
-  if (network !== "adcash") return null;
+export function LeaderboardAd({ slot, className = "" }: LeaderboardAdProps) {
+  const slotId = slot || process.env.NEXT_PUBLIC_ADSENSE_LEADERBOARD_SLOT;
+  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
+  if (!clientId || !slotId) return null;
 
   return (
-    <div className={`leaderboard-ad-wrapper w-full ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex justify-center">
-          <AdcashAd 
-            zoneId={zoneId} 
-            width={728} 
-            height={90} 
-          />
-        </div>
-      </div>
+    <div className={`leaderboard-ad-wrapper w-full flex justify-center my-6 ${className}`}>
+      <AdSenseAd slot={slotId} format="horizontal" />
     </div>
   );
 }

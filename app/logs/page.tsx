@@ -686,18 +686,9 @@ function LogsPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4 md:p-6">
-      <div className="max-w-[1600px] mx-auto">
-        <div className="flex gap-4 lg:gap-6">
-          {/* Left Sidebar - Skyscraper Ad (160x600) */}
-          <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <LazyStickySkyscraperAdWrapper 
-              zoneId={process.env.NEXT_PUBLIC_ADCASH_SKYSCRAPER || "10841738"} 
-              network="adcash" 
-            />
-          </aside>
-
-          {/* Main Content */}
-          <div className="flex-1 space-y-4 sm:space-y-6 min-w-0">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        {/* Main Content */}
+        <div className="space-y-4 sm:space-y-6">
             <div className="text-center space-y-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-emerald-900">
                 Rate Logs & Archive
@@ -1093,14 +1084,8 @@ function LogsPageContent() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Right Sidebar - Skyscraper Ad (160x600) */}
-          <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <LazyStickySkyscraperAdWrapper zoneId="10841606" network="adcash" />
-          </aside>
         </div>
       </div>
-    </div>
   );
 }
 

@@ -71,12 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'hourly',
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/alerts`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
+
     {
       url: `${baseUrl}/charts`,
       lastModified: new Date(),
@@ -125,12 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
-    {
-      url: `${baseUrl}/forgot-password`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
+
     // Currency pair pages for SEO
     ...generateCurrencyPairPages(baseUrl),
     // Amount converter pages

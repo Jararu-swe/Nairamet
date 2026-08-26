@@ -83,14 +83,7 @@ export default async function LandingPage() {
           you the most comprehensive view of Nigerian FX markets available online.
         </p>
 
-        <h2>Smart Rate Alerts</h2>
-        <p>
-          Never miss a favorable exchange rate again. Set custom price alerts for
-          any currency pair and receive instant notifications by email or push
-          notification when your target rate is reached. Our alert system monitors
-          CBN, black market, and parallel market rates around the clock — 24 hours
-          a day, 7 days a week.
-        </p>
+
 
         <h2>Historical Exchange Rate Charts</h2>
         <p>
@@ -127,7 +120,7 @@ export default async function LandingPage() {
         <nav aria-label="Site sections">
           <ul>
             <li><Link href="/tracker">Live Naira Exchange Rates Tracker</Link></li>
-            <li><Link href="/alerts">Set Naira Rate Alerts</Link></li>
+
             <li><Link href="/charts">Historical FX Charts</Link></li>
             <li><Link href="/logs">Searchable Rate Logs</Link></li>
             <li><Link href="/convert">Currency Converter</Link></li>

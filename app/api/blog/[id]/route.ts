@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 type CommentDTO = {
   id: string;
@@ -56,9 +54,7 @@ export async function POST(
   const { id } = params;
   try {
     const body = await request.json();
-    const session = await getServerSession(authOptions);
-    const derivedName = session?.user?.name || session?.user?.email?.split("@")[0];
-    const name = String(body.name || derivedName || "Anonymous").trim();
+    const name = String(body.name || "Anonymous").trim();
     const content = String(body.content || "").trim();
 
     if (!content || content.length < 2) {
@@ -71,7 +67,7 @@ export async function POST(
     const row = await prisma.comment.create({
       data: {
         articleId: id,
-        userId: session?.user?.id ? String(session.user.id) : null,
+        userId: null,
         name: name || "Anonymous",
         content,
       },

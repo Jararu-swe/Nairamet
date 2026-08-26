@@ -280,16 +280,16 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           <Card className="w-full">
-            <CardHeader className="items-center text-center">
-              <CardTitle className="text-xl sm:text-2xl md:text-3xl text-emerald-900 break-words">
+            <CardHeader className="text-left">
+              <CardTitle className="text-xl sm:text-2xl md:text-3xl text-emerald-900 dark:text-emerald-100 break-words font-extrabold tracking-tight">
                 {safeTitle}
               </CardTitle>
-              <CardDescription className="text-emerald-700 mt-1 text-base md:text-lg">
+              <CardDescription className="text-emerald-700 dark:text-emerald-300 mt-2 text-base md:text-lg text-justify leading-relaxed">
                 {safeExcerpt}
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-2 pb-2 flex flex-col items-center text-center">
-              <div className="flex flex-wrap justify-center items-center gap-4 text-xs sm:text-sm text-emerald-600 mb-4">
+            <CardContent className="pt-2 pb-6">
+              <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 mb-6 pb-4 border-b border-border/50">
                 {article.author && (
                   <div className="flex items-center gap-1">
                     <User className="w-4 h-4" /> {article.author}
@@ -308,24 +308,24 @@ export default async function ArticlePage({ params }: Props) {
                 )}
               </div>
 
-              {/* Article Content */}
-              <div className="prose prose-emerald max-w-none w-full md:max-w-prose mb-6 text-center text-base sm:text-lg">
+              {/* Article Content - Justified */}
+              <div className="prose prose-emerald max-w-none w-full mb-6 text-justify text-base sm:text-lg">
                 {paragraphs.length > 0 ? (
                   paragraphs.map((p, i) => (
                     <p
                       key={i}
-                      className="leading-relaxed mb-3 text-center break-words"
+                      className="leading-relaxed mb-4 text-justify break-words text-foreground/90"
                       dangerouslySetInnerHTML={{ __html: injectInternalLinks(p) }}
                     />
                   ))
                 ) : (
-                  <p className="italic text-gray-600">No content available.</p>
+                  <p className="italic text-muted-foreground">No content available.</p>
                 )}
               </div>
 
               {/* NairaWatch Context Block for SEO */}
               {article.id.startsWith("scraped:") && (
-                <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-lg mb-6 border border-emerald-100 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-200 italic">
+                <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-xl mb-6 border border-emerald-100 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-200 italic text-justify leading-relaxed">
                   <p>
                     This report was curated by <strong>NairaWatch</strong> as part of our daily Nigerian FX market monitoring. 
                     For real-time updates and historical trends, visit our <Link href="/tracker" className="underline font-bold">Live FX Tracker</Link> or 
@@ -351,10 +351,8 @@ export default async function ArticlePage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Leaderboard Ad - After Article Content */}
-          <div className="mt-8">
-            <LazyLeaderboardAdWrapper zoneId="10841586" network="adcash" />
-          </div>
+          {/* Leaderboard Ad (Google AdSense) */}
+          <LazyLeaderboardAdWrapper />
 
           {/* Related Articles Section */}
           {relatedArticles.length > 0 && (

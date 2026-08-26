@@ -27,8 +27,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Calendar, TrendingUp, TrendingDown } from "lucide-react";
-import { BottomBannerAd } from "@/components/monetag-ad";
-import { AdcashSkyscraper } from "@/components/adcash-skyscraper";
+import { BottomBannerAd, InFeedAd } from "@/components/adsense-ad";
 import { Sparkline, SparklineCard } from "@/components/sparkline";
 
 // Mock historical data generator (can accept custom base rates for non-default currencies)
@@ -98,6 +97,7 @@ function ChartsPageContent() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [currencyOptions, setCurrencyOptions] = useState(currencies);
   const [showRotateMessage, setShowRotateMessage] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   const POLL_INTERVAL =
     Number(process.env.NAIRAMET_POLL_INTERVAL_SEC || 60) * 1000;
@@ -105,7 +105,10 @@ function ChartsPageContent() {
   // Check screen width for rotate message (show for all mobile/tablet portrait)
   useEffect(() => {
     const checkWidth = () => {
-      setShowRotateMessage(window.innerWidth < 768);
+      if (typeof window !== "undefined") {
+        setShowRotateMessage(window.innerWidth < 768);
+        setIsSmallScreen(window.innerWidth < 400);
+      }
     };
 
     checkWidth();
@@ -356,10 +359,9 @@ function ChartsPageContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main content */}
-        <div className="lg:col-span-3 space-y-6">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      {/* Main content */}
+      <div className="space-y-6">
           {/* Rotate phone message for small screens */}
           {showRotateMessage && (
             <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center gap-2 relative z-10">
@@ -606,9 +608,9 @@ function ChartsPageContent() {
                     data={chartData}
                     margin={{
                       top: 20,
-                      right: window.innerWidth < 400 ? 10 : 30,
-                      left: window.innerWidth < 400 ? 5 : 20,
-                      bottom: window.innerWidth < 400 ? 30 : 20,
+                      right: isSmallScreen ? 10 : 30,
+                      left: isSmallScreen ? 5 : 20,
+                      bottom: isSmallScreen ? 30 : 20,
                     }}
                   >
                     <CartesianGrid
@@ -747,6 +749,9 @@ function ChartsPageContent() {
             </CardContent>
           </Card>
 
+          {/* In-Page CPM Ad below Main Chart */}
+          <InFeedAd />
+
           {/* Rate Spread Analysis */}
           <Card>
             <CardHeader>
@@ -805,13 +810,7 @@ function ChartsPageContent() {
           </Card>
         </div>
 
-        {/* Sidebar with skyscraper ad (160x600) */}
-        <div className="lg:col-span-1">
-          <AdcashSkyscraper zoneId="10844798" />
-        </div>
-      </div>
-
-      {/* Bottom banner ad */}
+      {/* Bottom banner ad (AdSense) */}
       <BottomBannerAd />
     </div>
   );

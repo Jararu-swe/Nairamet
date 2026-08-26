@@ -2,89 +2,66 @@
 
 import { Suspense, lazy } from "react";
 
-// Lazy load the actual ad components
 const LazySkyscraperAd = lazy(() =>
   import("./skyscraper-ad").then((mod) => ({
     default: mod.SkyscraperAd,
-  })),
+  }))
 );
 
 const LazyStickySkyscraperAd = lazy(() =>
   import("./skyscraper-ad").then((mod) => ({
     default: mod.StickySkyscraperAd,
-  })),
+  }))
 );
 
 const LazyLeaderboardAd = lazy(() =>
   import("./leaderboard-ad").then((mod) => ({
     default: mod.LeaderboardAd,
-  })),
+  }))
 );
 
 /**
- * Fallback loading state for skyscraper ads
- */
-function SkyscraperAdFallback() {
-  return (
-    <div className="w-[160px] h-[600px] bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 animate-pulse" />
-  );
-}
-
-/**
- * Fallback loading state for leaderboard ads
- */
-function LeaderboardAdFallback() {
-  return (
-    <div className="w-full max-w-[728px] h-[90px] bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 animate-pulse" />
-  );
-}
-
-/**
- * Lazy-loaded Skyscraper Ad wrapper
- * Only loads when component is about to be visible
+ * Lazy-loaded Skyscraper Ad wrapper (AdSense)
+ * Returns null while loading so no empty grey placeholder boxes appear.
  */
 export function LazySkyscraperAdWrapper(props: {
-  zoneId: string;
-  network?: "adcash" | "bidvertiser";
-  publisherId?: string;
+  slot?: string;
+  zoneId?: string;
   className?: string;
 }) {
   return (
-    <Suspense fallback={<SkyscraperAdFallback />}>
-      <LazySkyscraperAd {...props} />
+    <Suspense fallback={null}>
+      <LazySkyscraperAd slot={props.slot} className={props.className} />
     </Suspense>
   );
 }
 
 /**
- * Lazy-loaded Sticky Skyscraper Ad wrapper
- * Only loads when component is about to be visible
+ * Lazy-loaded Sticky Skyscraper Ad wrapper (AdSense)
  */
 export function LazyStickySkyscraperAdWrapper(props: {
-  zoneId: string;
-  network?: "adcash" | "bidvertiser";
-  publisherId?: string;
+  slot?: string;
+  zoneId?: string;
 }) {
   return (
-    <Suspense fallback={<SkyscraperAdFallback />}>
-      <LazyStickySkyscraperAd {...props} />
+    <Suspense fallback={null}>
+      <LazyStickySkyscraperAd slot={props.slot} />
     </Suspense>
   );
 }
 
 /**
- * Lazy-loaded Leaderboard Ad wrapper
- * Only loads when component is about to be visible
+ * Lazy-loaded Leaderboard Ad wrapper (AdSense)
  */
 export function LazyLeaderboardAdWrapper(props: {
-  zoneId: string;
-  network?: "adcash" | "bidvertiser" | "adsense";
-  publisherId?: string;
+  slot?: string;
+  zoneId?: string;
+  network?: string;
   className?: string;
 }) {
   return (
-    <Suspense fallback={<LeaderboardAdFallback />}>
-      <LazyLeaderboardAd {...props} />
+    <Suspense fallback={null}>
+      <LazyLeaderboardAd slot={props.slot} className={props.className} />
     </Suspense>
   );
 }

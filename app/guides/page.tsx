@@ -460,10 +460,10 @@ export default function GuidesPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/alerts" className="flex-1">
+                  <Link href="/charts" className="flex-1">
                     <Button className="w-full">
-                      <Bell className="w-4 h-4 mr-2" />
-                      Set Rate Alerts
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      View Historical Charts
                     </Button>
                   </Link>
                   <Link href="/tracker" className="flex-1">
@@ -483,16 +483,8 @@ export default function GuidesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex gap-4 lg:gap-6">
-          {/* Left Sidebar - Skyscraper Ad */}
-          <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <LazyStickySkyscraperAdWrapper zoneId="10841738" network="adcash" />
-          </aside>
-
-          {/* Main Content */}
-          <div className="flex-1 space-y-6 min-w-0">
-            {/* Header */}
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Header */}
             <div className="text-center space-y-4">
               <h1 className="text-3xl sm:text-4xl font-bold text-emerald-900 dark:text-emerald-100">
                 FX Trading & Currency Guides
@@ -673,7 +665,7 @@ export default function GuidesPage() {
               <CardContent className="text-center py-8">
                 <h3 className="text-xl font-bold mb-2">Ready to Put Knowledge into Action?</h3>
                 <p className="mb-6 opacity-90">
-                  Start tracking live rates and setting up alerts based on what you've learned
+                  Start tracking live rates and analyzing trends based on what you've learned
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/tracker">
@@ -682,25 +674,15 @@ export default function GuidesPage() {
                       View Live Rates
                     </Button>
                   </Link>
-                  <Link href="/alerts">
+                  <Link href="/charts">
                     <Button variant="outline" className="w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20">
-                      <Bell className="w-4 h-4 mr-2" />
-                      Set Rate Alerts
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      View Historical Charts
                     </Button>
                   </Link>
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Right Sidebar - Skyscraper Ad */}
-          <aside className="hidden xl:block w-[160px] flex-shrink-0">
-            <LazyStickySkyscraperAdWrapper 
-              zoneId={process.env.NEXT_PUBLIC_ADCASH_SKYSCRAPER || "10841606"} 
-              network="adcash" 
-            />
-          </aside>
-        </div>
       </div>
     </div>
   );

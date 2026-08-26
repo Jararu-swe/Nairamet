@@ -1,56 +1,38 @@
 "use client";
 
-import { AdcashAd } from "./adcash-ad";
+import { AdSenseAd } from "./adsense-ad";
 
 interface SkyscraperAdProps {
-  zoneId: string;
-  network?: "adcash" | "bidvertiser";
-  publisherId?: string;
+  slot?: string;
   className?: string;
 }
 
 /**
- * 160x600 Skyscraper Ad Component
- * Vertical banner ad format - typically placed on the right sidebar
+ * 160x600 Skyscraper Ad Component (Google AdSense)
+ * Returns null when not configured (zero placeholder footprint).
  */
-export function SkyscraperAd({
-  zoneId,
-  network = "adcash",
-  publisherId,
-  className = "",
-}: SkyscraperAdProps) {
-  if (network !== "adcash") return null;
+export function SkyscraperAd({ slot, className = "" }: SkyscraperAdProps) {
+  const slotId = slot || process.env.NEXT_PUBLIC_ADSENSE_SKYSCRAPER_SLOT;
+  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
+  if (!clientId || !slotId) return null;
 
   return (
-    <div className={`skyscraper-ad-wrapper ${className}`}>
-      <AdcashAd 
-        zoneId={zoneId} 
-        width={160} 
-        height={600} 
-      />
+    <div className={`skyscraper-ad-wrapper my-4 flex justify-center ${className}`}>
+      <AdSenseAd slot={slotId} format="vertical" />
     </div>
   );
 }
 
-/**
- * Sticky Skyscraper - Stays visible on scroll (desktop only)
- */
-export function StickySkyscraperAd({
-  zoneId,
-  network = "adcash",
-  publisherId,
-}: {
-  zoneId: string;
-  network?: "adcash" | "bidvertiser";
-  publisherId?: string;
-}) {
+export function StickySkyscraperAd({ slot }: { slot?: string }) {
+  const slotId = slot || process.env.NEXT_PUBLIC_ADSENSE_SKYSCRAPER_SLOT;
+  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
+  if (!clientId || !slotId) return null;
+
   return (
-    <div className="hidden xl:block sticky top-20">
-      <SkyscraperAd
-        zoneId={zoneId}
-        network={network}
-        publisherId={publisherId}
-      />
+    <div className="hidden xl:block sticky top-24">
+      <SkyscraperAd slot={slotId} />
     </div>
   );
 }

@@ -980,8 +980,8 @@ function ToolsPageContent() {
           </TabsContent>
         </Tabs>
 
-        {/* Leaderboard Ad - Footer */}
-        <LazyLeaderboardAdWrapper zoneId="10841586" network="adcash" />
+        {/* Leaderboard Ad (Google AdSense) */}
+        <LazyLeaderboardAdWrapper />
       </div>
     </div>
   );

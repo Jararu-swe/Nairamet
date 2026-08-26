@@ -554,7 +554,7 @@ export function LiveCurrencyRates({ initialRates }: LiveCurrencyRatesProps) {
                     return (
                       <div
                         key={`${item.currency}-${slideIndex}-${cardIndex}`}
-                        className={`p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md ${
+                        className={`p-4 rounded-2xl bg-card border border-border/60 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-200 ${
                           isVisible ? "opacity-100" : "opacity-0"
                         } ${isVisible ? (isAnimating || isTransitioning ? "animate-fade-slide-in" : "") : ""}`}
                         style={{
@@ -565,71 +565,64 @@ export function LiveCurrencyRates({ initialRates }: LiveCurrencyRatesProps) {
                           willChange: "transform, opacity",
                         }}
                       >
-                      {/* Currency Header */}
-                      <div className="flex items-center justify-center gap-1.5 mb-2">
-                        <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-700">
-                          <img
-                            src={getFlagUrl(item.currency)}
-                            alt={`${item.currency} flag`}
-                            width="24"
-                            height="24"
-                            loading="lazy"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        </div>
-                        <span className="font-bold text-xs text-foreground">
-                          {item.currency}/NGN
-                        </span>
-                      </div>
+                        {/* Currency Header */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full overflow-hidden border border-border/80 flex items-center justify-center bg-muted shadow-sm flex-shrink-0">
+                              <img
+                                src={getFlagUrl(item.currency)}
+                                alt={`${item.currency} flag`}
+                                width="28"
+                                height="28"
+                                loading="lazy"
+                                className="w-full h-full object-cover scale-110"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            </div>
+                            <span className="font-extrabold text-sm text-foreground tracking-tight">
+                              {item.currency}
+                            </span>
+                          </div>
 
-                      {/* Main Rate */}
-                      <div className="text-center mb-2">
-                        <div className="font-bold text-lg text-foreground">
-                          {formatRate(item.rate)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Official
-                        </div>
-                      </div>
-
-                      {/* Parallel Rate */}
-                      <div className="text-center mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
-                        <div className="text-sm font-medium text-muted-foreground">
-                          {formatRate(item.parallel)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Parallel
-                        </div>
-                      </div>
-
-                      {/* Change Indicator */}
-                      <div className="flex items-center justify-center">
-                        <div
-                          className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${
-                            item.change >= 0
-                              ? "bg-emerald-100 dark:bg-emerald-900/30"
-                              : "bg-red-100 dark:bg-red-900/30"
-                          }`}
-                        >
-                          {item.change >= 0 ? (
-                            <TrendingUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                          ) : (
-                            <TrendingDown className="w-3 h-3 text-red-600 dark:text-red-400" />
-                          )}
-                          <span
-                            className={`text-xs font-semibold ${
-                              item.change >= 0
-                                ? "text-emerald-600 dark:text-emerald-400"
-                                : "text-red-600 dark:text-red-400"
-                            }`}
-                          >
-                            {formatChange(item.change)}
+                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            Live
                           </span>
                         </div>
-                      </div>
+
+                        {/* Parallel Rate (Primary in Nigeria) */}
+                        <div className="mb-2">
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            Parallel / FX
+                          </div>
+                          <div className="font-black text-xl text-foreground tracking-tight">
+                            {formatRate(item.parallel)}
+                          </div>
+                        </div>
+
+                        {/* Official Rate & Change */}
+                        <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] text-muted-foreground block">
+                              CBN: {formatRate(item.rate)}
+                            </span>
+                          </div>
+                          <div
+                            className={`flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold ${
+                              item.change >= 0
+                                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                                : "bg-red-500/15 text-red-700 dark:text-red-300"
+                            }`}
+                          >
+                            {item.change >= 0 ? (
+                              <TrendingUp className="w-3 h-3" />
+                            ) : (
+                              <TrendingDown className="w-3 h-3" />
+                            )}
+                            <span>{formatChange(item.change)}</span>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}

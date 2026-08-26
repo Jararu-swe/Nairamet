@@ -6,17 +6,19 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 
-# Disallow auth pages
-Disallow: /auth/
-Disallow: /reset-password
-Disallow: /forgot-password
-
 # Disallow widget pages (embedded content)
 Disallow: /widget/
 
 # Allow specific API endpoints for SEO
 Allow: /api/currency
 Allow: /api/tracker
+
+# Allow Google ad crawlers full access
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
 
 # Sitemap location
 Sitemap: https://nairamet.com/sitemap.xml

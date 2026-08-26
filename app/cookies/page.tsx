@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CookieSettingsButton } from "@/components/cookie-settings-button";
-import { BottomBannerAd } from "@/components/monetag-ad";
+
 
 export const metadata: Metadata = {
   title: "Cookie Policy",
@@ -64,8 +64,8 @@ export default function CookiesPage() {
           </p>
           <ul>
             <li>
-              <strong>Monetag:</strong> To display relevant
-              advertisements
+              <strong>Google AdSense:</strong> To display relevant
+              advertisements (if enabled)
             </li>
             <li>
               <strong>Google Analytics:</strong> To analyze website traffic and
@@ -130,9 +130,6 @@ export default function CookiesPage() {
           </p>
         </div>
       </div>
-
-      {/* Bottom banner ad */}
-      <BottomBannerAd />
     </div>
   );
 }

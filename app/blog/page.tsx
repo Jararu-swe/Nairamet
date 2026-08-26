@@ -7,16 +7,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, User, ArrowRight, Heart, BookOpen, Bell } from "lucide-react";
+import { Calendar, Clock, User, ArrowRight, BookOpen, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { getArticles, Article } from "@/lib/blog";
-// import NewsletterForm from "@/components/newsletter-form";
-// removed Wire/scraper integration per policy: wire component removed
 import { MarketSnapshot } from "@/components/market-snapshot";
-// import { LikeButton } from "@/components/like-button";
 import { BlogSidebar } from "@/components/blog-sidebar";
 import { Metadata } from "next";
-import { AdcashSkyscraper } from "@/components/adcash-skyscraper";
+import { SidebarAd } from "@/components/adsense-ad";
 
 export async function generateMetadata(): Promise<Metadata> {
   const articles = await getArticles();
@@ -178,10 +175,10 @@ export default async function BlogPage() {
                 View Trading Guides
               </Button>
             </Link>
-            <Link href="/alerts">
+            <Link href="/tracker">
               <Button variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
-                <Bell className="w-4 h-4 mr-2" />
-                Set Rate Alerts
+                <TrendingUp className="w-4 h-4 mr-2" />
+                View Live Rates
               </Button>
             </Link>
           </div>
@@ -232,7 +229,7 @@ export default async function BlogPage() {
                     <CardTitle className="text-2xl text-emerald-900 dark:text-emerald-100">
                       {article.title}
                     </CardTitle>
-                    <CardDescription className="text-emerald-700 dark:text-emerald-300 text-base">
+                    <CardDescription className="text-emerald-700 dark:text-emerald-300 text-base text-justify leading-relaxed">
                       {article.excerpt}
                     </CardDescription>
                   </CardHeader>
@@ -257,8 +254,6 @@ export default async function BlogPage() {
                             {article.readTime} min read
                           </span>
                         </div>
-                        {/* Removed LikeButton */}
-                        {/* <LikeButton articleId={article.id} /> */}
                       </div>
                       <Link
                         href={`/blog/${encodeURIComponent(article.id)}`}
@@ -308,7 +303,7 @@ export default async function BlogPage() {
                                 {article.title}
                               </h3>
                             </Link>
-                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2 text-justify">
                               {article.excerpt}
                             </p>
                             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
@@ -371,9 +366,9 @@ export default async function BlogPage() {
           <div className="space-y-6">
             <BlogSidebar categories={categories} />
 
-            {/* Skyscraper Ad - Right Sidebar */}
+            {/* Sidebar Ad - Right Sidebar (AdSense) */}
             <div className="hidden lg:block">
-              <AdcashSkyscraper zoneId="10844798" />
+              <SidebarAd />
             </div>
           </div>
         </div>

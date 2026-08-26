@@ -1,8 +1,8 @@
-# AdSense Setup Guide for NairaMet
+# Google AdSense Setup Guide for NairaMet
 
 ## Quick Start
 
-Your app is **ready for AdSense** and follows all Google policies. Just follow these steps:
+Your app is **fully ready for Google AdSense** and follows all Google policies. Just follow these steps:
 
 ---
 
@@ -20,273 +20,98 @@ Your app is **ready for AdSense** and follows all Google policies. Just follow t
 
 ---
 
-## Step 2: Add AdSense Code to Your Site
+## Step 2: Add Your Publisher ID
 
-Once approved, Google will give you:
-- **Publisher ID**: `ca-pub-XXXXXXXXXXXXXXXX`
-- **Ad Unit IDs**: One for each ad placement
+Once approved, Google will give you a **Publisher ID** like `ca-pub-1234567890123456`.
 
 ### Update Environment Variables
 
+Add the following to your `.env.local` file:
+
 ```bash
-# In .env.local
+# Google AdSense Publisher ID (required)
 NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXX
 ```
 
----
-
-## Step 3: Create Ad Units in AdSense Dashboard
-
-Create these 6 ad units in your AdSense dashboard:
-
-### 1. Top Banner Ad
-- **Name**: NairaMet - Top Banner
-- **Type**: Display ads
-- **Size**: Responsive
-- **Copy the Ad Unit ID** → Replace in `components/adsense-ad.tsx` line for `TopBannerAd`
-
-### 2. Sidebar Ad
-- **Name**: NairaMet - Sidebar
-- **Type**: Display ads
-- **Size**: Vertical (300x600 or responsive)
-- **Copy the Ad Unit ID** → Replace in `components/adsense-ad.tsx` line for `SidebarAd`
-
-### 3. In-Content Ad
-- **Name**: NairaMet - In Content
-- **Type**: In-article ads
-- **Size**: Responsive
-- **Copy the Ad Unit ID** → Replace in `components/adsense-ad.tsx` line for `InContentAd`
-
-### 4. Bottom Banner Ad
-- **Name**: NairaMet - Bottom Banner
-- **Type**: Display ads
-- **Size**: Horizontal (728x90 or responsive)
-- **Copy the Ad Unit ID** → Replace in `components/adsense-ad.tsx` line for `BottomBannerAd`
-
-### 5. In-Feed Ad
-- **Name**: NairaMet - In Feed
-- **Type**: In-feed ads
-- **Size**: Responsive
-- **Copy the Ad Unit ID** → Replace in `components/adsense-ad.tsx` line for `InFeedAd`
-
-### 6. Sidebar Card Ad
-- **Name**: NairaMet - Sidebar Card
-- **Type**: Display ads
-- **Size**: Vertical (300x250 or 300x600)
-- **Copy the Ad Unit ID** → Replace in `components/adsense-ad.tsx` line for `SidebarAdCard`
+That's it! The AdSense script loads automatically in `app/layout.tsx` when this variable is set.
 
 ---
 
-## Step 4: Update Ad Slot IDs
+## Step 3: Create Ad Units & Set Slot IDs
 
-Open `components/adsense-ad.tsx` and replace the placeholder IDs:
+Create ad units in your [AdSense Dashboard](https://www.google.com/adsense) and add their slot IDs to `.env.local`:
 
-```typescript
-// Find and replace these lines:
+```bash
+# Optional — Ad unit slot IDs for specific placements
+NEXT_PUBLIC_ADSENSE_SLOT_ID=1234567890            # Default ad slot
+NEXT_PUBLIC_ADSENSE_LEADERBOARD_SLOT=1234567891   # 728x90 leaderboard (landing page, blog post, tools)
+NEXT_PUBLIC_ADSENSE_INFEED_SLOT=1234567892        # In-feed ads (between content sections)
+NEXT_PUBLIC_ADSENSE_INCONTENT_SLOT=1234567893      # In-content ads (inside articles)
+NEXT_PUBLIC_ADSENSE_TOP_BANNER_SLOT=1234567894     # Top banner
+NEXT_PUBLIC_ADSENSE_BOTTOM_BANNER_SLOT=1234567895  # Bottom banner
+NEXT_PUBLIC_ADSENSE_SIDEBAR_SLOT=1234567896        # Sidebar (blog listing)
+NEXT_PUBLIC_ADSENSE_SKYSCRAPER_SLOT=1234567897     # 160x600 skyscraper
+```
 
-export function TopBannerAd() {
-  return (
-    <AdSenseAd
-      adSlot="YOUR_TOP_BANNER_AD_SLOT_ID" // ← Replace this
-      adFormat="horizontal"
-      className="my-4 max-w-7xl mx-auto"
-    />
-  );
-}
+> **Note**: When no slot IDs are configured, ad components render `null` — zero placeholder boxes, zero layout shift.
 
-export function SidebarAd() {
-  return (
-    <AdSenseAd
-      adSlot="YOUR_SIDEBAR_AD_SLOT_ID" // ← Replace this
-      adFormat="vertical"
-      fullWidthResponsive={false}
-      className="sticky top-4"
-    />
-  );
-}
+---
 
-export function InContentAd() {
-  return (
-    <AdSenseAd
-      adSlot="YOUR_IN_CONTENT_AD_SLOT_ID" // ← Replace this
-      adFormat="fluid"
-      className="my-6"
-    />
-  );
-}
+## Step 4: Update ads.txt
 
-export function BottomBannerAd() {
-  // ... inside the component
-  <AdSenseAd
-    adSlot="YOUR_BOTTOM_BANNER_AD_SLOT_ID" // ← Replace this
-    adFormat="horizontal"
-    className="w-full"
-  />
-}
+Open `public/ads.txt` and replace `YOUR_PUBLISHER_ID` with your actual publisher ID (just the numeric part, e.g. `pub-1234567890123456`):
 
-export function InFeedAd() {
-  return (
-    <div className="my-8 p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs font-medium text-muted-foreground">Sponsored</span>
-      </div>
-      <AdSenseAd
-        adSlot="YOUR_IN_FEED_AD_SLOT_ID" // ← Replace this
-        adFormat="fluid"
-        className="min-h-[100px]"
-      />
-    </div>
-  );
-}
-
-export function SidebarAdCard() {
-  return (
-    <div className="sticky top-20 p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs font-medium text-muted-foreground">Sponsored</span>
-      </div>
-      <AdSenseAd
-        adSlot="YOUR_SIDEBAR_CARD_AD_SLOT_ID" // ← Replace this
-        adFormat="vertical"
-        fullWidthResponsive={false}
-        className="min-h-[250px]"
-      />
-    </div>
-  );
-}
+```
+google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0
 ```
 
 ---
 
-## Step 5: Deploy and Test
+## What's Already Done For You
 
-1. **Build the app**:
-   ```bash
-   pnpm run build
-   ```
+### ✅ AdSense Policy Compliance
+- **Privacy Policy** (`/privacy`) — Dedicated Section 4 "Advertising & Google AdSense" with full disclosure, Google Ads Settings opt-out link, DART cookie explanation, and aboutads.info link
+- **Terms of Service** (`/terms`) — Complete terms covering advertising
+- **Cookie Policy** (`/cookies`) — Lists Google AdSense as a third-party cookie provider
+- **Children's Privacy** — States site is not intended for children under 18
 
-2. **Deploy to production** (Vercel):
-   ```bash
-   git add -A
-   git commit -m "Add AdSense integration"
-   git push
-   ```
+### ✅ Technical Infrastructure
+- **`ads.txt`** — Ready with Google template (just add your publisher ID)
+- **`robots.txt`** — Allows `Mediapartners-Google` and `AdsBot-Google` full site access
+- **AdSense Script** — Loads conditionally in `<head>` only when publisher ID is configured
+- **Cookiebot CMP** — Google-certified Consent Management Platform integration
+- **Zero-Placeholder Architecture** — All ad components render `null` when unconfigured
 
-3. **Test on production**:
-   - Visit your live site
-   - Check that ads appear (may take 10-20 minutes after deployment)
-   - Test on mobile and desktop
-   - Verify cookie consent works
+### ✅ Ad Placement Locations
+| Page | Component | Format |
+|------|-----------|--------|
+| Home (`/`) | `LazyLeaderboardAdWrapper` | 728x90 horizontal |
+| Home (`/`) | `InFeedAd` | Fluid in-feed |
+| Home (`/`) | `BottomBannerAd` | Horizontal bottom |
+| Tracker (`/tracker`) | `InFeedAd` | Fluid in-feed |
+| Blog listing (`/blog`) | `SidebarAd` | Vertical sidebar |
+| Blog post (`/blog/[id]`) | `LazyLeaderboardAdWrapper` | 728x90 after article |
+| Tools (`/tools`) | `LazyLeaderboardAdWrapper` | 728x90 footer |
 
----
-
-## Step 6: Monitor Performance
-
-### In AdSense Dashboard:
-- Check ad impressions
-- Monitor click-through rate (CTR)
-- Review earnings
-- Check for policy violations
-
-### In Your Analytics:
-- Monitor page load times
-- Check bounce rates
-- Track user engagement
-- Review Core Web Vitals
+### ✅ Content Quality
+- 36+ original blog articles on Nigerian FX markets
+- Interactive tools: Currency converter, rate tracker, historical charts
+- Comprehensive guides on FX trading and remittances
+- Clear navigation with sitemap.xml
+- SEO-optimized meta tags on every page
 
 ---
 
 ## Troubleshooting
 
-### Ads Not Showing?
+### Ads not showing?
+1. Verify `NEXT_PUBLIC_ADSENSE_CLIENT_ID` is set in `.env.local`
+2. Restart the dev server after changing env variables
+3. AdSense may take 24-48 hours to start serving ads on a new domain
+4. Check browser console for errors
 
-1. **Check environment variable**:
-   ```bash
-   echo $NEXT_PUBLIC_ADSENSE_CLIENT_ID
-   ```
-
-2. **Check browser console** for errors
-
-3. **Verify ad slot IDs** are correct
-
-4. **Wait 10-20 minutes** after deployment
-
-5. **Check AdSense dashboard** for approval status
-
-### Blank Ad Spaces?
-
-- **Low content pages**: Ads won't show on pages with < 150 words
-- **Blacklisted pages**: Ads disabled on auth, admin pages
-- **Ad blockers**: Users with ad blockers won't see ads
-- **Cookie consent**: Users who reject ads won't see personalized ads
-
-### Policy Violations?
-
-- Review `docs/ADSENSE_COMPLIANCE.md`
-- Check AdSense dashboard for specific issues
-- Ensure content meets quality guidelines
-- Verify ad placement follows policies
-
----
-
-## Best Practices
-
-### Do's ✅
-- Monitor performance regularly
-- Keep content fresh and valuable
-- Respect user privacy
-- Test on multiple devices
-- Follow AdSense policies
-
-### Don'ts ❌
-- Never click your own ads
-- Don't ask users to click ads
-- Don't modify ad code
-- Don't place ads on empty pages
-- Don't use misleading labels
-
----
-
-## Revenue Optimization Tips
-
-1. **Focus on Quality Content**: Better content = more traffic = more revenue
-2. **Optimize Ad Placement**: Test different positions (A/B testing)
-3. **Improve User Experience**: Lower bounce rate = more ad views
-4. **Mobile Optimization**: 50%+ of traffic is mobile
-5. **Page Speed**: Faster pages = better user experience = more engagement
-
----
-
-## Support & Resources
-
-### Google AdSense Help
-- [AdSense Help Center](https://support.google.com/adsense)
-- [AdSense Policies](https://support.google.com/adsense/answer/48182)
-- [AdSense Community](https://support.google.com/adsense/community)
-
-### Your Documentation
-- `docs/ADSENSE_COMPLIANCE.md` - Full compliance checklist
-- `docs/AD_PLACEMENT_GUIDE.md` - Ad placement strategy
-- `components/adsense-ad.tsx` - Ad component implementation
-
----
-
-## Summary
-
-Your NairaMet app is **100% ready** for AdSense:
-
-✅ All pages have strategic ad placement
-✅ Follows all Google AdSense policies
-✅ Cookie consent integrated (GDPR compliant)
-✅ User-friendly ad behavior (dismissible, delayed)
-✅ Mobile optimized
-✅ Minimum content checks in place
-✅ Professional design and structure
-
-**Just add your AdSense IDs and deploy!**
-
----
-
-**Questions?** Check the documentation or contact Google AdSense support.
-
-**Good luck with your monetization!** 🚀
+### AdSense application rejected?
+- Ensure your domain has been live for at least 3-6 months
+- Make sure you have substantial original content (NairaMet has 36+ articles)
+- Verify your privacy policy mentions Google AdSense (✅ already done)
+- Check that `robots.txt` allows Google crawlers (✅ already done)

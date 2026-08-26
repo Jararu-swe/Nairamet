@@ -1,7 +1,9 @@
-# Monetag ads.txt for NairaMet
-# Get your actual ads.txt content from Monetag dashboard
-# Go to: Monetag Dashboard → Websites → Your Site → ads.txt
-
-# Add your Monetag ads.txt lines here
+# ads.txt for NairaMet (nairamet.com)
+# Required by Google AdSense for publisher verification.
+#
+# Replace YOUR_PUBLISHER_ID with your actual AdSense publisher ID
+# (e.g. pub-1234567890123456) once your account is approved.
+#
 # Format: <domain>, <publisher id>, <relationship>, <cert authority id>
-# Example: monetag.com, pub-123456789, DIRECT, d3c19cb6e028b
+
+google.com, YOUR_PUBLISHER_ID, DIRECT, f08c47fec0942fa0

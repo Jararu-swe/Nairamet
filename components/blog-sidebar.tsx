@@ -129,16 +129,7 @@ export function BlogSidebar({ categories }: BlogSidebarProps) {
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full justify-start text-sm h-8 px-2 hover:bg-muted"
-          >
-            <Link href="/alerts" className="flex items-center gap-2">
-              <Bell className="w-3 h-3" />
-              <span>Set Rate Alerts</span>
-            </Link>
-          </Button>
+
 
           <Button
             asChild

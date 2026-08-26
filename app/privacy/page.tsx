@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
-import { BottomBannerAd } from "@/components/monetag-ad";
+
 
 export const metadata: Metadata = {
   title: "Privacy Policy - How We Protect Your Data",
@@ -224,7 +224,7 @@ export default function PrivacyPolicyPage() {
           </CardContent>
         </Card>
 
-        {/* 4. Sharing Your Information */}
+        {/* 4. Advertising & Google AdSense */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -233,6 +233,83 @@ export default function PrivacyPolicyPage() {
                 className="text-emerald-600 border-emerald-600"
               >
                 4
+              </Badge>
+              Advertising &amp; Google AdSense
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              NairaMet uses Google AdSense, a third-party advertising service provided
+              by Google LLC, to display advertisements. Google AdSense uses cookies
+              and similar technologies to serve ads based on your prior visits to this
+              site and other websites on the internet.
+            </p>
+            <div className="space-y-3">
+              <div>
+                <h4 className="font-semibold mb-1">How Google uses your data:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Google&apos;s use of advertising cookies enables it and its partners to
+                  serve ads based on your visit to NairaMet and/or other sites on the
+                  internet. You may opt out of personalized advertising by visiting{" "}
+                  <a
+                    href="https://www.google.com/settings/ads"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-600 hover:underline"
+                  >
+                    Google Ads Settings
+                  </a>
+                  .
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Third-party ad vendors:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Third-party vendors, including Google, use cookies to serve ads based on
+                  your browsing history. You can opt out of third-party vendor cookies for
+                  personalized advertising at{" "}
+                  <a
+                    href="https://www.aboutads.info/choices/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-600 hover:underline"
+                  >
+                    www.aboutads.info/choices
+                  </a>
+                  .
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">DoubleClick DART Cookie:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Google, as a third-party vendor, uses the DART cookie to serve ads to our
+                  site visitors based upon their visit to NairaMet and other sites on the
+                  internet. Users may opt out of the use of the DART cookie by visiting the
+                  Google Ad and Content Network privacy policy at{" "}
+                  <a
+                    href="https://policies.google.com/technologies/ads"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-600 hover:underline"
+                  >
+                    Google Privacy &amp; Terms
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 5. Sharing Your Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="text-emerald-600 border-emerald-600"
+              >
+                5
               </Badge>
               Sharing Your Information
             </CardTitle>
@@ -245,7 +322,8 @@ export default function PrivacyPolicyPage() {
               <div>
                 <h4 className="font-semibold mb-1">Service providers:</h4>
                 <p className="text-sm text-muted-foreground">
-                  Payment processors, cloud hosting, and analytics providers.
+                  Payment processors, cloud hosting, analytics providers, and
+                  advertising partners such as Google AdSense.
                 </p>
               </div>
               <div>
@@ -262,7 +340,7 @@ export default function PrivacyPolicyPage() {
           </CardContent>
         </Card>
 
-        {/* 5. Data Security */}
+        {/* 6. Data Security */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -270,7 +348,7 @@ export default function PrivacyPolicyPage() {
                 variant="outline"
                 className="text-emerald-600 border-emerald-600"
               >
-                5
+                6
               </Badge>
               Data Security
             </CardTitle>
@@ -301,7 +379,7 @@ export default function PrivacyPolicyPage() {
           </CardContent>
         </Card>
 
-        {/* 6. Your Rights */}
+        {/* 7. Your Rights */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -309,7 +387,7 @@ export default function PrivacyPolicyPage() {
                 variant="outline"
                 className="text-emerald-600 border-emerald-600"
               >
-                6
+                7
               </Badge>
               Your Rights
             </CardTitle>
@@ -345,7 +423,7 @@ export default function PrivacyPolicyPage() {
           </CardContent>
         </Card>
 
-        {/* 7. Children's Privacy */}
+        {/* 8. Children's Privacy */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -353,7 +431,7 @@ export default function PrivacyPolicyPage() {
                 variant="outline"
                 className="text-emerald-600 border-emerald-600"
               >
-                7
+                8
               </Badge>
               Children's Privacy
             </CardTitle>
@@ -366,7 +444,7 @@ export default function PrivacyPolicyPage() {
           </CardContent>
         </Card>
 
-        {/* 8. Changes to This Policy */}
+        {/* 9. Changes to This Policy */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -374,7 +452,7 @@ export default function PrivacyPolicyPage() {
                 variant="outline"
                 className="text-emerald-600 border-emerald-600"
               >
-                8
+                9
               </Badge>
               Changes to This Policy
             </CardTitle>
@@ -429,8 +507,6 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
 
-      {/* Bottom banner ad */}
-      <BottomBannerAd />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
-import { AuthProvider } from "@/contexts/auth-context";
+
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -116,8 +116,6 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import CookieConsent from "@/components/cookie-consent";
-import MonetagScript from "@/components/monetag-script";
-import AdcashScript from "@/components/adcash-script";
 
 export default function RootLayout({
   children,
@@ -185,8 +183,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Monetag Verification */}
-        <meta name="monetag" content="b6634b3001efde2f7c53a142165751f1" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -208,34 +204,26 @@ export default function RootLayout({
             async
           />
         )}
-        {/* OneSignal SDK - async for better performance */}
-        <script
-          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-          defer
-          async
-        />
-        {/* Monetag ads are injected client-side by `MonetagScript` when user consent allows personalized ads */}
-        {/* AdCash Library - loaded once globally */}
-        <script
-          id="aclib"
-          type="text/javascript"
-          src="https://acscdn.com/script/aclib.js"
-          async
-        />
+
+        {/* Google AdSense Script - loads only when Client ID is configured */}
+        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+          />
+        )}
+
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />
       </head>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
             <Navbar />
             <main className="min-h-[60vh]">{children}</main>
             {/* Cookie consent component (client-side) */}
             <CookieConsent />
-            {/* Client-injected Monetag script (respects cookie consent) */}
-            <MonetagScript />
-          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

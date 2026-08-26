@@ -51,10 +51,10 @@ export function InternalLinks({ title = "Related Pages", links }: InternalLinksP
 // Predefined link sets for common pages
 export const trackerRelatedLinks: RelatedLink[] = [
   {
-    title: "Set Rate Alerts",
-    description: "Get notified when rates hit your target",
-    href: "/alerts",
-    icon: <Bell className="w-5 h-5" />,
+    title: "Historical Charts",
+    description: "View rate trends and historical data",
+    href: "/charts",
+    icon: <TrendingUp className="w-5 h-5" />,
   },
   {
     title: "Currency Converter",
@@ -69,31 +69,10 @@ export const trackerRelatedLinks: RelatedLink[] = [
     icon: <BookOpen className="w-5 h-5" />,
   },
   {
-    title: "Historical Charts",
-    description: "View rate trends and historical data",
-    href: "/charts",
+    title: "Rate Logs",
+    description: "Search and export historical records",
+    href: "/logs",
     icon: <TrendingUp className="w-5 h-5" />,
-  },
-];
-
-export const alertsRelatedLinks: RelatedLink[] = [
-  {
-    title: "Live Rate Tracker",
-    description: "Monitor real-time exchange rates",
-    href: "/tracker",
-    icon: <TrendingUp className="w-5 h-5" />,
-  },
-  {
-    title: "Currency Tools",
-    description: "Converters and calculators",
-    href: "/tools",
-    icon: <Calculator className="w-5 h-5" />,
-  },
-  {
-    title: "Premium Features",
-    description: "Unlock unlimited alerts and more",
-    href: "/pricing",
-    icon: <ArrowRight className="w-5 h-5" />,
   },
 ];
 
@@ -105,10 +84,10 @@ export const toolsRelatedLinks: RelatedLink[] = [
     icon: <TrendingUp className="w-5 h-5" />,
   },
   {
-    title: "Rate Alerts",
-    description: "Set alerts for your target rates",
-    href: "/alerts",
-    icon: <Bell className="w-5 h-5" />,
+    title: "Historical Charts",
+    description: "View rate trends and historical data",
+    href: "/charts",
+    icon: <TrendingUp className="w-5 h-5" />,
   },
   {
     title: "Market Analysis",

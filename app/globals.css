@@ -453,4 +453,28 @@
   .overflow-x-touch::-webkit-scrollbar {
     display: none;
   }
+
+  /* Wise-style dual converter step line & nodes */
+  .wise-step-line {
+    position: relative;
+  }
+  .wise-step-line::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: currentColor;
+    opacity: 0.2;
+  }
+
+  .wise-card {
+    border-radius: 1.5rem;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .wise-card:hover {
+    box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.08);
+  }
 }
+
