@@ -821,6 +821,8 @@ function LandingPageInner({ initialRates }: LandingPageContentProps) {
               <ul className="space-y-2.5 text-sm text-muted-foreground">
                 <li><Link href="/blog" className="hover:text-emerald-600 transition-colors">Naira Watch Blog</Link></li>
                 <li><Link href="/guides" className="hover:text-emerald-600 transition-colors">FX Guides</Link></li>
+                <li><Link href="/about" className="hover:text-emerald-600 transition-colors">About Us</Link></li>
+                <li><Link href="/contact" className="hover:text-emerald-600 transition-colors">Contact</Link></li>
                 <li><Link href="/privacy" className="hover:text-emerald-600 transition-colors">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-emerald-600 transition-colors">Terms of Service</Link></li>
                 <li><Link href="/disclaimer" className="hover:text-emerald-600 transition-colors">Financial Disclaimer</Link></li>

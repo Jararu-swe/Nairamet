@@ -14,6 +14,8 @@ import {
   Moon,
   Sun,
   ArrowRight,
+  Info,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -171,6 +173,25 @@ export function Navbar() {
                   </Link>
                 );
               })}
+            </div>
+
+            <div className="pt-3 mt-2 border-t border-border/50 grid grid-cols-2 gap-2">
+              <Link
+                href="/about"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <Info className="w-3.5 h-3.5 text-emerald-500" />
+                <span>About Us</span>
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Contact Us</span>
+              </Link>
             </div>
           </div>
         )}

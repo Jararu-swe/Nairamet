@@ -21,7 +21,7 @@ User-agent: AdsBot-Google
 Allow: /
 
 # Sitemap location
-Sitemap: https://nairamet.com/sitemap.xml
+Sitemap: https://www.nairamet.com/sitemap.xml
 
 # Crawl-delay for specific bots (optional)
 User-agent: Googlebot

@@ -95,10 +95,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: `${baseUrl}/blog/${id}`,
     },
     robots: {
-      index: true,
+      // Scraped/syndicated articles are noindex to comply with AdSense original content policy
+      index: !article.originalUrl,
       follow: true,
       googleBot: {
-        index: true,
+        index: !article.originalUrl,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",
@@ -323,29 +324,53 @@ export default async function ArticlePage({ params }: Props) {
                 )}
               </div>
 
-              {/* NairaWatch Context Block for SEO */}
-              {article.id.startsWith("scraped:") && (
-                <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-xl mb-6 border border-emerald-100 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-200 italic text-justify leading-relaxed">
-                  <p>
-                    This report was curated by <strong>NairaWatch</strong> as part of our daily Nigerian FX market monitoring. 
-                    For real-time updates and historical trends, visit our <Link href="/tracker" className="underline font-bold">Live FX Tracker</Link> or 
-                    check the <Link href="/" className="underline font-bold">Official vs Parallel Market rates</Link>.
-                  </p>
+              {/* Source Attribution — prominent card for syndicated content */}
+              {article.originalUrl && (
+                <div className="bg-amber-50 dark:bg-amber-900/10 p-5 rounded-xl mb-6 border border-amber-200 dark:border-amber-800">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-amber-900 dark:text-amber-200 mb-1">
+                        Source Attribution
+                      </p>
+                      <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                        This article was originally published by{" "}
+                        <a
+                          href={article.originalUrl}
+                          target="_blank"
+                          rel="nofollow noopener noreferrer"
+                          className="font-semibold underline hover:text-amber-600"
+                        >
+                          {article.author || new URL(article.originalUrl).hostname}
+                        </a>
+                        . NairaMet curates and presents this content as part of our Nigerian FX news monitoring service.
+                        All rights remain with the original publisher.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* Original Source citation (optional, as small meta info) */}
-              {article.originalUrl && (
-                <div className="text-xs text-gray-500 mb-2 text-center break-words">
-                  Original source:{" "}
-                  <a
-                    href={article.originalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-600 underline"
-                  >
-                    {article.author || article.originalUrl}
-                  </a>
+              {/* NairaWatch Context Block — editorial framing for all scraped articles */}
+              {article.id.startsWith("scraped:") && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/10 p-5 rounded-xl mb-6 border border-emerald-100 dark:border-emerald-800">
+                  <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200 mb-2">
+                    NairaMet Editorial Note
+                  </p>
+                  <p className="text-sm text-emerald-800 dark:text-emerald-200 leading-relaxed mb-2">
+                    This report was curated by <strong>NairaWatch</strong>, our daily Nigerian FX market intelligence service.
+                    We aggregate and present the most relevant foreign exchange news to help Nigerians stay informed about
+                    currency market developments that affect everyday transactions.
+                  </p>
+                  <p className="text-sm text-emerald-800 dark:text-emerald-200 leading-relaxed">
+                    For live data, visit our{" "}
+                    <Link href="/tracker" className="underline font-bold">Live FX Tracker</Link>,{" "}
+                    explore{" "}
+                    <Link href="/charts" className="underline font-bold">Historical Charts</Link>, or compare{" "}
+                    <Link href="/" className="underline font-bold">Official vs Parallel Market rates</Link>.
+                  </p>
                 </div>
               )}
             </CardContent>
